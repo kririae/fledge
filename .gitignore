@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# etc.
+.cache/
+.vscode/
+build/
+compile_commands.json
+
+*.jpg
+*.png
+*.exr
