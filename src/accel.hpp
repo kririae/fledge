@@ -6,23 +6,27 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "primitive.hpp"
 #include "shape.hpp"
 
 SV_NAMESPACE_BEGIN
 
-class Accel {
+class Accel : public Primitive {
 public:
-  Accel()          = default;
-  virtual ~Accel() = default;
+  // must have an implementation.. whatever
+  ~Accel() override = default;
 
-  virtual bool intersect(const Ray &ray, SInteraction &isect) const = 0;
+  // derived from primitive.hpp
+  bool intersect(const Ray &ray, SInteraction &isect) const override = 0;
   // return the scene's boundary AABB
+  // TODO: to be implemented in Primitive
   virtual bool getAABB() = 0;
 };
 
 class NaiveAccel : public Accel {
 public:
-  NaiveAccel(const std::vector<std::shared_ptr<Shape>> &p) : m_primitives(p) {}
+  NaiveAccel(const std::vector<std::shared_ptr<Primitive>> &p)
+      : m_primitives(p) {}
   ~NaiveAccel() override = default;
 
   bool intersect(const Ray &ray, SInteraction &isect) const override {
@@ -43,7 +47,7 @@ public:
     return false;
   }
 
-  std::vector<std::shared_ptr<Shape>> m_primitives;
+  std::vector<std::shared_ptr<Primitive>> m_primitives;
 };
 
 SV_NAMESPACE_END

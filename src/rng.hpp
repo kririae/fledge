@@ -10,6 +10,7 @@ SV_NAMESPACE_BEGIN
 class Random {
 public:
   Random() = default;
+  // generate Float range from [0, 1]
   Float get1D() {
     static thread_local std::mt19937      generator;
     std::uniform_real_distribution<Float> distribution(0, 1);

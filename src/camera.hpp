@@ -8,12 +8,12 @@ SV_NAMESPACE_BEGIN
 
 class Camera {
 public:
-  Camera(const Vector3f &pos, const Vector3f &right,
+  Camera(const Vector3f &pos, const Vector3f &lookAt,
          const Vector3f &up = Vector3f{0, 1, 0}, Float fov = 30)
       : m_pos(pos),
-        m_right(right),
+        m_forward((lookAt - pos).normalized()),
         m_up(up),
-        m_forward(right.cross(up)),
+        m_right(m_up.cross(m_forward)),
         m_fov(fov) {
     assert(m_up.norm() == 1);
     assert(m_right.norm() == 1);
@@ -29,7 +29,7 @@ public:
     return {m_pos, ray_dir.normalized()};
   }
 
-  Vector3f m_pos, m_right, m_up, m_forward;
+  Vector3f m_pos, m_forward, m_up, m_right;
   Float    m_fov;
 };
 

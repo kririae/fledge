@@ -36,7 +36,7 @@ public:
     auto pixels = std::span<Float>(reinterpret_cast<Float *>(m_pixels.data()),
                                    3 * m_pixels.size());
 
-    Log("path ends with [%s]", extension.c_str());
+    Log("path ends with %s", extension.c_str());
     if (extension == ".png" || extension == ".jpg") {
       Log("gamma correction is applied");
       std::transform(std::execution::par_unseq, pixels.begin(), pixels.end(),
@@ -49,7 +49,7 @@ public:
     }
 
     // image output section
-    Log("writing image to [%s]", path.string().c_str());
+    Log("writing image to %s", path.string().c_str());
     std::unique_ptr<OIIO::ImageOutput> out =
         OIIO::ImageOutput::create(path.string());
     const int       scanline_size = m_resX * 3 * sizeof(Float);
