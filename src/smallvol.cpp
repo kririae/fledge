@@ -11,7 +11,7 @@ using namespace SmallVolNS;
 
 // LHS coordinate system
 int main() {
-  // 1. Load scene anyway
+  // 1. load scene anyway
   //    scene is expected to specify the parameters of camera,
   //    film, integrator, so it is loaded first. Later, render
   //    will initialize integrator with the scene config

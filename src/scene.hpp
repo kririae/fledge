@@ -18,17 +18,25 @@ SV_NAMESPACE_BEGIN
 class Scene {
 public:
   Scene() {
-    auto sphere_1 = std::make_shared<Sphere>(Vector3f{0.0, 0.0, 0.0}, 0.5);
-    auto sphere_2 = std::make_shared<Sphere>(Vector3f{0.0, 0.3, 1.0}, 0.5);
-    m_resX        = 1024;
-    m_resY        = 1024;
-    m_SPP         = 32;
-    m_camera = std::make_shared<Camera>(Vector3f(0, 0, -5), Vector3f(0, 0, 0));
+    auto sphere_1 = std::make_shared<Sphere>(Vector3f{0.0, 0.5, 0.0}, 0.5);
+    auto sphere_2 = std::make_shared<Sphere>(Vector3f{0.0, 2.0, 0.0}, 0.1);
+    auto sphere_3 = std::make_shared<Sphere>(Vector3f{0.0, -200.0, 0.0}, 200.0);
+    auto areaLight =
+        std::make_shared<AreaLight>(sphere_2, Vector3f::Constant(10.0));
+    m_resX   = 1024;
+    m_resY   = 1024;
+    m_SPP    = 32;
+    m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
     m_film   = std::make_shared<Film>(m_resX, m_resY);
     m_accel =
         std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
             std::make_shared<ShapePrimitive>(sphere_1),
-            std::make_shared<ShapePrimitive>(sphere_2)});
+            std::make_shared<ShapePrimitive>(sphere_2, areaLight),
+            std::make_shared<ShapePrimitive>(sphere_3)});
+  }
+
+  bool intersect(const Ray &ray, SInteraction &isect) const {
+    return m_accel->intersect(ray, isect);
   }
 
   int                        m_resX, m_resY, m_SPP;

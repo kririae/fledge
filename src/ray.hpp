@@ -17,8 +17,9 @@ public:
     return os;
   }
 
-  Vector3f m_o, m_d;
-  Float    m_tMax;
+  Vector3f      m_o, m_d;
+  mutable Float m_tMax;
+  // medium
 
 private:
 };

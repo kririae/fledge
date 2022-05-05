@@ -47,6 +47,9 @@ constexpr Float INV_4PI  = static_cast<Float>(0.07957747154594766788);
 #define SV_FG_WHITE        "\33[1;37m"
 #define SV_NONE            "\33[0m"
 #define SV_COLOR(str, col) col str SV_NONE
+#define __FILENAME__                                                       \
+  (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 \
+                                    : __FILE__)
 
 inline void backtrace() {
 #ifdef __GNUC__
@@ -65,17 +68,17 @@ inline void backtrace() {
 #endif
 }
 
-#define Log(format, ...)                                              \
-  do {                                                                \
-    fprintf(stdout, SV_COLOR("[%s:%d %s] " format, SV_FG_GREEN) "\n", \
-            __FILE__, __LINE__, __func__, ##__VA_ARGS__);             \
+#define Log(format, ...)                                                  \
+  do {                                                                    \
+    fprintf(stdout, SV_COLOR("[%16s:%d %12s] " format, SV_FG_GREEN) "\n", \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);             \
   } while (false)
-#define Err(format, ...)                                                      \
-  do {                                                                        \
-    fprintf(stderr, SV_COLOR("[%s:%d %s] " format, SV_FG_RED) "\n", __FILE__, \
-            __LINE__, __func__, ##__VA_ARGS__);                               \
-    backtrace();                                                              \
-    assert(false);                                                            \
+#define Err(format, ...)                                                \
+  do {                                                                  \
+    fprintf(stderr, SV_COLOR("[%16s:%d %12s] " format, SV_FG_RED) "\n", \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);           \
+    backtrace();                                                        \
+    assert(false);                                                      \
   } while (false)
 #define TODO() Err("please implement me")
 

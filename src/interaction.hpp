@@ -6,18 +6,17 @@
 
 SV_NAMESPACE_BEGIN
 
+class Primitive;
+
 class Interaction {
 public:
   Interaction() = default;
   Interaction(const Vector3f &p, const Vector3f &n, const Vector3f &wo)
       : m_p(p), m_n(n), m_wo(wo) {}
   virtual ~Interaction() = default;
-  virtual void reset() {
-    m_p = m_n = m_wo = Vector3f::Zero();
-    m_t              = INF;
-  }
-  virtual Ray SpawnRay(const Vector3f &d) { return {m_p, d}; }
-  virtual Ray SpawnRayTo(const Vector3f &p) {
+  virtual void reset() { m_p = m_n = m_wo = Vector3f::Zero(); }
+  virtual Ray  SpawnRay(const Vector3f &d) { return {m_p, d}; }
+  virtual Ray  SpawnRayTo(const Vector3f &p) {
     return {m_p, (p - m_p).normalized()};
   }
   virtual Ray SpawnRayTo(const Interaction &it) {
@@ -25,7 +24,6 @@ public:
   }
 
   Vector3f m_p, m_n, m_wo;
-  Float    m_t{INF};
 
 private:
 };
@@ -36,6 +34,9 @@ public:
   SInteraction(const Vector3f &p, const Vector3f &n, const Vector3f &wo)
       : Interaction(p, n, wo) {}
   virtual ~SInteraction() = default;
+  virtual Vector3f Le() const;
+
+  const Primitive *m_primitive;
 };
 
 class VInteraction : public Interaction {

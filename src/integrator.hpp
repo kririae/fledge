@@ -2,6 +2,8 @@
 #define __INTEGRATOR_HPP__
 
 #include "fwd.hpp"
+#include "interaction.hpp"
+#include "light.hpp"
 #include "ray.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
@@ -23,46 +25,9 @@ public:
   ~SampleIntegrator() override = default;
 
   virtual void preprocess() { TODO(); }
-
   // call by the class Render
-  void render(const Scene &scene) override {
-    Random rng;
-
-    auto resX = scene.m_resX;
-    auto resY = scene.m_resY;
-    auto SPP  = scene.m_SPP;
-    Log("rendering process started with (resX=%d, resY=%d, SPP=%d)", resX, resY,
-        SPP);
-
-// TODO: launch worker threads with tbb
-#pragma omp parallel for schedule(dynamic)
-    for (int i = 0; i < resX; ++i) {
-      for (int j = 0; j < resY; ++j) {
-        Vector3f color = Vector3f::Zero();
-
-        // temporary implementation
-        for (int s = 0; s < SPP; ++s) {
-          auto uv = rng.get2D();
-          auto ray =
-              scene.m_camera->generateRay(i + uv.x(), j + uv.y(), resX, resY);
-          color += Li(ray, scene, rng);
-        }
-
-        // store the value back
-        scene.m_film->getPixel(i, j) = color / SPP;
-      }
-    }
-  }
-
-  virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng) {
-    Vector3f     L = Vector3f::Zero();
-    SInteraction isect;
-    if (scene.m_accel->intersect(ray, isect))
-      L = (isect.m_n + Vector3f::Constant(1.0)) / 2;
-    else
-      L = Vector3f::Constant(0.01);
-    return L;
-  }
+  void             render(const Scene &scene) override;
+  virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng);
 };
 
 class PathIntegrator : public SampleIntegrator {
@@ -71,9 +36,10 @@ public:
   ~PathIntegrator() override = default;
 
   void     preprocess() override { TODO(); }
-  Vector3f Li(const Ray &ray, const Scene &scene, Random &rng) override {
-    return Vector3f::Constant(0.05);
-  }
+  Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
+
+private:
+  int m_maxDepth = 0;
 };
 
 SV_NAMESPACE_END
