@@ -6,6 +6,7 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "material.hpp"
 #include "primitive.hpp"
 #include "shape.hpp"
 
@@ -19,6 +20,7 @@ public:
   // derived from primitive.hpp
   bool       intersect(const Ray &ray, SInteraction &isect) const override = 0;
   AreaLight *getAreaLight() const override { return nullptr; }
+  Material  *getMaterial() const override { return nullptr; }
 };
 
 class NaiveAccel : public Accel {

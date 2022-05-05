@@ -11,19 +11,20 @@ class Primitive;
 class Interaction {
 public:
   Interaction() = default;
-  Interaction(const Vector3f &p, const Vector3f &n, const Vector3f &wo)
-      : m_p(p), m_n(n), m_wo(wo) {}
+  Interaction(const Vector3f &p, const Vector3f &ns, const Vector3f &ng,
+              const Vector3f &wo)
+      : m_p(p), m_ns(ns), m_ng(ng), m_wo(wo) {}
   virtual ~Interaction() = default;
-  virtual void reset() { m_p = m_n = m_wo = Vector3f::Zero(); }
-  virtual Ray  SpawnRay(const Vector3f &d) { return {m_p, d}; }
+  virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f::Zero(); }
+  virtual Ray  SpawnRay(const Vector3f &d) { return {m_p, d.normalized()}; }
   virtual Ray  SpawnRayTo(const Vector3f &p) {
-    return {m_p, (p - m_p).normalized()};
+    Float norm = (p - m_p).norm();
+    return {m_p, (p - m_p) / norm, norm - SHADOW_EPS};
   }
-  virtual Ray SpawnRayTo(const Interaction &it) {
-    return {m_p, (it.m_p - m_p).normalized()};
-  }
+  virtual Ray SpawnRayTo(const Interaction &it) { return SpawnRayTo(it.m_p); }
 
-  Vector3f m_p, m_n, m_wo;
+  // shading normal, geometry normal
+  Vector3f m_p, m_ns, m_ng, m_wo;
 
 private:
 };
@@ -31,10 +32,11 @@ private:
 class SInteraction : public Interaction {
 public:
   SInteraction() = default;
-  SInteraction(const Vector3f &p, const Vector3f &n, const Vector3f &wo)
-      : Interaction(p, n, wo) {}
+  SInteraction(const Vector3f &p, const Vector3f &ns, const Vector3f &ng,
+               const Vector3f &wo)
+      : Interaction(p, ns, ng, wo) {}
   virtual ~SInteraction() = default;
-  virtual Vector3f Le() const;
+  virtual Vector3f Le(const Vector3f &w) const;
 
   const Primitive *m_primitive;
 };
@@ -42,8 +44,9 @@ public:
 class VInteraction : public Interaction {
 public:
   VInteraction() = default;
-  VInteraction(const Vector3f &p, const Vector3f &n, const Vector3f &wo)
-      : Interaction(p, n, wo) {}
+  VInteraction(const Vector3f &p, const Vector3f &ns, const Vector3f &ng,
+               const Vector3f &wo)
+      : Interaction(p, ns, ng, wo) {}
   virtual ~VInteraction() = default;
 };
 

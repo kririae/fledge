@@ -15,8 +15,8 @@ public:
   // else, perform nothing on [isect]
   virtual bool intersect(const Ray &, Float &, SInteraction &) = 0;
 
-  virtual Float       area() const                   = 0;
-  virtual Interaction sample(const Vector2f &) const = 0;
+  virtual Float       area() const                               = 0;
+  virtual Interaction sample(const Vector2f &, Float &pdf) const = 0;
   virtual Float       pdf(const Interaction &) const;
 };
 
@@ -26,7 +26,7 @@ public:
   ~Sphere() override = default;
   bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
   Float area() const override;
-  Interaction sample(const Vector2f &u) const override;
+  Interaction sample(const Vector2f &u, Float &pdf) const override;
 
   Vector3f m_p;
   Float    m_r;

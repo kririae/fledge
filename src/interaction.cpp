@@ -5,10 +5,9 @@
 
 SV_NAMESPACE_BEGIN
 
-// cannot be solved with forward declaration
-Vector3f SInteraction::Le() const {
+Vector3f SInteraction::Le(const Vector3f &w) const {
   AreaLight *areaLight = m_primitive->getAreaLight();
-  return areaLight ? areaLight->L(*this) : Vector3f::Zero();
+  return areaLight ? areaLight->L(*this, w) : Vector3f::Zero();
 }
 
 SV_NAMESPACE_END

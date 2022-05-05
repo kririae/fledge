@@ -22,7 +22,8 @@ inline Vector2f ConcentricSampleDisk(const Vector2f &u) {
 
 inline Vector3f CosineSampleHemisphere(const Vector2f &u) {
   Vector2f d = ConcentricSampleDisk(u);
-  Float    z = sqrt(fmax(static_cast<Float>(0), 1 - d[0] * d[0] - d[1] * d[1]));
+  Float    z =
+      sqrt(std::max(static_cast<Float>(0), 1 - d[0] * d[0] - d[1] * d[1]));
   return {d[0], d[1], z};
 }
 
