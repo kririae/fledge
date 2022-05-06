@@ -33,11 +33,11 @@ inline Vector2f UniformSampleTriangle(const Vector2f &u) {
 }
 
 inline Vector3f UniformSampleSphere(const Vector2f &u) {
-  Float theta    = 2 * PI * u.x();
-  Float phi      = acos(1 - 2 * u.y());
+  Float theta    = acos(1 - 2 * u.y());
+  Float phi      = 2 * PI * u.x();
   Float sinTheta = sin(theta), cosTheta = cos(theta);
   Float sinPhi = sin(phi), cosPhi = cos(phi);
-  return {sinPhi * cosTheta, sinPhi * sinTheta, cosPhi};
+  return {sinTheta * cosPhi, sinTheta * sinPhi, cosTheta};
 }
 
 SV_NAMESPACE_END

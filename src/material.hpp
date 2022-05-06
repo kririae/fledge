@@ -20,8 +20,7 @@ class Material {
 public:
   virtual ~Material() = default;
 
-  virtual Vector3f f(const Vector3f &wo, const Vector3f &wi, const Vector2f &u,
-                     const Vector2f             &uv,
+  virtual Vector3f f(const Vector3f &wo, const Vector3f &wi, const Vector2f &uv,
                      const CoordinateTransition &trans) const       = 0;
   virtual Float    pdf(const Vector3f &wo, const Vector3f &wi,
                        const CoordinateTransition &trans) const     = 0;
@@ -34,8 +33,7 @@ public:
 class DiffuseMaterial : public Material {
 public:
   DiffuseMaterial(const Vector3f &albedo);
-  Vector3f f(const Vector3f &wo, const Vector3f &wi, const Vector2f &u,
-             const Vector2f             &uv,
+  Vector3f f(const Vector3f &wo, const Vector3f &wi, const Vector2f &uv,
              const CoordinateTransition &trans) const override;
   Float    pdf(const Vector3f &wo, const Vector3f &wi,
                const CoordinateTransition &trans) const override;

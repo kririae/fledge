@@ -8,8 +8,18 @@
 
 SV_NAMESPACE_BEGIN
 
-Vector3f EstimateDirect(const Interaction &it, const AreaLight &light,
-                        const Vector2f &u_light) {
+Vector3f EstimateTr(const Ray &ray, const Scene &scene) {
+  // only consider the result to be 0 or 1 currently
+  SInteraction isect;
+  if (scene.intersect(ray, isect)) {
+    return Vector3f::Zero();
+  } else {
+    return Vector3f::Ones();
+  }
+}
+
+Vector3f EstimateDirect(const Interaction &it, const Light &light,
+                        const Vector2f &u_light, const Scene &scene) {
   Float       pdf;
   Vector3f    wi, L = Vector3f::Zero();
   Interaction light_sample;
@@ -18,11 +28,17 @@ Vector3f EstimateDirect(const Interaction &it, const AreaLight &light,
 
   CoordinateTransition trans(it.m_ng);
   auto                 t_it = reinterpret_cast<const SInteraction &>(it);
-  Vector3f f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, u_light,
-                                                  Vector2f::Zero(), trans);
+  assert(t_it.m_primitive->getMaterial() != nullptr);
+  Vector3f f =
+      t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(), trans) *
+      abs(wi.dot(t_it.m_ns));
 
   if (f != Vector3f::Zero()) {
-    auto shadow_ray = t_it.SpawnRayTo(light_sample);
+    // Notice that *SpawnRayTo* is responsible for initializing the
+    // ray.tMax, so if intersection
+    auto     shadow_ray = t_it.SpawnRayTo(light_sample);
+    Vector3f tr         = EstimateTr(shadow_ray, scene);
+    Li                  = Li.cwiseProduct(tr);
     L += f.cwiseProduct(Li) / pdf;
   }
 
@@ -39,7 +55,8 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
   Float light_pdf    = 1.0 / n_lights;
   auto  u_light      = rng.get2D();
   auto  u_scattering = rng.get2D();
-  return EstimateDirect(it, *(scene.m_light[light_num]), u_light) / light_pdf;
+  return EstimateDirect(it, *(scene.m_light[light_num]), u_light, scene) /
+         light_pdf;
 }
 
 // call by the class Render
@@ -110,7 +127,16 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
     // use the shading normal
     CoordinateTransition trans(isect.m_ns);
-    break;
+
+    // spawn ray to new direction
+    Vector3f wi, wo = -ray.m_d;
+    Float    pdf;
+    Vector3f f = isect.m_primitive->getMaterial()->sampleF(
+        wo, wi, pdf, rng.get2D(), Vector2f::Zero(), trans);
+    if (pdf == 0.0 || f.isZero()) break;
+
+    beta = beta.cwiseProduct(f * abs(wi.dot(isect.m_ns)) / pdf);
+    ray  = isect.SpawnRay(wi);
   }
 
   return L;

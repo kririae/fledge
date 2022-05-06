@@ -17,7 +17,13 @@ public:
 
   virtual Float       area() const                               = 0;
   virtual Interaction sample(const Vector2f &, Float &pdf) const = 0;
-  virtual Float       pdf(const Interaction &) const;
+
+  // Sample a point on the shape given a reference point |ref| and
+  // return the PDF with respect to solid angle from |ref|.
+  virtual Interaction sample(const Interaction &ref, const Vector2f &u,
+                             Float &pdf) const;
+
+  virtual Float pdf(const Interaction &) const;
 };
 
 class Sphere : public Shape {
@@ -27,6 +33,9 @@ public:
   bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
   Float area() const override;
   Interaction sample(const Vector2f &u, Float &pdf) const override;
+  // defined
+  // Interaction sample(const Interaction &ref, const Vector2f &u,
+  //                    Float &pdf) const override;
 
   Vector3f m_p;
   Float    m_r;

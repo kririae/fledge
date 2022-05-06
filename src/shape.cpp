@@ -1,9 +1,28 @@
 #include "shape.hpp"
 
+#include "interaction.hpp"
+
 SV_NAMESPACE_BEGIN
 
 Float Shape::pdf(const Interaction &) const {
   return 1 / area();
+}
+
+// Sample a point on the shape given a reference point |ref| and
+// return the PDF with respect to solid angle from |ref|.
+Interaction Shape::sample(const Interaction &ref, const Vector2f &u,
+                          Float &pdf) const {
+  Interaction intr   = sample(u, pdf);
+  Vector3f    wi     = intr.m_p - ref.m_p;
+  Float       s_norm = wi.squaredNorm();
+  if (s_norm == 0) {
+    pdf = 0.0;
+  } else {
+    wi.normalize();
+    pdf *= s_norm / intr.m_ng.dot(-wi);
+  }
+
+  return intr;
 }
 
 bool Sphere::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
@@ -23,7 +42,7 @@ bool Sphere::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
 
   S       = sqrt(S);
   Float t = -(B + S) / (2 * A);
-  if (t <= 0) {
+  if (t <= 0 || t > ray.m_tMax) {
     return false;
   }
 

@@ -16,10 +16,12 @@ public:
       : m_p(p), m_ns(ns), m_ng(ng), m_wo(wo) {}
   virtual ~Interaction() = default;
   virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f::Zero(); }
-  virtual Ray  SpawnRay(const Vector3f &d) { return {m_p, d.normalized()}; }
-  virtual Ray  SpawnRayTo(const Vector3f &p) {
+  virtual Ray  SpawnRay(const Vector3f &d) {
+    return {m_p + m_ng * SHADOW_EPS, d.normalized()};
+  }
+  virtual Ray SpawnRayTo(const Vector3f &p) {
     Float norm = (p - m_p).norm();
-    return {m_p, (p - m_p) / norm, norm - SHADOW_EPS};
+    return {m_p + m_ng * SHADOW_EPS, (p - m_p) / norm, norm - SHADOW_EPS};
   }
   virtual Ray SpawnRayTo(const Interaction &it) { return SpawnRayTo(it.m_p); }
 

@@ -29,13 +29,13 @@ using Vector2d = Eigen::Vector2d;
 using Matrix3f = Eigen::Matrix3f;
 using Matrix3d = Eigen::Matrix3d;
 
-constexpr Float INF      = std::numeric_limits<Float>::infinity();
-constexpr Float PI       = static_cast<Float>(3.14159265358979323846);
-constexpr Float PI_OVER2 = PI / 2;
-constexpr Float PI_OVER4 = PI / 4;
-constexpr Float INV_PI   = static_cast<Float>(0.31830988618379067154);
-constexpr Float INV_2PI  = static_cast<Float>(0.15915494309189533577);
-constexpr Float INV_4PI  = static_cast<Float>(0.07957747154594766788);
+constexpr Float INF        = std::numeric_limits<Float>::infinity();
+constexpr Float PI         = static_cast<Float>(3.14159265358979323846);
+constexpr Float PI_OVER2   = PI / 2;
+constexpr Float PI_OVER4   = PI / 4;
+constexpr Float INV_PI     = static_cast<Float>(0.31830988618379067154);
+constexpr Float INV_2PI    = static_cast<Float>(0.15915494309189533577);
+constexpr Float INV_4PI    = static_cast<Float>(0.07957747154594766788);
 constexpr Float SHADOW_EPS = 1e-4;
 
 #define SV_FG_BLACK        "\33[1;30m"
@@ -82,5 +82,8 @@ inline void backtrace() {
     assert(false);                                                      \
   } while (false)
 #define TODO() Err("please implement me")
+
+#define LogFloat(val) Log(#val "=%f", val)
+#define LogVec3(vec3) Log(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
 
 #endif

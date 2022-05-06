@@ -39,7 +39,7 @@ public:
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  int m_maxDepth = 32;
+  int m_maxDepth = 1;
 };
 
 SV_NAMESPACE_END

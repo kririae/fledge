@@ -3,7 +3,8 @@
 SV_NAMESPACE_BEGIN
 
 bool NaiveAccel::intersect(const Ray &ray, SInteraction &isect) const {
-  Float        tMax = ray.m_tMax;
+  Float        o_tMax = ray.m_tMax;
+  Float        tMax   = o_tMax;
   SInteraction t_isect;
   for (auto &i : m_primitives) {
     if (i->intersect(ray, t_isect) && ray.m_tMax < tMax) {
@@ -12,7 +13,7 @@ bool NaiveAccel::intersect(const Ray &ray, SInteraction &isect) const {
     }
   }
 
-  return tMax != INF;
+  return tMax != o_tMax;
 }
 
 SV_NAMESPACE_END

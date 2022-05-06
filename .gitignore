@@ -35,6 +35,7 @@
 .cache/
 .vscode/
 build/
+assets/*.exr
 compile_commands.json
 
 *.jpg

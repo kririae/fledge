@@ -20,7 +20,7 @@ AreaLight::AreaLight(const std::shared_ptr<Shape> &shape, const Vector3f &Le)
 Vector3f AreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
                              Vector3f &wi, Float &pdf,
                              Interaction &sample) const {
-  sample = m_shape->sample(u, pdf);
+  sample = m_shape->sample(ref, u, pdf);
   if (pdf == 0) return Vector3f::Zero();
   wi = (sample.m_p - ref.m_p).normalized();
   return L(sample, -wi);
