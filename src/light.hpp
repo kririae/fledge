@@ -7,6 +7,7 @@
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "shape.hpp"
+#include "texture.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -23,6 +24,8 @@ public:
   // interface for infinite light
   virtual Vector3f sampleLe() const;
   virtual Float    pdfLe() const;
+
+  virtual Vector3f Le(const Ray &) const;
 };
 
 // diffuse area light
@@ -39,6 +42,25 @@ public:
 private:
   std::shared_ptr<Shape> m_shape;
   Vector3f               m_Le;
+};
+
+class InfiniteAreaLight : public Light {
+public:
+  InfiniteAreaLight(const Vector3f &color);
+  InfiniteAreaLight(const std::string &filename);
+  InfiniteAreaLight(const std::shared_ptr<Texture> &tex);
+  ~InfiniteAreaLight() override = default;
+
+  Vector3f sampleLi(const Interaction &ref, const Vector2f &u, Vector3f &wi,
+                    Float &pdf, Interaction &sample) const override;
+  Float    pdfLi(const Interaction &) const override;
+  Vector3f Le(const Ray &) const override;
+
+private:
+  Vector3f m_worldCenter;
+  Float    m_worldRadius;
+
+  std::shared_ptr<Texture> m_tex;
 };
 
 SV_NAMESPACE_END

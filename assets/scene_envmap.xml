@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<scene version="0.6.0">
+  <integrator type="path">
+    <integer name="maxDepth" value="64" />
+  </integrator>
+
+  <sensor type="perspective">
+    <float name="fov" value="30" />
+    <string name="fovAxis" value="x" />
+    <transform name="toWorld">
+      <lookat up="0, 1, 0" origin="0, 1, -5" target="0, 1, 0" />
+    </transform>
+
+    <sampler type="independent">
+      <integer name="sampleCount" value="512" />
+    </sampler>
+
+    <film type="hdrfilm">
+      <integer name="height" value="1024" />
+      <integer name="width" value="1024" />
+
+      <rfilter type="gaussian">
+        <float name="size" value="0.5" />
+      </rfilter>
+    </film>
+  </sensor>
+
+  <shape type="sphere">
+    <point name="center" x="0" y="0.5" z="0" />
+    <float name="radius" value="0.5" />
+    <bsdf type="diffuse">
+      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
+    </bsdf>
+  </shape>
+
+  <emitter type="envmap">
+    <string name="filename" value="venice_sunset_4k.exr" />
+  </emitter>
+</scene>

@@ -36,8 +36,11 @@
 .vscode/
 build/
 assets/*.exr
+assets/*.mip
 compile_commands.json
 
 *.jpg
 *.png
 *.exr
+
+*.log

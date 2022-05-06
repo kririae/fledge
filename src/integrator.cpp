@@ -115,6 +115,9 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         L += beta.cwiseProduct(isect.Le(-ray.m_d));
       } else {
         // environment light
+        for (const auto &light : scene.m_infLight) {
+          L += beta.cwiseProduct(light->Le(ray));
+        }
       }
     }
 

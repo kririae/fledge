@@ -1,5 +1,6 @@
 #include "shape.hpp"
 
+#include "fwd.hpp"
 #include "interaction.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -62,7 +63,7 @@ Float Sphere::area() const {
 Interaction Sphere::sample(const Vector2f &u, Float &pdf) const {
   SInteraction isect;
   auto         dir = UniformSampleSphere(u);
-  auto         p   = m_p + m_r * dir;
+  auto         p   = m_p + (m_r + NORMAL_EPS) * dir;
 
   pdf        = 1 / area();
   isect.m_p  = p;

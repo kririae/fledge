@@ -37,6 +37,7 @@ constexpr Float INV_PI     = static_cast<Float>(0.31830988618379067154);
 constexpr Float INV_2PI    = static_cast<Float>(0.15915494309189533577);
 constexpr Float INV_4PI    = static_cast<Float>(0.07957747154594766788);
 constexpr Float SHADOW_EPS = 1e-4;
+constexpr Float NORMAL_EPS = 1e-4;
 
 #define SV_FG_BLACK        "\33[1;30m"
 #define SV_FG_RED          "\33[1;31m"
