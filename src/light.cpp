@@ -21,7 +21,7 @@ static Float SphericalTheta(const Vector3f &v) {
 }
 
 static Vector3f LightToWorld(const Vector3f &w) {
-  return {w[1], -w[2], -w[0]};
+  return {-w[1], w[2], -w[0]};
 }
 
 static Vector3f WorldToLight(const Vector3f &w) {
@@ -47,6 +47,8 @@ AreaLight::AreaLight(const std::shared_ptr<Shape> &shape, const Vector3f &Le)
 Vector3f AreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
                              Vector3f &wi, Float &pdf,
                              Interaction &sample) const {
+  // m_shape->sample (ref, u, pdf) will return the pdf corresponds to 
+  // d\omega(actually, the p(w) should be put in *pdf*).
   sample = m_shape->sample(ref, u, pdf);
   if (pdf == 0) return Vector3f::Zero();
   wi = (sample.m_p - ref.m_p).normalized();

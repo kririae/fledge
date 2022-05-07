@@ -22,6 +22,9 @@ target_link_libraries(smallvol PUBLIC
 set_target_properties(smallvol
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+if (USE_TBB)
+        target_compile_definitions(smallvol PUBLIC -DUSE_TBB)
+endif()
 
 # compilers' specification
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

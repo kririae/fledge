@@ -1,6 +1,8 @@
 #include "integrator.hpp"
 
 #include <Eigen/src/Core/Reverse.h>
+#include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include "fwd.hpp"
 #include "interaction.hpp"
@@ -68,7 +70,40 @@ void SampleIntegrator::render(const Scene &scene) {
   auto SPP  = scene.m_SPP;
   Log("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
 
-// TODO: launch worker threads with tbb
+  constexpr int BLOCK_SIZE = 16;
+#ifdef USE_TBB
+  Log("TBB is enabled");
+  int blockX = (resX - 1) / BLOCK_SIZE + 1;
+  int blockY = (resY - 1) / BLOCK_SIZE + 1;
+  // clang-format off
+
+  // currently using tbb might lead to a performance degradation
+  tbb::parallel_for(tbb::blocked_range2d<int, int>(0, blockX, 0, blockY),
+    [resX, resY, SPP, &scene, &rng,
+      this](const tbb::blocked_range2d<int, int> &r) {
+      int r_l = r.rows().begin() * BLOCK_SIZE,
+          r_r = std::min(r.rows().end() * BLOCK_SIZE, resX);
+      int c_l = r.cols().begin() * BLOCK_SIZE,
+          c_r = std::min(r.cols().end() * BLOCK_SIZE, resY);
+      for (auto i = r_l; i < r_r; ++i) {
+        for (auto j = c_l; j < c_r; ++j) {
+          Vector3f color = Vector3f::Zero();
+
+          // temporary implementation
+          for (int s = 0; s < SPP; ++s) {
+            auto uv  = rng.get2D();
+            auto ray = scene.m_camera->generateRay(
+                i + uv.x(), j + uv.y(), resX, resY);
+            color += Li(ray, scene, rng);
+          }
+
+          // store the value back
+          scene.m_film->getPixel(i, j) = color / SPP;
+        }
+      }
+    });
+  // clang-format on
+#else
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < resX; ++i) {
     for (int j = 0; j < resY; ++j) {
@@ -86,6 +121,7 @@ void SampleIntegrator::render(const Scene &scene) {
       scene.m_film->getPixel(i, j) = color / SPP;
     }
   }
+#endif
 }
 
 Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng) {

@@ -57,9 +57,9 @@ public:
         std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
     auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
     auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-    m_resX       = 1024;
-    m_resY       = 1024;
-    m_SPP        = 1024;
+    m_resX       = 1920;
+    m_resY       = 1080;
+    m_SPP        = 64;
     m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
     m_film   = std::make_shared<Film>(m_resX, m_resY);
     m_accel =

@@ -20,6 +20,8 @@ Interaction Shape::sample(const Interaction &ref, const Vector2f &u,
     pdf = 0.0;
   } else {
     wi.normalize();
+    // dw = dA cosTheta/|d|^2
+    // p(w) = p(A) |d|^2/cosTheta
     pdf *= s_norm / intr.m_ng.dot(-wi);
   }
 
