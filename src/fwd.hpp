@@ -72,12 +72,12 @@ inline void backtrace() {
 
 #define Log(format, ...)                                                  \
   do {                                                                    \
-    fprintf(stdout, SV_COLOR("[%16s:%d %12s] " format, SV_FG_GREEN) "\n", \
+    fprintf(stdout, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_GREEN) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);             \
   } while (false)
 #define Err(format, ...)                                                \
   do {                                                                  \
-    fprintf(stderr, SV_COLOR("[%16s:%d %12s] " format, SV_FG_RED) "\n", \
+    fprintf(stderr, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_RED) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);           \
     backtrace();                                                        \
     assert(false);                                                      \

@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<scene>
+  <basic>
+    <int name="SPP" value="64" />
+  </basic>
+
+  <integrator>
+    <integer name="maxDepth" value="64" />
+  </integrator>
+
+  <camera>
+    <float name="fov" value="30" />
+    <vec3f name="pos" value="0, 1, -5" />
+    <vec3f name="lookAt" value="0, 1, 0" />
+    <vec3f name="up" value="0, 1, 0" />
+  </camera>
+
+  <film>
+    <int name="resX" value="1024" />
+    <int name="resY" value="1024" />
+  </film>
+
+  <shape type="sphere">
+    <vec3f name="center" value="0, 0.5, 0" />
+    <float name="radius" value="0.5" />
+    <bsdf type="diffuse">
+      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
+    </bsdf>
+  </shape>
+
+  <shape type="sphere">
+    <point name="center" x="0" y="-100" z="0" />
+    <float name="radius" value="100" />
+    <bsdf type="diffuse">
+      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
+    </bsdf>
+  </shape>
+
+  <shape type="sphere">
+    <point name="center" x="0" y="2.3" z="0" />
+    <float name="radius" value="0.15" />
+    <bsdf type="diffuse">
+      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
+    </bsdf>
+    <emitter type="area">
+      <rgb name="radiance" value="100" />
+    </emitter>
+  </shape>
+</scene>

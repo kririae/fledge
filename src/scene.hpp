@@ -17,8 +17,7 @@ SV_NAMESPACE_BEGIN
 // scene description
 // all resources needed in the process of rendering
 // can be loaded from json file or initialized by API
-class Scene {
-public:
+struct Scene {
   Scene() {
     /*
     // objects
@@ -57,8 +56,8 @@ public:
         std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
     auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
     auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-    m_resX       = 1920;
-    m_resY       = 1080;
+    m_resX       = 1024;
+    m_resY       = 1024;
     m_SPP        = 64;
     m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
     m_film   = std::make_shared<Film>(m_resX, m_resY);
@@ -69,19 +68,24 @@ public:
     m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
   }
 
+  Scene(const std::string &filename) {
+    bool success = loadFromXml(filename);
+    assert(success);
+  }
+
   bool intersect(const Ray &ray, SInteraction &isect) const {
     return m_accel->intersect(ray, isect);
   }
 
-  int                        m_resX, m_resY, m_SPP;
+  bool loadFromXml(const std::string &filename);
+
+  int                        m_resX, m_resY, m_SPP, m_maxDepth;
   std::shared_ptr<Primitive> m_accel;
   std::shared_ptr<Camera>    m_camera;
   std::shared_ptr<Film>      m_film;
 
   std::vector<std::shared_ptr<Light>> m_light;
   std::vector<std::shared_ptr<Light>> m_infLight;
-
-private:
 };
 
 SV_NAMESPACE_END
