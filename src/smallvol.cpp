@@ -28,10 +28,6 @@ int main() {
   Render render(std::make_shared<Scene>());
 
   render.init();
-  // render.render();
-  // render.saveImage("smallvol_out.exr");
-
-  openvdb::initialize();
-
-  VDBVolume vol("assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  render.render();
+  render.saveImage("smallvol_out.exr");
 }

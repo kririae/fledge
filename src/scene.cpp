@@ -3,12 +3,14 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <memory>
 #include <string>
 
 #include "camera.hpp"
 #include "film.hpp"
 #include "light.hpp"
 #include "texture.hpp"
+#include "volume.hpp"
 
 SV_NAMESPACE_BEGIN
 namespace pt = boost::property_tree;
@@ -51,16 +53,21 @@ Scene::Scene() {
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
   auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 1024;
-  m_resY       = 1024;
-  m_SPP        = 64;
-  m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
-  m_film   = std::make_shared<Film>(m_resX, m_resY);
+  m_resX       = 1280;
+  m_resY       = 720;
+  m_SPP        = 4;
+  m_camera =
+      std::make_shared<Camera>(Vector3f(0, 0, -1000), Vector3f(0, 100, 0));
+  m_film = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
           std::make_shared<ShapePrimitive>(sphere_1, diffuse)});
   m_light    = std::vector<std::shared_ptr<Light>>{infAreaLight};
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
+
+  // volume
+  m_volume =
+      std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
 }
 
 static bool parseIntegrator(const pt::ptree &integrator, Scene &scene) {

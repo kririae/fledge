@@ -1,6 +1,11 @@
 #include "render.hpp"
 
+#include <openvdb/openvdb.h>
+
+#include <memory>
+
 #include "film.hpp"
+#include "integrator.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -9,9 +14,12 @@ Render::Render(const std::shared_ptr<Scene> &scene) : m_scene(scene) {
 }
 
 void Render::init() {
-  SV_Log("render is initialized");
+  SV_Log("OpenVDB is ready");
+  openvdb::initialize();
+  SV_Log("render is ready");
   // m_integrator = std::make_shared<SampleIntegrator>();
-  m_integrator = std::make_shared<PathIntegrator>();
+  // m_integrator = std::make_shared<PathIntegrator>();
+  m_integrator = std::make_shared<SVolIntegrator>();
   m_init       = true;
 }
 

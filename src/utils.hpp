@@ -2,6 +2,7 @@
 #define __UTILS_HPP__
 
 #include "fwd.hpp"
+#include "material.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -38,6 +39,35 @@ inline Vector3f UniformSampleSphere(const Vector2f &u) {
   Float sinTheta = sin(theta), cosTheta = cos(theta);
   Float sinPhi = sin(phi), cosPhi = cos(phi);
   return {sinTheta * cosPhi, sinTheta * sinPhi, cosTheta};
+}
+
+// The following two functions are adopted from rt-render with little
+// modification
+// (u, v) are the random values
+inline Float HGSampleP(Vector3f &wo, Vector3f &wi, Float u, Float v, Float g) {
+  Float cos_theta;
+  if (abs(g) < 1e-3) {
+    cos_theta = 1 - 2 * u;
+  } else {
+    Float tmp = (1 - g * g) / (1 + g - 2 * g * u);
+    cos_theta = -(1 + g * g - tmp * tmp) / (2 * g);
+  }
+
+  Float    phi       = 2 * PI * v;
+  Float    sin_theta = sqrt(1 - cos_theta * cos_theta);
+  Vector3f local_wi(cosf(phi), sinf(phi), sin_theta);
+
+  CoordinateTransition ct{wo};
+  wi = ct.LocalToWorld(local_wi).normalized();
+
+  Float denom = 1 + g * g + 2 * g * cos_theta;
+  return (1 - g * g) / (denom * sqrt(denom)) * INV_4PI;
+}
+
+inline Float HGP(const Vector3f &wi, const Vector3f &wo, Float g) {
+  Float cos_theta = wi.dot(wo);
+  Float denom     = 1 + g * g + 2 * g * cos_theta;
+  return (1 - g * g) / (denom * sqrt(denom)) * INV_4PI;
 }
 
 SV_NAMESPACE_END

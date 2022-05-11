@@ -42,15 +42,15 @@ private:
 
 // Simple Volume Path Integrator
 // only volume in the scene is considered
-class SVolIntegrator : public Integrator {
+class SVolIntegrator : public SampleIntegrator {
 public:
   SVolIntegrator()           = default;
   ~SVolIntegrator() override = default;
 
-  Vector3f Li(const Ray &r, const Scene &scene, Random &rng);
+  Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  // maxDepth = 16
+  int m_maxDepth = 16;
 };
 
 SV_NAMESPACE_END

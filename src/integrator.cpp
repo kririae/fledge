@@ -11,6 +11,7 @@
 #include "light.hpp"
 #include "material.hpp"
 #include "scene.hpp"
+#include "utils.hpp"
 #include "volume.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -25,26 +26,41 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene) {
   }
 }
 
+Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
+  return scene.m_volume->tr(ray, rng);
+}
+
 Vector3f EstimateDirect(const Interaction &it, const Light &light,
-                        const Vector2f &u_light, const Scene &scene) {
+                        const Scene &scene, Random &rng) {
   Float       pdf;
   Vector3f    wi, L = Vector3f::Zero();
+  Vector2f    u_light = rng.get2D();
   Interaction light_sample;
   Vector3f    Li = light.sampleLi(it, u_light, wi, pdf, light_sample);
   if (pdf == 0 || Li == Vector3f::Zero()) return Vector3f::Zero();
 
-  CoordinateTransition trans(it.m_ng);
-  auto                 t_it = reinterpret_cast<const SInteraction &>(it);
-  assert(t_it.m_primitive->getMaterial() != nullptr);
-  Vector3f f =
-      t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(), trans) *
-      abs(wi.dot(t_it.m_ns));
+  Vector3f f = Vector3f::Zero();
+  if (it.isSInteraction()) {
+    // Surface Interaction
+    CoordinateTransition trans(it.m_ng);
+    auto                 t_it = reinterpret_cast<const SInteraction &>(it);
+    assert(t_it.m_primitive->getMaterial() != nullptr);
+    f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
+                                           trans) *
+        abs(wi.dot(t_it.m_ns));
+  } else {
+    // Volume Interaction
+    VInteraction vit = reinterpret_cast<const VInteraction &>(it);
+
+    // likely the BRDF to be applied
+    f = Vector3f::Constant(HGP(wi, vit.m_wo, vit.m_g));
+  }
 
   if (f != Vector3f::Zero()) {
     // Notice that *SpawnRayTo* is responsible for initializing the
     // ray.tMax, so if intersection
-    auto     shadow_ray = t_it.SpawnRayTo(light_sample);
-    Vector3f tr         = EstimateTr(shadow_ray, scene);
+    auto     shadow_ray = it.SpawnRayTo(light_sample);
+    Vector3f tr         = VolEstimateTr(shadow_ray, scene, rng);
     Li                  = Li.cwiseProduct(tr);
     L += f.cwiseProduct(Li) / pdf;
   }
@@ -59,10 +75,8 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
   int light_num =
       std::min(static_cast<int>(rng.get1D() * static_cast<Float>(n_lights)),
                n_lights - 1);
-  Float light_pdf    = 1.0 / n_lights;
-  auto  u_light      = rng.get2D();
-  auto  u_scattering = rng.get2D();
-  return EstimateDirect(it, *(scene.m_light[light_num]), u_light, scene) /
+  Float light_pdf = 1.0 / n_lights;
+  return EstimateDirect(it, *(scene.m_light[light_num]), scene, rng) /
          light_pdf;
 }
 
@@ -77,7 +91,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
   constexpr int BLOCK_SIZE = 16;
 #ifdef USE_TBB
-  SV_Log("TBB is enabled");
+  SV_Log("TBB is ready");
   int blockX = (resX - 1) / BLOCK_SIZE + 1;
   int blockY = (resY - 1) / BLOCK_SIZE + 1;
   // clang-format off
@@ -106,6 +120,8 @@ void SampleIntegrator::render(const Scene &scene) {
           scene.m_film->getPixel(i, j) = color / SPP;
         }
       }
+
+      SV_Log("block (%2d,%2d) finished", r.rows().begin(), r.cols().begin());
     });
   // clang-format on
 #else
@@ -190,14 +206,47 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   Vector3f L    = Vector3f::Zero();
   Vector3f beta = Vector3f::Ones();
   auto     ray  = r;
+  bool     specular{false};  // defined for null scattering
   int      bounces{0};
 
-  Float t_min, t_max;
   // only use the "scene.m_volume" for integrating
-  if (scene.m_volume->m_aabb->intersect(ray, t_min, t_max)) {
-    return Vector3f::Constant(t_min);
-  } else {
-    return Vector3f::Zero();
+  for (bounces = 0;; bounces++) {
+    VInteraction vit;
+
+    if (bounces == 0) {
+      Float t_min, t_max;
+      bool  find_isect = scene.m_volume->m_aabb->intersect(ray, t_min, t_max);
+      if (!find_isect) {
+        // environment light
+        for (const auto &light : scene.m_infLight)
+          L += beta.cwiseProduct(light->Le(ray));
+        break;
+      } else {
+        for (const auto &light : scene.m_infLight) {
+          auto tr = scene.m_volume->tr(ray, rng);
+          L += beta.cwiseProduct(tr.cwiseProduct(light->Le(ray)));
+          if (tr.isZero()) find_isect = false;
+        }
+      }
+    } else {
+      if (!scene.m_volume->m_aabb->inside(ray.m_o)) break;
+    }
+
+    if (bounces >= m_maxDepth) break;
+
+    auto f = scene.m_volume->sample(ray, rng, vit);
+    if (f == Vector3f::Ones()) {
+      specular = true;
+      continue;
+    }
+
+    beta = beta.cwiseProduct(f);
+    // compute direct lighting in volume
+    L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
+    Vector3f wi;
+    HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
+
+    ray = vit.SpawnRay(wi);
   }
 
   return L;
