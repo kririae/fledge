@@ -181,4 +181,13 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   return L;
 }
 
+Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
+  Vector3f L    = Vector3f::Zero();
+  // Vector3f beta = Vector3f::Ones();
+  // auto     ray  = r;
+  // int      bounces{0};
+
+  return L;
+}
+
 SV_NAMESPACE_END

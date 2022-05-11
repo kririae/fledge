@@ -29,6 +29,9 @@ using Vector2d = Eigen::Vector2d;
 using Matrix3f = Eigen::Matrix3f;
 using Matrix3d = Eigen::Matrix3d;
 
+// currently not used
+using Color3f = Vector3f;
+
 constexpr Float INF        = std::numeric_limits<Float>::infinity();
 constexpr Float PI         = static_cast<Float>(3.14159265358979323846);
 constexpr Float PI_OVER2   = PI / 2;
