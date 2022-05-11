@@ -4,9 +4,14 @@
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/parallel_for.h>
 
+#include "camera.hpp"
+#include "film.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "light.hpp"
 #include "material.hpp"
+#include "scene.hpp"
+#include "volume.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -68,11 +73,11 @@ void SampleIntegrator::render(const Scene &scene) {
   auto resX = scene.m_resX;
   auto resY = scene.m_resY;
   auto SPP  = scene.m_SPP;
-  Log("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
+  SV_Log("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
 
   constexpr int BLOCK_SIZE = 16;
 #ifdef USE_TBB
-  Log("TBB is enabled");
+  SV_Log("TBB is enabled");
   int blockX = (resX - 1) / BLOCK_SIZE + 1;
   int blockY = (resY - 1) / BLOCK_SIZE + 1;
   // clang-format off
@@ -183,9 +188,17 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
 Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   Vector3f L    = Vector3f::Zero();
-  // Vector3f beta = Vector3f::Ones();
-  // auto     ray  = r;
-  // int      bounces{0};
+  Vector3f beta = Vector3f::Ones();
+  auto     ray  = r;
+  int      bounces{0};
+
+  Float t_min, t_max;
+  // only use the "scene.m_volume" for integrating
+  if (scene.m_volume->m_aabb->intersect(ray, t_min, t_max)) {
+    return Vector3f::Constant(t_min);
+  } else {
+    return Vector3f::Zero();
+  }
 
   return L;
 }

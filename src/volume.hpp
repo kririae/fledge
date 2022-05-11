@@ -8,6 +8,8 @@
 #include <string>
 
 #include "aabb.hpp"
+#include "fwd.hpp"
+#include "integrator.hpp"
 #include "interaction.hpp"
 #include "rng.hpp"
 
@@ -37,10 +39,13 @@ public:
   Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi) const override;
 
 private:
-  Vector3f m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
+  friend class SVolIntegrator;
+  Float m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
   // Defined for delta tracking, where mu_{.} = density * sigma_{.}
-  Vector3f m_mu_s, m_mu_a, m_mu_t, m_maxDensity;
-  AABB     m_aabb;
+  Float                 m_mu_s, m_mu_a, m_mu_t;
+  Float                 m_g;
+  Float                 m_maxDensity, m_invMaxDensity;
+  std::shared_ptr<AABB> m_aabb;
   // only support one grid currently
   std::shared_ptr<openvdb::FloatGrid> m_grid;
 };

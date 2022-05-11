@@ -2,14 +2,12 @@
 #define __INTEGRATOR_HPP__
 
 #include "fwd.hpp"
-#include "interaction.hpp"
-#include "light.hpp"
 #include "ray.hpp"
 #include "rng.hpp"
-#include "scene.hpp"
 
 SV_NAMESPACE_BEGIN
 
+class Scene;
 class Integrator {
 public:
   virtual ~Integrator()                   = default;

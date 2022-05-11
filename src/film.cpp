@@ -25,20 +25,20 @@ bool Film::saveImage(const std::string &name) {
   auto pixels = std::span<Float>(reinterpret_cast<Float *>(l_pixels.data()),
                                  3 * l_pixels.size());
 
-  Log("path ends with %s", extension.c_str());
+  SV_Log("path ends with %s", extension.c_str());
   if (extension == ".png" || extension == ".jpg") {
-    Log("gamma correction is applied");
+    SV_Log("gamma correction is applied");
     std::transform(std::execution::par_unseq, pixels.begin(), pixels.end(),
                    pixels.begin(),
                    [](float v) { return std::pow(v, 1.0f / 2.2f); });
   } else if (extension == ".exr") {
     // nothing is performed
   } else {
-    Err("file extension not supported");
+    SV_Err("file extension not supported");
   }
 
   // image output section
-  Log("writing image to %s", path.string().c_str());
+  SV_Log("writing image to %s", path.string().c_str());
   std::unique_ptr<OIIO::ImageOutput> out =
       OIIO::ImageOutput::create(path.string());
   const int       scanline_size = m_resX * 3 * sizeof(Float);

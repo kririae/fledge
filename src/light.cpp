@@ -66,7 +66,7 @@ Vector3f AreaLight::L(const Interaction &isect, const Vector3f &w) const {
 
 InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
     : m_tex(std::make_shared<ConstTexture>(color)) {
-  Log("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
+  SV_Log("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
       color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 100.0;
@@ -74,14 +74,14 @@ InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
     : m_tex(std::make_shared<ImageTexture>(filename)) {
-  Log("InfiniteAreaLight is initialized with filename=(%s)", filename.c_str());
+  SV_Log("InfiniteAreaLight is initialized with filename=(%s)", filename.c_str());
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 100.0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
-  Log("InfiniteAreaLight is initialized with Texture object");
+  SV_Log("InfiniteAreaLight is initialized with Texture object");
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 100.0;
 }

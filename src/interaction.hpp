@@ -46,10 +46,11 @@ public:
 class VInteraction : public Interaction {
 public:
   VInteraction() = default;
-  VInteraction(const Vector3f &p, const Vector3f &ns, const Vector3f &ng,
-               const Vector3f &wo)
-      : Interaction(p, ns, ng, wo) {}
+  VInteraction(const Vector3f &p, const Vector3f &wo, Float g)
+      : Interaction(p, Vector3f::Zero(), Vector3f::Zero(), wo), m_g(g) {}
   virtual ~VInteraction() = default;
+
+  Float m_g;
 };
 
 SV_NAMESPACE_END

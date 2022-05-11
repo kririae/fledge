@@ -15,12 +15,12 @@ Vector3f Texture::eval(Float u, Float v) const {
 }
 
 ImageTexture::~ImageTexture() {
-  Log("ImageTexture destroy");
+  SV_Log("ImageTexture destroy");
   OIIO::TextureSystem::destroy(m_texture);
 }
 
 ImageTexture::ImageTexture(const std::string &path) : m_filename(path) {
-  Log("ImageTexture(%s)", path.c_str());
+  SV_Log("ImageTexture(%s)", path.c_str());
   m_texture = OIIO::TextureSystem::create(false);
 }
 

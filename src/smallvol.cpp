@@ -31,7 +31,7 @@ int main() {
   // render.render();
   // render.saveImage("smallvol_out.exr");
 
-  // openvdb::initialize();
+  openvdb::initialize();
 
-  // VDBVolume vol("assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  VDBVolume vol("assets/wdas_cloud/wdas_cloud_eighth.vdb");
 }

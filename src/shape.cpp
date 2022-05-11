@@ -63,9 +63,9 @@ Float Sphere::area() const {
 }
 
 Interaction Sphere::sample(const Vector2f &u, Float &pdf) const {
-  SInteraction isect;
-  auto         dir = UniformSampleSphere(u);
-  auto         p   = m_p + (m_r + NORMAL_EPS) * dir;
+  Interaction isect;
+  auto        dir = UniformSampleSphere(u);
+  auto        p   = m_p + (m_r + NORMAL_EPS) * dir;
 
   pdf        = 1 / area();
   isect.m_p  = p;

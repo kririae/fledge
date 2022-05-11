@@ -73,21 +73,21 @@ inline void backtrace() {
 #endif
 }
 
-#define Log(format, ...)                                                  \
-  do {                                                                    \
+#define SV_Log(format, ...)                                                   \
+  do {                                                                     \
     fprintf(stdout, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_GREEN) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);             \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
   } while (false)
-#define Err(format, ...)                                                \
-  do {                                                                  \
+#define SV_Err(format, ...)                                                 \
+  do {                                                                   \
     fprintf(stderr, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_RED) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);           \
-    backtrace();                                                        \
-    assert(false);                                                      \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);            \
+    backtrace();                                                         \
+    assert(false);                                                       \
   } while (false)
-#define TODO() Err("please implement me")
+#define TODO() SV_Err("please implement me")
 
-#define LogFloat(val) Log(#val "=%f", val)
-#define LogVec3(vec3) Log(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
+#define LogFloat(val) SV_Log(#val "=%f", val)
+#define LogVec3(vec3) SV_Log(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
 
 #endif
