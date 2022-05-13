@@ -9,7 +9,10 @@ SV_NAMESPACE_BEGIN
 class AABB {
 public:
   AABB() = default;
-  AABB(Vector3f t_min, Vector3f t_max) : m_min(t_min), m_max(t_max) {}
+  AABB(Vector3f t_min, Vector3f t_max) : m_min(t_min), m_max(t_max) {
+    m_min = t_min.cwiseMin(t_max);
+    m_max = t_max.cwiseMax(t_min);
+  }
   ~AABB() = default;
 
   bool intersect(const Ray &ray, Float &t_min, Float &t_max) const {
@@ -20,14 +23,36 @@ public:
     Vector3f vt_max = vt1.cwiseMax(vt2);
     Float    l_min  = vt_min.maxCoeff();
     Float    l_max  = vt_max.minCoeff();
-    if (l_min >= 0 && l_min < l_max) {
+    if (l_min < l_max && l_max >= 0) {
       t_min      = l_min;
       t_max      = l_max;
-      ray.m_tMax = t_max;
       return true;
     } else {
       return false;
     }
+  }
+
+  bool intersect_pbrt(const Ray &ray, Float &t_min, Float &t_max) const {
+    Float t0 = 0, t1 = ray.m_tMax;
+    for (int i = 0; i < 3; ++i) {
+      // Update interval for _i_th bounding box slab
+      Float invRayDir = 1 / ray.m_d[i];
+      Float tNear     = (m_min[i] - ray.m_o[i]) * invRayDir;
+      Float tFar      = (m_max[i] - ray.m_o[i]) * invRayDir;
+
+      // Update parametric interval from slab intersection $t$ values
+      if (tNear > tFar) std::swap(tNear, tFar);
+
+      // Update _tFar_ to ensure robust ray--bounds intersection
+      tFar *= 1 + 2 * gamma(3);
+      t0 = tNear > t0 ? tNear : t0;
+      t1 = tFar < t1 ? tFar : t1;
+      if (t0 > t1) return false;
+    }
+
+    t_min = t0;
+    t_max = t1;
+    return true;
   }
 
   bool inside(const Vector3f &p) const {

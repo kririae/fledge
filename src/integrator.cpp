@@ -48,10 +48,10 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
                                            trans) *
         abs(wi.dot(t_it.m_ns));
+    TODO();
   } else {
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
-
     // likely the BRDF to be applied
     f = Vector3f::Constant(HGP(wi, vit.m_wo, vit.m_g));
   }
@@ -61,7 +61,10 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = VolEstimateTr(shadow_ray, scene, rng);
-    Li                  = Li.cwiseProduct(tr);
+    if (!tr.isZero()) {
+      LogVec3(tr);
+    }
+    Li = Li.cwiseProduct(tr);
     L += f.cwiseProduct(Li) / pdf;
   }
 
@@ -125,6 +128,7 @@ void SampleIntegrator::render(const Scene &scene) {
     });
   // clang-format on
 #else
+  std::atomic<int> cnt;
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < resX; ++i) {
     for (int j = 0; j < resY; ++j) {
@@ -140,6 +144,14 @@ void SampleIntegrator::render(const Scene &scene) {
 
       // store the value back
       scene.m_film->getPixel(i, j) = color / SPP;
+#pragma omp critical  // for output
+      {
+        ++cnt;
+        printf("rendering: %f\r", static_cast<Float>(cnt) / resX / resY);
+        if (i % 100 == 0 && j == 0) {
+          scene.m_film->saveImage("tmp.exr");
+        }
+      }
     }
   }
 #endif
@@ -225,7 +237,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         for (const auto &light : scene.m_infLight) {
           auto tr = scene.m_volume->tr(ray, rng);
           L += beta.cwiseProduct(tr.cwiseProduct(light->Le(ray)));
-          if (tr.isZero()) find_isect = false;
+          // if (tr.isZero()) find_isect = false;
         }
       }
     } else {
@@ -234,15 +246,16 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
     if (bounces >= m_maxDepth) break;
 
-    auto f = scene.m_volume->sample(ray, rng, vit);
-    if (f == Vector3f::Ones()) {
-      specular = true;
-      continue;
+    bool success{false};
+    auto f = scene.m_volume->sample(ray, rng, vit, success);
+    if (!success) {
+      break;
     }
 
-    beta = beta.cwiseProduct(f);
+    beta         = beta.cwiseProduct(f);
+    auto d_light = UniformSampleOneLight(vit, scene, rng);
     // compute direct lighting in volume
-    L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
+    L += beta.cwiseProduct(d_light);
     Vector3f wi;
     HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
 

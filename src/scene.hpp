@@ -12,7 +12,7 @@ SV_NAMESPACE_BEGIN
 class Film;
 class Light;
 class Camera;
-class VDBVolume;
+class Volume;
 class Primitive;
 // scene description
 // all resources needed in the process of rendering
@@ -34,7 +34,7 @@ struct Scene {
   std::shared_ptr<Primitive> m_accel;
   std::shared_ptr<Camera>    m_camera;
   std::shared_ptr<Film>      m_film;
-  std::shared_ptr<VDBVolume> m_volume;
+  std::shared_ptr<Volume>    m_volume;
 
   std::vector<std::shared_ptr<Light>> m_light;
   std::vector<std::shared_ptr<Light>> m_infLight;
