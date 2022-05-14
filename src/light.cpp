@@ -47,7 +47,7 @@ AreaLight::AreaLight(const std::shared_ptr<Shape> &shape, const Vector3f &Le)
 Vector3f AreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
                              Vector3f &wi, Float &pdf,
                              Interaction &sample) const {
-  // m_shape->sample (ref, u, pdf) will return the pdf corresponds to 
+  // m_shape->sample (ref, u, pdf) will return the pdf corresponds to
   // d\omega(actually, the p(w) should be put in *pdf*).
   sample = m_shape->sample(ref, u, pdf);
   if (pdf == 0) return Vector3f::Zero();
@@ -67,23 +67,24 @@ Vector3f AreaLight::L(const Interaction &isect, const Vector3f &w) const {
 InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
     : m_tex(std::make_shared<ConstTexture>(color)) {
   SV_Log("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
-      color[1], color[2]);
+         color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 100.0;
+  m_worldRadius = 1000.0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
     : m_tex(std::make_shared<ImageTexture>(filename)) {
-  SV_Log("InfiniteAreaLight is initialized with filename=(%s)", filename.c_str());
+  SV_Log("InfiniteAreaLight is initialized with filename=(%s)",
+         filename.c_str());
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 100.0;
+  m_worldRadius = 1000.0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
   SV_Log("InfiniteAreaLight is initialized with Texture object");
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 100.0;
+  m_worldRadius = 1000.0;
 }
 
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,

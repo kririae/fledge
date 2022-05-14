@@ -61,10 +61,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = VolEstimateTr(shadow_ray, scene, rng);
-    if (!tr.isZero()) {
-      LogVec3(tr);
-    }
-    Li = Li.cwiseProduct(tr);
+    Li                  = Li.cwiseProduct(tr);
     L += f.cwiseProduct(Li) / pdf;
   }
 
@@ -218,48 +215,56 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   Vector3f L    = Vector3f::Zero();
   Vector3f beta = Vector3f::Ones();
   auto     ray  = r;
-  bool     specular{false};  // defined for null scattering
+  bool     in_volume{false};
   int      bounces{0};
 
   // only use the "scene.m_volume" for integrating
   for (bounces = 0;; bounces++) {
     VInteraction vit;
 
+    Float t_min, t_max;
+    bool  find_isect = scene.m_volume->m_aabb->intersect(ray, t_min, t_max);
     if (bounces == 0) {
-      Float t_min, t_max;
-      bool  find_isect = scene.m_volume->m_aabb->intersect(ray, t_min, t_max);
-      if (!find_isect) {
+      if (find_isect) {
+        // consider T(p, p_e) L_o(p_e, -w), i.e. P(p_0)
+        auto tr = scene.m_volume->tr(ray, rng);
+        for (const auto &light : scene.m_infLight)
+          L += tr.cwiseProduct(light->Le(ray));
+        in_volume = true;
+
+        assert(t_min >= 0);
+        auto pos = ray(t_min);
+        // SpawnRay manually
+        ray = Ray(pos, ray.m_d);
+        continue;
+      } else {
         // environment light
         for (const auto &light : scene.m_infLight)
           L += beta.cwiseProduct(light->Le(ray));
         break;
-      } else {
-        for (const auto &light : scene.m_infLight) {
-          auto tr = scene.m_volume->tr(ray, rng);
-          L += beta.cwiseProduct(tr.cwiseProduct(light->Le(ray)));
-          // if (tr.isZero()) find_isect = false;
-        }
       }
-    } else {
-      if (!scene.m_volume->m_aabb->inside(ray.m_o)) break;
     }
 
-    if (bounces >= m_maxDepth) break;
+    if (in_volume) {
+      bool success{false};
+      auto f = scene.m_volume->sample(ray, rng, vit, success);
+      if (success) {
+        // if it is in volume(so t_min <= 0), and the sample is in the volume
+        // T \mu s are take into consider by the Estimator
+        beta = beta.cwiseProduct(f);
 
-    bool success{false};
-    auto f = scene.m_volume->sample(ray, rng, vit, success);
-    if (!success) {
-      break;
+        Vector3f wi;
+        HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
+        L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
+
+        if (bounces >= m_maxDepth) break;
+        ray = vit.SpawnRay(wi);
+      } else {
+        // The sample is not permitted since it is already considered in the
+        // UniformSampleOneLight(and bounces == 1)
+        break;
+      }
     }
-
-    beta         = beta.cwiseProduct(f);
-    auto d_light = UniformSampleOneLight(vit, scene, rng);
-    // compute direct lighting in volume
-    L += beta.cwiseProduct(d_light);
-    Vector3f wi;
-    HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
-
-    ray = vit.SpawnRay(wi);
   }
 
   return L;

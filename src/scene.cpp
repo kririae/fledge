@@ -55,10 +55,9 @@ Scene::Scene() {
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 720;
   m_resY       = 480;
-  m_SPP        = 4;
-  m_camera =
-      std::make_shared<Camera>(Vector3f(0, 0, 1000), Vector3f(0, 100, 0));
-  m_film = std::make_shared<Film>(m_resX, m_resY);
+  m_SPP        = 16;
+  m_camera = std::make_shared<Camera>(Vector3f(0, 0, 800), Vector3f(0, 100, 0));
+  m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
           std::make_shared<ShapePrimitive>(sphere_1, diffuse)});
@@ -66,9 +65,9 @@ Scene::Scene() {
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume
-  // m_volume =
-  //   std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  m_volume = std::make_shared<HVolume>();
+  m_volume =
+      std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  // m_volume = std::make_shared<HVolume>();
 }
 
 static bool parseIntegrator(const pt::ptree &integrator, Scene &scene) {

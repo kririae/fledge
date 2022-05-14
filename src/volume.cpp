@@ -17,9 +17,9 @@ SV_NAMESPACE_BEGIN
 
 VDBVolume::VDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
-  m_sigma_a = 0.00;
-  m_sigma_s = 1.1;
-  m_g       = 0.877;
+  m_sigma_a = 0.0;
+  m_sigma_s = 1.0;
+  m_g       = -0.3;
   m_sigma_t = m_sigma_a + m_sigma_s;
 
   openvdb::initialize();
@@ -72,9 +72,7 @@ Vector3f VDBVolume::tr(const Ray &ray, Random &rng) const {
 
   assert(m_aabb->inside(ray(t_max)));
 
-  int cnt = 0;
   while (true) {
-    ++cnt;
     t += -std::log(1 - rng.get1D()) / max_mu;
     if (t >= t_max) break;
     Vector3f pos  = ray(t);
@@ -90,7 +88,6 @@ Vector3f VDBVolume::tr(const Ray &ray, Random &rng) const {
     }
   }
 
-  SV_Log("cnt=%d", cnt);
   return Vector3f::Constant(tr);
 }
 
@@ -125,8 +122,8 @@ Vector3f VDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
     // if it is sampling some real "balls"
     if (rng.get1D() > p_n) {
       // sample
-      success    = true;
-      vi         = VInteraction(pos, -ray.m_d, m_g);
+      success = true;
+      vi      = VInteraction(pos, -ray.m_d, m_g);
       return Vector3f::Constant(m_sigma_s / m_sigma_t);
     }  // else: continue the rejection process
   }
@@ -138,14 +135,16 @@ Vector3f VDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
 // For testing the delta-tracking
 HVolume::HVolume() {
   // currently the same as above
-  m_sigma_a = 0.00;
-  m_sigma_s = 1.1;
-  m_g       = 0.877;
+  m_sigma_a = 0.0;
+  m_sigma_s = 1.0;
+  m_g       = -0.3;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
-  m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
-                                  Vector3f{218.33, 213.33, 298.33});
+  // m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
+  //                                 Vector3f{218.33, 213.33, 298.33});
+  m_aabb = std::make_shared<AABB>(Vector3f{-100, -100, -100},
+                                  Vector3f{100, 100, 100});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
@@ -153,9 +152,9 @@ Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
   Float t_min, t_max;
   if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) return Vector3f::Ones();
   // clamp the t_max
-  t_max = std::min(t_max, ray.m_tMax);
+  t_min = std::max(static_cast<Float>(0), t_min);
   // tr = exp(-t * sigma_t)
-  return Vector3f::Constant(std::exp(-t_max * m_density * m_sigma_t));
+  return Vector3f::Constant(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
 }
 
 Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
@@ -186,4 +185,5 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
     return Vector3f::Ones();
   }
 }
+
 SV_NAMESPACE_END

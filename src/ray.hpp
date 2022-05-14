@@ -5,11 +5,13 @@
 
 SV_NAMESPACE_BEGIN
 
+class Volume;
 class Ray {
 public:
   Ray() : m_tMax(INF) {}
-  Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF)
-      : m_o(o), m_d(d), m_tMax(tMax) {}
+  Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
+      const Volume *volume = nullptr)
+      : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
   Vector3f             at(Float t) const { return m_o + m_d * t; }
   Vector3f             operator()(Float t) const { return at(t); }
   friend std::ostream &operator<<(std::ostream &os, const Ray &r) {
@@ -19,6 +21,7 @@ public:
 
   Vector3f      m_o, m_d;
   mutable Float m_tMax;
+  const Volume *m_volume;
   // medium
 
 private:

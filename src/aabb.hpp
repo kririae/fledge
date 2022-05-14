@@ -24,8 +24,8 @@ public:
     Float    l_min  = vt_min.maxCoeff();
     Float    l_max  = vt_max.minCoeff();
     if (l_min < l_max && l_max >= 0) {
-      t_min      = l_min;
-      t_max      = l_max;
+      t_min = l_min;
+      t_max = l_max;
       return true;
     } else {
       return false;
@@ -44,7 +44,6 @@ public:
       if (tNear > tFar) std::swap(tNear, tFar);
 
       // Update _tFar_ to ensure robust ray--bounds intersection
-      tFar *= 1 + 2 * gamma(3);
       t0 = tNear > t0 ? tNear : t0;
       t1 = tFar < t1 ? tFar : t1;
       if (t0 > t1) return false;
