@@ -2,8 +2,6 @@
 #define __INTEGRATOR_HPP__
 
 #include "fwd.hpp"
-#include "ray.hpp"
-#include "rng.hpp"
 
 SV_NAMESPACE_BEGIN
 

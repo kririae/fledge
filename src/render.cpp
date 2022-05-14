@@ -6,6 +6,7 @@
 
 #include "film.hpp"
 #include "integrator.hpp"
+#include "scene.hpp"
 
 SV_NAMESPACE_BEGIN
 

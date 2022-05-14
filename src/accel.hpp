@@ -5,10 +5,7 @@
 #include <vector>
 
 #include "fwd.hpp"
-#include "interaction.hpp"
-#include "material.hpp"
 #include "primitive.hpp"
-#include "shape.hpp"
 
 SV_NAMESPACE_BEGIN
 

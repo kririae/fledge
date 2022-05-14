@@ -5,8 +5,6 @@
 #include <memory>
 
 #include "fwd.hpp"
-#include "integrator.hpp"
-#include "scene.hpp"
 
 SV_NAMESPACE_BEGIN
 

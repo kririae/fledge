@@ -2,6 +2,7 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "utils.hpp"
 
 SV_NAMESPACE_BEGIN
 

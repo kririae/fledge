@@ -2,6 +2,10 @@
 
 #include <memory>
 
+#include "interaction.hpp"
+#include "ray.hpp"
+#include "shape.hpp"
+
 SV_NAMESPACE_BEGIN
 
 ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,

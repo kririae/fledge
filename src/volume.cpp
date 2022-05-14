@@ -12,6 +12,8 @@
 #include "aabb.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "ray.hpp"
+#include "rng.hpp"
 
 SV_NAMESPACE_BEGIN
 

@@ -4,9 +4,7 @@
 #include <memory>
 
 #include "fwd.hpp"
-#include "interaction.hpp"
 #include "material.hpp"
-#include "shape.hpp"
 
 SV_NAMESPACE_BEGIN
 

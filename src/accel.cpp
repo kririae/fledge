@@ -1,5 +1,7 @@
 #include "accel.hpp"
 
+#include "interaction.hpp"
+
 SV_NAMESPACE_BEGIN
 
 bool NaiveAccel::intersect(const Ray &ray, SInteraction &isect) const {

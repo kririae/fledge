@@ -40,4 +40,41 @@ constexpr Float NORMAL_EPS = 1e-4;
 
 #include "debug.hpp"
 
+SV_NAMESPACE_BEGIN
+
+class AABB;
+class Accel;
+class AreaLight;
+class Camera;
+class ConstTexture;
+class CoordinateTransition;
+class DiffuseMaterial;
+class Film;
+class HVolume;
+class ImageTexture;
+class InfiniteAreaLight;
+class Integrator;
+class Interaction;
+class Light;
+class Material;
+class NaiveAccel;
+class PathIntegrator;
+class Primitive;
+class Random;
+class Ray;
+class Render;
+class SampleIntegrator;
+class Shape;
+class Scene;
+class ShapePrimitive;
+class SInteraction;
+class Sphere;
+class SVolIntegrator;
+class Texture;
+class VDBVolume;
+class VInteraction;
+class Volume;
+
+SV_NAMESPACE_END
+
 #endif

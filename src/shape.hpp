@@ -2,9 +2,6 @@
 #define __SHAPE_HPP__
 
 #include "fwd.hpp"
-#include "interaction.hpp"
-#include "ray.hpp"
-#include "utils.hpp"
 
 SV_NAMESPACE_BEGIN
 

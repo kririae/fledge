@@ -7,11 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "aabb.hpp"
 #include "fwd.hpp"
-#include "integrator.hpp"
-#include "interaction.hpp"
-#include "rng.hpp"
 
 SV_NAMESPACE_BEGIN
 

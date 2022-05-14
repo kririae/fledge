@@ -5,12 +5,15 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/spin_mutex.h>
 
+#include "aabb.hpp"
 #include "camera.hpp"
 #include "film.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "light.hpp"
 #include "material.hpp"
+#include "primitive.hpp"
+#include "rng.hpp"
 #include "scene.hpp"
 #include "utils.hpp"
 #include "volume.hpp"
