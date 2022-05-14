@@ -55,7 +55,7 @@ Scene::Scene() {
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 720;
   m_resY       = 480;
-  m_SPP        = 16;
+  m_SPP        = 512;
   m_camera = std::make_shared<Camera>(Vector3f(0, 0, 800), Vector3f(0, 100, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =

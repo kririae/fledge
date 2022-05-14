@@ -37,7 +37,7 @@ public:
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  int m_maxDepth = 16;
+  const int m_maxDepth = 16;
 };
 
 // Simple Volume Path Integrator
@@ -50,7 +50,8 @@ public:
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  int m_maxDepth = 32;
+  const int   m_maxDepth    = 32;
+  const Float m_rrThreshold = 0.1;
 };
 
 SV_NAMESPACE_END

@@ -3,6 +3,7 @@
 #include <Eigen/src/Core/Reverse.h>
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/spin_mutex.h>
 
 #include "camera.hpp"
 #include "film.hpp"
@@ -48,7 +49,6 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
                                            trans) *
         abs(wi.dot(t_it.m_ns));
-    TODO();
   } else {
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
@@ -95,10 +95,13 @@ void SampleIntegrator::render(const Scene &scene) {
   int blockX = (resX - 1) / BLOCK_SIZE + 1;
   int blockY = (resY - 1) / BLOCK_SIZE + 1;
   // clang-format off
+  int cnt = 0;
+
+  oneapi::tbb::spin_mutex l_mutex;
 
   // currently using tbb might lead to a performance degradation
   tbb::parallel_for(tbb::blocked_range2d<int, int>(0, blockX, 0, blockY),
-    [resX, resY, SPP, &scene, &rng,
+    [resX, resY, SPP, blockX, blockY, &scene, &rng, &cnt, &l_mutex,
       this](const tbb::blocked_range2d<int, int> &r) {
       int r_l = r.rows().begin() * BLOCK_SIZE,
           r_r = std::min(r.rows().end() * BLOCK_SIZE, resX);
@@ -121,7 +124,15 @@ void SampleIntegrator::render(const Scene &scene) {
         }
       }
 
-      SV_Log("block (%2d,%2d) finished", r.rows().begin(), r.cols().begin());
+      { // scope
+        tbb::spin_mutex::scoped_lock lock(l_mutex);
+        ++cnt;
+        // potential bug
+        SV_Log("[%d/%d] blocks are finished", cnt, blockX * blockY);
+        if (cnt % 50 == 0) {
+          scene.m_film->saveImage("tmp.exr");
+        }
+      }
     });
   // clang-format on
 #else
@@ -264,6 +275,14 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         // UniformSampleOneLight(and bounces == 1)
         break;
       }
+    }
+
+    if (bounces > 3) {
+      if (rng.get1D() < m_rrThreshold) {
+        break;
+      }
+
+      beta /= (1 - m_rrThreshold);
     }
   }
 

@@ -25,8 +25,9 @@ public:
   Vector3f eval(const Vector2f &uv) const override;
 
 private:
-  std::string          m_filename;
-  OIIO::TextureSystem *m_texture;
+  std::string                         m_filename;
+  OIIO::TextureSystem                *m_texture;
+  OIIO::TextureSystem::TextureHandle *m_handle;
 };
 
 class ConstTexture : public Texture {

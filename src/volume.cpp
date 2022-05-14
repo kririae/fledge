@@ -137,7 +137,7 @@ HVolume::HVolume() {
   // currently the same as above
   m_sigma_a = 0.0;
   m_sigma_s = 1.0;
-  m_g       = -0.3;
+  m_g       = -0.8;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
