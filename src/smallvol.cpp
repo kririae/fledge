@@ -31,4 +31,5 @@ int main() {
   render.preprocess();
   render.render();
   render.saveImage("smallvol_out.exr");
+  return 0;
 }

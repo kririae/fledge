@@ -97,6 +97,8 @@ InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
 void InfiniteAreaLight::preprocess(const Scene &scene) {
   scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
   SV_Log("m_worldRadius=%f", m_worldRadius);
+  LogVec3(m_worldCenter);
+  m_worldRadius *= 2;
 }
 
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,

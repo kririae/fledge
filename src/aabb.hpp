@@ -69,7 +69,7 @@ public:
   }
 
 private:
-  Vector3f m_min, m_max;
+  Vector3f m_min{Vector3f::Zero()}, m_max{Vector3f::Zero()};
 };
 
 SV_NAMESPACE_END

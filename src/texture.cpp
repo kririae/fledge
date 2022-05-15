@@ -19,7 +19,7 @@ Vector3f Texture::eval(Float u, Float v) const {
 
 ImageTexture::~ImageTexture() {
   SV_Log("ImageTexture destroy");
-  OIIO::TextureSystem::destroy(m_texture);
+  if (m_texture != nullptr) OIIO::TextureSystem::destroy(m_texture);
 }
 
 ImageTexture::ImageTexture(const std::string &path) : m_filename(path) {

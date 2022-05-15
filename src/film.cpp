@@ -28,7 +28,7 @@ bool Film::saveImage(const std::string &name) {
   SV_Log("path ends with %s", extension.c_str());
   if (extension == ".png" || extension == ".jpg") {
     SV_Log("gamma correction is applied");
-    std::transform(std::execution::par_unseq, pixels.begin(), pixels.end(),
+    std::transform(std::execution::par, pixels.begin(), pixels.end(),
                    pixels.begin(),
                    [](float v) { return std::pow(v, 1.0f / 2.2f); });
   } else if (extension == ".exr") {

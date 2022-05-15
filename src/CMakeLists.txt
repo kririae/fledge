@@ -11,6 +11,21 @@ if (OPENMP_FOUND)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
+# compilers' specification
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
+        -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable \
+        -Wno-unused-function -Wno-gnu-zero-variadic-macro-arguments \
+        -march=native -mtune=native")
+        add_compile_options(-fsanitize=address,undefined)
+        add_link_options(-fsanitize=address,undefined)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
+        -Wpedantic -Werror -Wno-unused -march=native -mtune=native")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+endif()
+
 file(GLOB source
         "${PROJECT_SOURCE_DIR}/src/*.c*")
 add_executable(smallvol "${source}")
@@ -24,17 +39,4 @@ set_target_properties(smallvol
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 if (USE_TBB)
         target_compile_definitions(smallvol PUBLIC -DUSE_TBB)
-endif()
-
-# compilers' specification
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wpedantic \
-        -Werror -Wno-unused -Wall -Wextra -march=native -mtune=native")
-        add_compile_options(-fsanitize=address -fsanitize=undefined)
-        add_link_options(-fsanitize=address -fsanitize=undefined)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wpedantic \
-        -Werror -Wno-unused -Wall -Wextra -march=native -mtune=native")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()

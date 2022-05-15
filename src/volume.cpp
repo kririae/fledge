@@ -149,6 +149,8 @@ HVolume::HVolume() {
 
   m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
                                   Vector3f{218.33, 213.33, 298.33});
+  // m_aabb =
+  //     std::make_shared<AABB>(Vector3f::Constant(-100), Vector3f::Constant(100));
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
