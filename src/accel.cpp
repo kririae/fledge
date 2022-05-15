@@ -1,5 +1,6 @@
 #include "accel.hpp"
 
+#include "aabb.hpp"
 #include "interaction.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -16,6 +17,12 @@ bool NaiveAccel::intersect(const Ray &ray, SInteraction &isect) const {
   }
 
   return tMax != o_tMax;
+}
+
+AABB NaiveAccel::getBound() const {
+  AABB res;
+  for (auto &primitive : m_primitives) res = res.merge(primitive->getBound());
+  return res;
 }
 
 SV_NAMESPACE_END

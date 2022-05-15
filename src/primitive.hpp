@@ -17,6 +17,9 @@ public:
   // will modify the mutable ray.tMax
   virtual bool intersect(const Ray &ray, SInteraction &isect) const = 0;
 
+  // get the AABB bounding box of the primitive
+  virtual AABB getBound() const = 0;
+
   // getter
   virtual AreaLight *getAreaLight() const = 0;
   virtual Material  *getMaterial() const  = 0;
@@ -32,6 +35,9 @@ public:
       std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
       const std::shared_ptr<AreaLight> &areaLight = nullptr);
   ~ShapePrimitive() override = default;
+
+  // get the AABB bounding box of the primitive
+  AABB getBound() const override;
   bool intersect(const Ray &ray, SInteraction &isect) const override;
   // if the areaLight actually exists
   AreaLight *getAreaLight() const override;

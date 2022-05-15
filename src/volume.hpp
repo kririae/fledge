@@ -21,6 +21,7 @@ public:
   // sample a volume interaction inside the volume
   virtual Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
                           bool &success) const = 0;
+  virtual AABB     getBound() const;
 
   std::shared_ptr<AABB> m_aabb;
 };

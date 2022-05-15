@@ -6,6 +6,7 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "scene.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
 
@@ -14,6 +15,8 @@ SV_NAMESPACE_BEGIN
 class Light {
 public:
   virtual ~Light() = default;
+
+  virtual void preprocess(const Scene &scene);
   // given isect on other surface, sample on the light and
   // return the Li arriving at isect
   virtual Vector3f sampleLi(const Interaction &ref, const Vector2f &u,
@@ -51,6 +54,8 @@ public:
   InfiniteAreaLight(const std::shared_ptr<Texture> &tex);
   ~InfiniteAreaLight() override = default;
 
+  // acquire the limit of the scene
+  void     preprocess(const Scene &scene) override;
   Vector3f sampleLi(const Interaction &ref, const Vector2f &u, Vector3f &wi,
                     Float &pdf, Interaction &sample) const override;
   Float    pdfLi(const Interaction &) const override;

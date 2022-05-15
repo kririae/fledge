@@ -17,6 +17,10 @@
 
 SV_NAMESPACE_BEGIN
 
+AABB Volume::getBound() const {
+  return *m_aabb;
+}
+
 VDBVolume::VDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
   m_sigma_a = 0.0;
@@ -143,10 +147,8 @@ HVolume::HVolume() {
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
-  // m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
-  //                                 Vector3f{218.33, 213.33, 298.33});
-  m_aabb = std::make_shared<AABB>(Vector3f{-100, -100, -100},
-                                  Vector3f{100, 100, 100});
+  m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
+                                  Vector3f{218.33, 213.33, 298.33});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {

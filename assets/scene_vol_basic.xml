@@ -9,7 +9,7 @@
     <float name="fov" value="30" />
     <string name="fovAxis" value="x" />
     <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0, 0, 1000" target="0, 100, 0" />
+      <lookat up="0, 1, 0" origin="0, 0, 800" target="0, 100, 0" />
     </transform>
 
     <sampler type="independent">
@@ -19,21 +19,16 @@
     <film type="hdrfilm">
       <integer name="width" value="1280" />
       <integer name="height" value="720" />
-
-      <rfilter type="gaussian">
-        <float name="size" value="0.5" />
-      </rfilter>
     </film>
   </sensor>
 
   <medium type="heterogeneous" id="cloud">
-    <volume name="density" type="vdbvolume">
-      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_eighth.vdb" />
-      <string name="fieldname" value="density" />
+    <volume name="density" type="nanovdbvolume">
+      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_half.vdb" />
     </volume>
 
     <phase type="hg">
-      <float name="g" value="0.877" />
+      <float name="g" value="-0.8" />
     </phase>
 
     <volume name="albedo" type="constvolume">
@@ -51,9 +46,13 @@
 
   <shape type="cube">
     <ref name="interior" id="cloud_homo" />
+    <!-- <transform name="toWorld">
+      <scale x="206.544" y="140.4" z="254.592" />
+      <translate x="9.984" y="73.008" z="42.64" />
+    </transform> -->
     <transform name="toWorld">
       <scale x="206.544" y="140.4" z="254.592" />
-      <translate x="-9.984" y="73.008" z="-42.64" />
+      <translate x="9.984" y="73.008" z="42.64" />
     </transform>
   </shape>
 

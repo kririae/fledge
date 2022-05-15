@@ -59,6 +59,15 @@ public:
            p[0] <= m_max[0] && p[1] <= m_max[1] && p[2] <= m_max[2];
   }
 
+  AABB merge(const AABB &other) {
+    return AABB(m_min.cwiseMin(other.m_min), m_max.cwiseMax(other.m_max));
+  }
+
+  void boundSphere(Vector3f &center, Float &radius) const {
+    center = (m_min + m_max) / 2;
+    radius = (m_max - center).norm();
+  }
+
 private:
   Vector3f m_min, m_max;
 };

@@ -1,5 +1,6 @@
 #include "shape.hpp"
 
+#include "aabb.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "utils.hpp"
@@ -72,6 +73,11 @@ Interaction Sphere::sample(const Vector2f &u, Float &pdf) const {
   isect.m_p  = p;
   isect.m_ns = isect.m_ng = dir;
   return isect;
+}
+
+AABB Sphere::getBound() const {
+  auto v_r = Vector3f::Constant(m_r);
+  return AABB(m_p - v_r, m_p + v_r);
 }
 
 SV_NAMESPACE_END

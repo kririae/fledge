@@ -20,6 +20,7 @@ public:
   virtual Interaction sample(const Interaction &ref, const Vector2f &u,
                              Float &pdf) const;
 
+  virtual AABB  getBound() const = 0;
   virtual Float pdf(const Interaction &) const;
 };
 
@@ -33,6 +34,7 @@ public:
   // defined
   // Interaction sample(const Interaction &ref, const Vector2f &u,
   //                    Float &pdf) const override;
+  AABB getBound() const override;
 
   Vector3f m_p;
   Float    m_r;

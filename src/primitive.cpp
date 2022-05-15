@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "aabb.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
 #include "shape.hpp"
@@ -13,6 +14,10 @@ ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,
                                const std::shared_ptr<AreaLight> &areaLight)
     : m_shape(shape), m_material(material), m_areaLight(areaLight) {
   assert(m_areaLight->m_shape.get() == m_shape.get());
+}
+
+AABB ShapePrimitive::getBound() const {
+  return m_shape->getBound();
 }
 
 bool ShapePrimitive::intersect(const Ray &ray, SInteraction &isect) const {

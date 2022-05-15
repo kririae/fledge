@@ -2,9 +2,12 @@
 
 #include <memory>
 
+#include "aabb.hpp"
+#include "debug.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
+#include "scene.hpp"
 #include "texture.hpp"
 #include "utils.hpp"
 
@@ -26,6 +29,10 @@ static Vector3f LightToWorld(const Vector3f &w) {
 
 static Vector3f WorldToLight(const Vector3f &w) {
   return {-w[2], -w[0], w[1]};
+}
+
+void Light::preprocess(const Scene &scene) {
+  TODO();
 }
 
 // interface for infinite light
@@ -69,7 +76,7 @@ InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
   SV_Log("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
          color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 1000.0;
+  m_worldRadius = 0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
@@ -77,14 +84,19 @@ InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
   SV_Log("InfiniteAreaLight is initialized with filename=(%s)",
          filename.c_str());
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 1000.0;
+  m_worldRadius = 0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
   SV_Log("InfiniteAreaLight is initialized with Texture object");
   m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 1000.0;
+  m_worldRadius = 0;
+}
+
+void InfiniteAreaLight::preprocess(const Scene &scene) {
+  scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
+  SV_Log("m_worldRadius=%f", m_worldRadius);
 }
 
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,

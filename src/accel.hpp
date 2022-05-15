@@ -26,6 +26,7 @@ public:
       : m_primitives(p) {}
   ~NaiveAccel() override = default;
   bool intersect(const Ray &ray, SInteraction &isect) const override;
+  AABB getBound() const override;
 
 private:
   std::vector<std::shared_ptr<Primitive>> m_primitives;

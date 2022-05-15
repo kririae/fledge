@@ -131,10 +131,9 @@ void SampleIntegrator::render(const Scene &scene) {
         tbb::spin_mutex::scoped_lock lock(l_mutex);
         ++cnt;
         // potential bug
-        SV_Log("[%d/%d] blocks are finished", cnt, blockX * blockY);
-        if (cnt % 50 == 0) {
-          scene.m_film->saveImage("tmp.exr");
-        }
+        if (cnt % 25 == 0)
+          SV_Log("[%d/%d] blocks are finished", cnt, blockX * blockY);
+        if (cnt % 100 == 0) scene.m_film->saveImage("tmp.exr");
       }
     });
   // clang-format on

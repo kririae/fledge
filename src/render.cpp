@@ -6,6 +6,7 @@
 
 #include "film.hpp"
 #include "integrator.hpp"
+#include "light.hpp"
 #include "scene.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -21,12 +22,12 @@ void Render::init() {
   // m_integrator = std::make_shared<SampleIntegrator>();
   // m_integrator = std::make_shared<PathIntegrator>();
   m_integrator = std::make_shared<SVolIntegrator>();
-  m_init       = true;
+  m_init = true;
 }
 
 bool Render::preprocess() {
-  TODO();
-  return false;
+  for (auto &light : m_scene->m_infLight) light->preprocess(*m_scene);
+  return true;
 }
 
 bool Render::saveImage(const std::string &name) {

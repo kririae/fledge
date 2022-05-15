@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 
+#include "aabb.hpp"
 #include "accel.hpp"
 #include "camera.hpp"
 #include "film.hpp"
@@ -17,14 +18,14 @@ SV_NAMESPACE_BEGIN
 namespace pt = boost::property_tree;
 
 Scene::Scene() {
-  auto sphere_1 = std::make_shared<Sphere>(Vector3f{0.0, 0.5, 0.0}, 0.5);
+  auto sphere_1 = std::make_shared<Sphere>(Vector3f{0.0, 0.0, 0.0}, 250);
   auto env_texture =
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
   auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 720;
-  m_resY       = 480;
-  m_SPP        = 512;
+  m_resX       = 1280;
+  m_resY       = 720;
+  m_SPP        = 4;
   m_camera = std::make_shared<Camera>(Vector3f(0, 0, 800), Vector3f(0, 100, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
@@ -34,9 +35,9 @@ Scene::Scene() {
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume
-  m_volume =
-      std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  // m_volume = std::make_shared<HVolume>();
+  // m_volume =
+  //     std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  m_volume = std::make_shared<HVolume>();
 }
 
 Scene::Scene(const std::string &filename) {
@@ -46,6 +47,12 @@ Scene::Scene(const std::string &filename) {
 
 bool Scene::intersect(const Ray &ray, SInteraction &isect) const {
   return m_accel->intersect(ray, isect);
+}
+
+AABB Scene::getBound() const {
+  auto aabb = m_accel->getBound();
+  if (m_volume != nullptr) aabb = aabb.merge(m_volume->getBound());
+  return aabb;
 }
 
 static bool parseIntegrator(const pt::ptree &integrator, Scene &scene) {

@@ -15,7 +15,11 @@ class Scene {
 public:
   Scene();
   Scene(const std::string &filename);
+  ~Scene() = default;
+
   bool intersect(const Ray &ray, SInteraction &isect) const;
+  AABB getBound() const;
+
   bool loadFromXml(const std::string &filename);
 
   int m_resX, m_resY, m_SPP, m_maxDepth;

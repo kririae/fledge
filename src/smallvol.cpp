@@ -28,6 +28,7 @@ int main() {
   Render render(std::make_shared<Scene>());
 
   render.init();
+  render.preprocess();
   render.render();
   render.saveImage("smallvol_out.exr");
 }
