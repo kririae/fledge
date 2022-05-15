@@ -26,10 +26,27 @@ public:
   std::shared_ptr<AABB> m_aabb;
 };
 
-class VDBVolume : public Volume {
+// homogeneous volume
+class HVolume : public Volume {
 public:
-  VDBVolume(const std::string &filename);
-  ~VDBVolume() override = default;
+  HVolume();
+  ~HVolume() override = default;
+
+  // function same as above
+  Vector3f tr(const Ray &ray, Random &rng) const override;
+  Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
+                  bool &success) const override;
+
+private:
+  Float m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
+  Float m_g;
+  Float m_density;
+};
+
+class OpenVDBVolume : public Volume {
+public:
+  OpenVDBVolume(const std::string &filename);
+  ~OpenVDBVolume() override = default;
 
   // the method should return the Transmittance, i.t. T(t) between
   // the ray's origin to ray(tMax). The result is just estimation
@@ -48,20 +65,26 @@ private:
   std::shared_ptr<openvdb::FloatGrid> m_grid;
 };
 
-class HVolume : public Volume {
+class NanoVDBVolume : public Volume {
 public:
-  HVolume();
-  ~HVolume() override = default;
+  NanoVDBVolume(const std::string &filename);
+  ~NanoVDBVolume() override = default;
 
-  // function same as above
+  // the method should return the Transmittance, i.t. T(t) between
+  // the ray's origin to ray(tMax). The result is just estimation
   Vector3f tr(const Ray &ray, Random &rng) const override;
+  // sample a volume interaction inside the volume
   Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
                   bool &success) const override;
 
 private:
+  friend class SVolIntegrator;
   Float m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
+  // Defined for delta tracking, where mu_{.} = density * sigma_{.}
   Float m_g;
-  Float m_density;
+  Float m_maxDensity, m_invMaxDensity;
+  // only support one grid currently
+  std::shared_ptr<openvdb::FloatGrid> m_grid;
 };
 
 SV_NAMESPACE_END

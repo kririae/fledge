@@ -3,6 +3,22 @@ project(smallvol)
 
 # project options
 option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)
+set(USE_SANITIZER
+    ""
+    CACHE
+      STRING
+      "Compile with a sanitizer. Options are: Address, Memory, MemoryWithOrigins, Undefined, Thread, Leak, 'Address;Undefined', CFI"
+)
+set_property(
+  CACHE USE_SANITIZER
+  PROPERTY STRINGS
+           Address
+           Memory
+           MemoryWithOrigins
+           Undefined
+           Thread
+           Leak
+           CFI)
 
 set(CMAKE_CXX_STANDARD 20)
 

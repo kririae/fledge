@@ -22,7 +22,7 @@ void Render::init() {
   // m_integrator = std::make_shared<SampleIntegrator>();
   // m_integrator = std::make_shared<PathIntegrator>();
   m_integrator = std::make_shared<SVolIntegrator>();
-  m_init = true;
+  m_init       = true;
 }
 
 bool Render::preprocess() {

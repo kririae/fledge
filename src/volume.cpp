@@ -21,7 +21,7 @@ AABB Volume::getBound() const {
   return *m_aabb;
 }
 
-VDBVolume::VDBVolume(const std::string &filename) {
+OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
   m_sigma_a = 0.0;
   m_sigma_s = 1.0;
@@ -61,7 +61,7 @@ VDBVolume::VDBVolume(const std::string &filename) {
   file.close();
 }
 
-Vector3f VDBVolume::tr(const Ray &ray, Random &rng) const {
+Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
   auto accessor      = m_grid->getConstAccessor();
   using sampler_type = openvdb::tools::Sampler<1>;
   // Extra effort is needed to use openvdb to interpolate
@@ -97,8 +97,8 @@ Vector3f VDBVolume::tr(const Ray &ray, Random &rng) const {
   return Vector3f::Constant(tr);
 }
 
-Vector3f VDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
-                           bool &success) const {
+Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
+                               bool &success) const {
   // Delta-Tracking
   auto accessor      = m_grid->getConstAccessor();
   using sampler_type = openvdb::tools::Sampler<1>;

@@ -24,8 +24,8 @@ Scene::Scene() {
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
   auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 720;
-  m_resY       = 640;
+  m_resX       = 1280;
+  m_resY       = 720;
   m_SPP        = 4;
   m_camera = std::make_shared<Camera>(Vector3f(0, 0, 800), Vector3f(0, 100, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
@@ -36,9 +36,9 @@ Scene::Scene() {
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume
-  // m_volume =
-  //     std::make_shared<VDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  m_volume = std::make_shared<HVolume>();
+  m_volume = std::make_shared<OpenVDBVolume>(
+      "assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  // m_volume = std::make_shared<HVolume>();
 }
 
 Scene::Scene(const std::string &filename) {
@@ -58,15 +58,18 @@ AABB Scene::getBound() const {
 }
 
 static bool parseIntegrator(const pt::ptree &integrator, Scene &scene) {
+  /*
   auto type = integrator.get<std::string>("<xmlattr>.type");
   SV_Log("integrator.type = %s", type.c_str());
   int maxDepth = integrator.get<int>("integer.<xmlattr>.value");
   SV_Log("integrator.maxDepth = %d", maxDepth);
   scene.m_maxDepth = maxDepth;
+  */
   return true;
 }
 
 bool Scene::loadFromXml(const std::string &filename) {
+  /*
   pt::ptree tree;
   pt::read_xml(filename, tree);
   SV_Log("xml load from %s", filename.c_str());
@@ -75,6 +78,7 @@ bool Scene::loadFromXml(const std::string &filename) {
   pt::ptree integrator    = scene.get_child("integrator");
   parseIntegrator(integrator, *this);
   // std::cout << scene_version << std::endl;
+  */
   TODO();
 
   return true;

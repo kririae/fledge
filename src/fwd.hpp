@@ -71,7 +71,7 @@ class SInteraction;
 class Sphere;
 class SVolIntegrator;
 class Texture;
-class VDBVolume;
+class OpenVDBVolume;
 class VInteraction;
 class Volume;
 

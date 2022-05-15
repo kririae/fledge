@@ -13,18 +13,18 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="128" />
+      <integer name="sampleCount" value="4096" />
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="width" value="720" />
-      <integer name="height" value="640" />
+      <integer name="width" value="1280" />
+      <integer name="height" value="720" />
     </film>
   </sensor>
 
   <medium type="heterogeneous" id="cloud">
     <volume name="density" type="nanovdbvolume">
-      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_half.vdb" />
+      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud.vdb" />
     </volume>
 
     <phase type="hg">
