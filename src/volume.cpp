@@ -25,7 +25,7 @@ VDBVolume::VDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
   m_sigma_a = 0.0;
   m_sigma_s = 1.0;
-  m_g       = -0.3;
+  m_g       = 0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
 
   openvdb::initialize();
@@ -43,7 +43,7 @@ VDBVolume::VDBVolume(const std::string &filename) {
   Float minDensity, maxDensity;
   m_grid->evalMinMax(minDensity, maxDensity);
   SV_Log("m_maxDensity=%f", maxDensity);
-  m_maxDensity    = maxDensity * 2;
+  m_maxDensity    = maxDensity;
   m_invMaxDensity = 1.0 / m_maxDensity;
 
   auto aabb  = m_grid->evalActiveVoxelBoundingBox();
@@ -85,7 +85,7 @@ Vector3f VDBVolume::tr(const Ray &ray, Random &rng) const {
     Float density = sampler.wsSample(openvdb::Vec3d{pos.x(), pos.y(), pos.z()});
     tr *= 1 - std::max(static_cast<Float>(0), density * m_invMaxDensity);
 
-    // pbrt's optimization using RR
+    // PBRT's optimization using RR
     const Float rrThreshold = .1;
     if (tr < rrThreshold) {
       Float q = std::max((Float).05, 1 - tr);
@@ -143,14 +143,15 @@ HVolume::HVolume() {
   // currently the same as above
   m_sigma_a = 0.0;
   m_sigma_s = 1.0;
-  m_g       = -0.8;
+  m_g       = 0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
   m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
                                   Vector3f{218.33, 213.33, 298.33});
   // m_aabb =
-  //     std::make_shared<AABB>(Vector3f::Constant(-100), Vector3f::Constant(100));
+  //     std::make_shared<AABB>(Vector3f::Constant(-100),
+  //     Vector3f::Constant(100));
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {

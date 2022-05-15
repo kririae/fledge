@@ -24,10 +24,10 @@ Scene::Scene() {
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
   auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 1280;
-  m_resY       = 720;
-  m_SPP        = 128;
-  m_camera = std::make_shared<Camera>(Vector3f(200, 200, 800), Vector3f(0, 100, 0));
+  m_resX       = 720;
+  m_resY       = 640;
+  m_SPP        = 4;
+  m_camera = std::make_shared<Camera>(Vector3f(0, 0, 800), Vector3f(0, 100, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 project(smallvol)
 
 # project options
-option(USE_TBB "use TBB instead of OpenMP for parallization" ON)
+option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 

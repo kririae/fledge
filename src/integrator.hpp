@@ -24,6 +24,8 @@ public:
   // call by the class Render
   void             render(const Scene &scene) override;
   virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng);
+
+private:
 };
 
 class PathIntegrator : public SampleIntegrator {
@@ -48,7 +50,7 @@ public:
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  const int   m_maxDepth    = 32;
+  const int   m_maxDepth    = 64;
   const Float m_rrThreshold = 0.1;
 };
 

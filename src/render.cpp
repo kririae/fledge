@@ -32,7 +32,7 @@ bool Render::preprocess() {
 
 bool Render::saveImage(const std::string &name) {
   if (!m_init) return false;
-  SV_Log("saveImage(%s) is called in render", name.c_str());
+  SV_Log("saveImage(%s)", name.c_str());
   m_scene->m_film->saveImage(name);
   return true;
 }

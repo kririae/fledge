@@ -5,6 +5,9 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/spin_mutex.h>
 
+#include <chrono>
+#include <cstddef>
+
 #include "aabb.hpp"
 #include "camera.hpp"
 #include "film.hpp"
@@ -87,83 +90,85 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
 void SampleIntegrator::render(const Scene &scene) {
   Random rng;
 
-  auto resX = scene.m_resX;
-  auto resY = scene.m_resY;
-  auto SPP  = scene.m_SPP;
+  constexpr int BLOCK_SIZE    = 16;
+  constexpr int SAVE_INTERVAL = 20;  // (s)
+  auto          resX          = scene.m_resX;
+  auto          resY          = scene.m_resY;
+  auto          SPP           = scene.m_SPP;
+  auto          blockX        = (resX - 1) / BLOCK_SIZE + 1;
+  auto          blockY        = (resY - 1) / BLOCK_SIZE + 1;
   SV_Log("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
+  SV_Log("parallel info: (BLOCK_SIZE=%d, blockX=%d, blockY=%d)", BLOCK_SIZE,
+         blockX, blockY);
 
-  constexpr int BLOCK_SIZE = 16;
-#ifdef USE_TBB
-  SV_Log("TBB is ready");
-  int blockX = (resX - 1) / BLOCK_SIZE + 1;
-  int blockY = (resY - 1) / BLOCK_SIZE + 1;
-  // clang-format off
-  int cnt = 0;
+  // define to lambdas here for further evaluation
+  auto evalPixel = [&](int x, int y, int SPP) -> Vector3f {
+    Vector3f color = Vector3f::Zero();
 
-  oneapi::tbb::spin_mutex l_mutex;
+    // temporary implementation
+    for (int s = 0; s < SPP; ++s) {
+      auto uv = rng.get2D();
+      auto ray =
+          scene.m_camera->generateRay(x + uv.x(), y + uv.y(), resX, resY);
+      color += Li(ray, scene, rng);
+    }
 
-  // currently using tbb might lead to a performance degradation
-  tbb::parallel_for(tbb::blocked_range2d<int, int>(0, blockX, 0, blockY),
-    [resX, resY, SPP, blockX, blockY, &scene, &rng, &cnt, &l_mutex,
-      this](const tbb::blocked_range2d<int, int> &r) {
-      int r_l = r.rows().begin() * BLOCK_SIZE,
-          r_r = std::min(r.rows().end() * BLOCK_SIZE, resX);
-      int c_l = r.cols().begin() * BLOCK_SIZE,
-          c_r = std::min(r.cols().end() * BLOCK_SIZE, resY);
-      for (auto i = r_l; i < r_r; ++i) {
-        for (auto j = c_l; j < c_r; ++j) {
-          Vector3f color = Vector3f::Zero();
+    return color / SPP;
+  };
 
-          // temporary implementation
-          for (int s = 0; s < SPP; ++s) {
-            auto uv  = rng.get2D();
-            auto ray = scene.m_camera->generateRay(
-                i + uv.x(), j + uv.y(), resX, resY);
-            color += Li(ray, scene, rng);
-          }
-
-          // store the value back
-          scene.m_film->getPixel(i, j) = color / SPP;
-        }
-      }
-
-      { // scope
-        tbb::spin_mutex::scoped_lock lock(l_mutex);
-        ++cnt;
-        // potential bug
-        if (cnt % 25 == 0)
-          SV_Log("[%d/%d] blocks are finished", cnt, blockX * blockY);
-        if (cnt % 100 == 0) scene.m_film->saveImage("tmp.exr");
-      }
-    });
-  // clang-format on
-#else
-  std::atomic<int> cnt;
-#pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < resX; ++i) {
-    for (int j = 0; j < resY; ++j) {
-      Vector3f color = Vector3f::Zero();
-
-      // temporary implementation
-      for (int s = 0; s < SPP; ++s) {
-        auto uv = rng.get2D();
-        auto ray =
-            scene.m_camera->generateRay(i + uv.x(), j + uv.y(), resX, resY);
-        color += Li(ray, scene, rng);
-      }
-
-      // store the value back
-      scene.m_film->getPixel(i, j) = color / SPP;
-#pragma omp critical  // for output
-      {
-        ++cnt;
-        printf("rendering: %f\r", static_cast<Float>(cnt) / resX / resY);
-        if (i % 100 == 0 && j == 0) {
-          scene.m_film->saveImage("tmp.exr");
-        }
+  // to be paralleled
+  // starting from (x, y)
+  auto evalBlock = [&](int x, int y, int width, int height, int SPP) {
+    int x_max = std::min(x + width, scene.m_resX);
+    int y_max = std::min(y + height, scene.m_resY);
+    for (int i = x; i < x_max; ++i) {
+      for (int j = y; j < y_max; ++j) {
+        scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP);
       }
     }
-  }
+  };
+
+  int  block_cnt = 0;
+  auto start     = std::chrono::system_clock::now();
+
+#ifdef USE_TBB
+  static_assert(false, "TBB is not supported yet");
+  SV_Log("TBB is ready");
+  auto __tbb_evalBlock = [&](const tbb::blocked_range2d<int, int> &r) {
+    // r specifies a range in blocks
+    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
+        int x = i * BLOCK_SIZE, y = j * BLOCK_SIZE;
+        evalBlock(x, y, BLOCK_SIZE, BLOCK_SIZE, SPP);
+      }
+    }
+  };
+  tbb::parallel_for(tbb::blocked_range2d<int, int>(0, blockX, 0, blockY),
+                    __tbb_evalBlock);
+#else
+  SV_Log("OpenMP is ready");
+#pragma omp parallel for collapse(2) schedule(dynamic, 1)
+  for (int i = 0; i < blockX; ++i) {
+    for (int j = 0; j < blockY; ++j) {
+      int x = i * BLOCK_SIZE, y = j * BLOCK_SIZE;
+      evalBlock(x, y, BLOCK_SIZE, BLOCK_SIZE, SPP);
+
+#pragma omp critical
+      {
+        ++block_cnt;
+        if (block_cnt % 100 == 0)
+          SV_Log("[%d/%d] blocks are finished", block_cnt, blockX * blockY);
+        // save when time passed
+        auto end = std::chrono::system_clock::now();
+
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        if (elapsed_seconds.count() > SAVE_INTERVAL) {
+          scene.m_film->saveImage("smallvol_out.exr");
+          start = std::chrono::system_clock::now();
+        }
+      }  // omp critical
+    }
+  }  // omp loop
 #endif
 }
 

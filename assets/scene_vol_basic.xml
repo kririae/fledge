@@ -13,12 +13,12 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="8" />
+      <integer name="sampleCount" value="128" />
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="width" value="1280" />
-      <integer name="height" value="720" />
+      <integer name="width" value="720" />
+      <integer name="height" value="640" />
     </film>
   </sensor>
 
@@ -28,7 +28,7 @@
     </volume>
 
     <phase type="hg">
-      <float name="g" value="-0.8" />
+      <float name="g" value="0.877" />
     </phase>
 
     <volume name="albedo" type="constvolume">
@@ -45,11 +45,7 @@
   </medium>
 
   <shape type="cube">
-    <ref name="interior" id="cloud_homo" />
-    <!-- <transform name="toWorld">
-      <scale x="206.544" y="140.4" z="254.592" />
-      <translate x="9.984" y="73.008" z="42.64" />
-    </transform> -->
+    <ref name="interior" id="cloud" />
     <transform name="toWorld">
       <scale x="206.544" y="140.4" z="254.592" />
       <translate x="9.984" y="73.008" z="42.64" />
