@@ -60,7 +60,7 @@ inline Float HGSampleP(Vector3f &wo, Vector3f &wi, Float u, Float v, Float g) {
   }
 
   Float    phi       = 2 * PI * v;
-  Float    sin_theta = sqrt(1 - cos_theta * cos_theta);
+  Float    sin_theta = sqrt(fmax(0, 1 - cos_theta * cos_theta));
   Vector3f local_wi(cosf(phi), sinf(phi), sin_theta);
 
   CoordinateTransition ct{wo};

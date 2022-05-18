@@ -8,6 +8,7 @@
 #include <execution>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 #include <span>
 #include <string>
 
@@ -27,6 +28,7 @@ public:
 private:
   int                   m_resX, m_resY;
   std::vector<Vector3f> m_pixels;
+  std::mutex            m_mutex;
 };
 
 SV_NAMESPACE_END

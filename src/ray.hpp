@@ -1,6 +1,8 @@
 #ifndef __RAY_HPP__
 #define __RAY_HPP__
 
+#include <sstream>
+
 #include "fwd.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -12,10 +14,16 @@ public:
   Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
       const Volume *volume = nullptr)
       : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
-  Vector3f             at(Float t) const { return m_o + m_d * t; }
-  Vector3f             operator()(Float t) const { return at(t); }
+  Vector3f    at(Float t) const { return m_o + m_d * t; }
+  Vector3f    operator()(Float t) const { return at(t); }
+  std::string toString() const {
+    std::ostringstream oss;
+    oss << "[o=" << m_o << ", d=" << m_d << ", tMax=" << m_tMax << "]";
+    return oss.str();
+  }
+
   friend std::ostream &operator<<(std::ostream &os, const Ray &r) {
-    os << "[o=" << r.m_o << ", d=" << r.m_d << ", tMax=" << r.m_tMax << "]";
+    os << r.toString();
     return os;
   }
 

@@ -50,7 +50,7 @@ public:
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
 
 private:
-  const int   m_maxDepth    = 64;
+  const int   m_maxDepth    = 16;
   const Float m_rrThreshold = 0.1;
 };
 

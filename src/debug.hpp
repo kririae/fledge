@@ -5,6 +5,8 @@
 #include <execinfo.h>
 #endif
 
+#include <math.h>
+
 #include <cstdio>
 
 #define SV_FG_BLACK        "\33[1;30m"
@@ -38,23 +40,23 @@ inline void backtrace() {
 #endif
 }
 
-#define SV_Log(format, ...)                                                \
+#define SLog(format, ...)                                                  \
   do {                                                                     \
     fprintf(stdout, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_GREEN) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
   } while (false)
-#define SV_Err(format, ...)                                              \
+#define SErr(format, ...)                                                \
   do {                                                                   \
     fprintf(stderr, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_RED) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);            \
     backtrace();                                                         \
     assert(false);                                                       \
   } while (false)
-#define TODO() SV_Err("please implement me")
+#define TODO() SErr("please implement me")
 
-#define LogFloat(val) SV_Log(#val "=%f", val)
-#define LogVec3(vec3) \
-  SV_Log(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
+#define LFloat(val) SLog(#val "=%f", val)
+#define LVec3(vec3) SLog(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
+#define LClass(cls) SLog(#cls "=%s", cls.toString().c_str())
 
 #define CPtr(ptr)   assert(ptr != nullptr)
 #define CFloat(val) assert(!isnan(val) && !isinf(val))
@@ -63,6 +65,13 @@ inline void backtrace() {
     CFloat(vec3.x()); \
     CFloat(vec3.y()); \
     CFloat(vec3.z()); \
+  } while (false)
+#define CNorm(vec3)                            \
+  do {                                         \
+    if (abs(vec3.norm() - 1.0) > 1e-4) {       \
+      SLog(#vec3 ".norm() = %f", vec3.norm()); \
+      assert(vec3.norm() == 1.0);              \
+    }                                          \
   } while (false)
 
 #endif

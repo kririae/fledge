@@ -73,7 +73,7 @@ Vector3f AreaLight::L(const Interaction &isect, const Vector3f &w) const {
 
 InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
     : m_tex(std::make_shared<ConstTexture>(color)) {
-  SV_Log("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
+  SLog("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
          color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
@@ -81,7 +81,7 @@ InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
     : m_tex(std::make_shared<ImageTexture>(filename)) {
-  SV_Log("InfiniteAreaLight is initialized with filename=(%s)",
+  SLog("InfiniteAreaLight is initialized with filename=(%s)",
          filename.c_str());
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
@@ -89,15 +89,15 @@ InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
 
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
-  SV_Log("InfiniteAreaLight is initialized with Texture object");
+  SLog("InfiniteAreaLight is initialized with Texture object");
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
 }
 
 void InfiniteAreaLight::preprocess(const Scene &scene) {
   scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
-  SV_Log("m_worldRadius=%f", m_worldRadius);
-  LogVec3(m_worldCenter);
+  SLog("m_worldRadius=%f", m_worldRadius);
+  LVec3(m_worldCenter);
   m_worldRadius *= 2;
 }
 
@@ -118,9 +118,12 @@ Float InfiniteAreaLight::pdfLi(const Interaction &) const {
 }
 
 Vector3f InfiniteAreaLight::Le(const Ray &ray) const {
-  auto  dir   = WorldToLight(ray.m_d).normalized();
+  auto dir = WorldToLight(ray.m_d).normalized();
+  CVec3(dir);
   Float phi   = SphericalPhi(dir);
   Float theta = SphericalTheta(dir);
+  CFloat(phi);
+  CFloat(theta);
   return m_tex->eval(phi * INV_2PI, theta * INV_PI);
 }
 

@@ -22,7 +22,7 @@
 
 SV_NAMESPACE_BEGIN
 
-Vector3f EstimateTr(const Ray &ray, const Scene &scene) {
+Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
   // only consider the result to be 0 or 1 currently
   SInteraction isect;
   if (scene.intersect(ray, isect)) {
@@ -33,6 +33,8 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene) {
 }
 
 Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
+  CPtr(scene.m_volume);
+  CNorm(ray.m_d);
   return scene.m_volume->tr(ray, rng);
 }
 
@@ -54,12 +56,17 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
                                            trans) *
         abs(wi.dot(t_it.m_ns));
-    SV_Err("do not support SInteraction yet");
+    // SErr("do not support SInteraction yet");
   } else {
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
+
+    CFloat(vit.m_g);
+    CNorm(vit.m_wo);
+    CNorm(wi);
     // likely the BRDF to be applied
     f = Vector3f::Constant(HGP(wi, vit.m_wo, vit.m_g));
+    CVec3(f);
   }
 
   if (f != Vector3f::Zero()) {
@@ -67,7 +74,8 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = VolEstimateTr(shadow_ray, scene, rng);
-    Li                  = Li.cwiseProduct(tr);
+    // CVec3(tr);
+    Li = Li.cwiseProduct(tr);
     L += f.cwiseProduct(Li) / pdf;
   }
 
@@ -95,9 +103,9 @@ void SampleIntegrator::render(const Scene &scene) {
   auto          SPP           = scene.m_SPP;
   auto          blockX        = (resX - 1) / BLOCK_SIZE + 1;
   auto          blockY        = (resY - 1) / BLOCK_SIZE + 1;
-  SV_Log("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
-  SV_Log("parallel info: (BLOCK_SIZE=%d, blockX=%d, blockY=%d)", BLOCK_SIZE,
-         blockX, blockY);
+  SLog("render start with (resX=%d, resY=%d, SPP=%d)", resX, resY, SPP);
+  SLog("parallel info: (BLOCK_SIZE=%d, blockX=%d, blockY=%d)", BLOCK_SIZE,
+       blockX, blockY);
 
   // define to lambdas here for further evaluation
   auto evalPixel = [&](int x, int y, int SPP, Random &rng) -> Vector3f {
@@ -130,19 +138,9 @@ void SampleIntegrator::render(const Scene &scene) {
   int  block_cnt = 0;
   auto start     = std::chrono::system_clock::now();
 
-  //   Random rng(0);
-  // // #pragma omp parallel for collapse(2) schedule(dynamic, 50)
-  //   for (int i = 0; i < resX; ++i) {
-  //     for (int j = 0; j < resY; ++j) {
-  //       scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP, rng);
-  //     }
-  //   }
-
-  //   return;
-
 #ifdef USE_TBB
   static_assert(false, "TBB is not supported yet");
-  SV_Log("TBB is ready");
+  SLog("TBB is ready");
   auto __tbb_evalBlock = [&](const tbb::blocked_range2d<int, int> &r) {
     // r specifies a range in blocks
     for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
@@ -155,7 +153,7 @@ void SampleIntegrator::render(const Scene &scene) {
   tbb::parallel_for(tbb::blocked_range2d<int, int>(0, blockX, 0, blockY),
                     __tbb_evalBlock);
 #else
-  SV_Log("OpenMP is ready");
+  SLog("OpenMP is ready");
 #pragma omp parallel for collapse(2) schedule(dynamic, 1)
   for (int i = 0; i < blockX; ++i) {
     for (int j = 0; j < blockY; ++j) {
@@ -166,13 +164,13 @@ void SampleIntegrator::render(const Scene &scene) {
       {
         ++block_cnt;
         if (block_cnt % 100 == 0)
-          SV_Log("[%d/%d] blocks are finished", block_cnt, blockX * blockY);
+          SLog("[%d/%d] blocks are finished", block_cnt, blockX * blockY);
         // save when time passed
         auto end = std::chrono::system_clock::now();
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
-          // scene.m_film->saveImage("smallvol_out.exr");
+          scene.m_film->saveImage("smallvol_out.exr");
           start = std::chrono::system_clock::now();
         }
       }  // omp critical
@@ -274,6 +272,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
     if (in_volume) {
       bool success{false};
+
       CPtr(scene.m_volume);
       auto f = scene.m_volume->sample(ray, rng, vit, success);
       CVec3(f);
@@ -282,10 +281,13 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         // if it is in volume(so t_min <= 0), and the sample is in the volume
         // T \mu s are take into consider by the Estimator
         beta = beta.cwiseProduct(f);
+        CVec3(beta);
 
         Vector3f wi;
         HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
-        assert(wi.norm() == 1.0);
+        CNorm(vit.m_wo);
+        CNorm(wi);
+
         L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
         CVec3(L);
 

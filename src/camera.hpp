@@ -13,7 +13,7 @@ public:
       : m_pos(pos),
         m_forward((lookAt - pos).normalized()),
         m_up(up),
-        m_right(m_up.cross(m_forward)),
+        m_right(m_up.cross(m_forward).normalized()),
         m_fov(fov) {
     assert(m_up.norm() == 1);
     assert(m_right.norm() == 1);

@@ -30,7 +30,7 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
 
   openvdb::initialize();
   openvdb::io::File file(filename);
-  SV_Log("load OpenVDB file %s", filename.c_str());
+  SLog("load OpenVDB file %s", filename.c_str());
   file.open();
   // the only grid we need from cloud volume
   auto baseGrid = file.readGrid("density");
@@ -42,7 +42,7 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   // acquire the global maxDensity in nodes
   Float minDensity, maxDensity;
   m_grid->evalMinMax(minDensity, maxDensity);
-  SV_Log("m_maxDensity=%f", maxDensity);
+  SLog("m_maxDensity=%f", maxDensity);
   m_maxDensity    = maxDensity;
   m_invMaxDensity = 1.0 / m_maxDensity;
 
@@ -50,8 +50,8 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   auto l_min = aabb.min(), l_max = aabb.max();
   auto w_min = m_grid->indexToWorld(l_min);
   auto w_max = m_grid->indexToWorld(l_max);
-  SV_Log("AABB low=(%f,%f,%f) max=(%f,%f,%f)", w_min.x(), w_min.y(), w_min.z(),
-         w_max.x(), w_max.y(), w_max.z());
+  SLog("AABB low=(%f,%f,%f) max=(%f,%f,%f)", w_min.x(), w_min.y(), w_min.z(),
+       w_max.x(), w_max.y(), w_max.z());
 
   // initialize here
   m_aabb = std::make_shared<AABB>(
@@ -156,10 +156,13 @@ HVolume::HVolume() {
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
   // calculate the tr from ray.o to ray.m_tMax
   Float t_min, t_max;
-  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) return Vector3f::Ones();
+
+  if (!m_aabb->intersect(ray, t_min, t_max)) {
+    return Vector3f::Ones();
+  }
+
   // clamp the t_max
   t_min = std::max(static_cast<Float>(0), t_min);
-  // tr = exp(-t * sigma_t)
   return Vector3f::Constant(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
 }
 
@@ -167,7 +170,7 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
                          bool &success) const {
   // sample a point inside the volume
   Float t_min, t_max;
-  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) {
+  if (!m_aabb->intersect(ray, t_min, t_max)) {
     success = false;
     return Vector3f::Ones();
   }

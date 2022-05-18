@@ -29,7 +29,7 @@ public:
   virtual bool isSInteraction() const { return false; }
 
   // shading normal, geometry normal
-  Vector3f m_p, m_ns, m_ng, m_wo;
+  Vector3f m_p, m_ns{Vector3f::Zero()}, m_ng{Vector3f::Zero()}, m_wo;
 
 private:
 };
@@ -53,6 +53,7 @@ public:
   VInteraction(const Vector3f &p, const Vector3f &wo, Float g)
       : Interaction(p, Vector3f::Zero(), Vector3f::Zero(), wo), m_g(g) {}
   virtual ~VInteraction() = default;
+  bool isSInteraction() const override { return false; }
 
   Float m_g;
 };
