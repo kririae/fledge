@@ -1,15 +1,14 @@
 #include "integrator.hpp"
 
 #include <Eigen/src/Core/Reverse.h>
-#include <oneapi/tbb/blocked_range2d.h>
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/spin_mutex.h>
 
 #include <chrono>
 #include <cstddef>
+#include <thread>
 
 #include "aabb.hpp"
 #include "camera.hpp"
+#include "debug.hpp"
 #include "film.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
@@ -55,6 +54,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
                                            trans) *
         abs(wi.dot(t_it.m_ns));
+    SV_Err("do not support SInteraction yet");
   } else {
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
@@ -88,8 +88,6 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
 
 // call by the class Render
 void SampleIntegrator::render(const Scene &scene) {
-  Random rng;
-
   constexpr int BLOCK_SIZE    = 16;
   constexpr int SAVE_INTERVAL = 20;  // (s)
   auto          resX          = scene.m_resX;
@@ -102,7 +100,7 @@ void SampleIntegrator::render(const Scene &scene) {
          blockX, blockY);
 
   // define to lambdas here for further evaluation
-  auto evalPixel = [&](int x, int y, int SPP) -> Vector3f {
+  auto evalPixel = [&](int x, int y, int SPP, Random &rng) -> Vector3f {
     Vector3f color = Vector3f::Zero();
 
     // temporary implementation
@@ -119,17 +117,28 @@ void SampleIntegrator::render(const Scene &scene) {
   // to be paralleled
   // starting from (x, y)
   auto evalBlock = [&](int x, int y, int width, int height, int SPP) {
-    int x_max = std::min(x + width, scene.m_resX);
-    int y_max = std::min(y + height, scene.m_resY);
+    Random rng(y * resX + x);
+    int    x_max = std::min(x + width, scene.m_resX);
+    int    y_max = std::min(y + height, scene.m_resY);
     for (int i = x; i < x_max; ++i) {
       for (int j = y; j < y_max; ++j) {
-        scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP);
+        scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP, rng);
       }
     }
   };
 
   int  block_cnt = 0;
   auto start     = std::chrono::system_clock::now();
+
+  //   Random rng(0);
+  // // #pragma omp parallel for collapse(2) schedule(dynamic, 50)
+  //   for (int i = 0; i < resX; ++i) {
+  //     for (int j = 0; j < resY; ++j) {
+  //       scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP, rng);
+  //     }
+  //   }
+
+  //   return;
 
 #ifdef USE_TBB
   static_assert(false, "TBB is not supported yet");
@@ -163,7 +172,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
-          scene.m_film->saveImage("smallvol_out.exr");
+          // scene.m_film->saveImage("smallvol_out.exr");
           start = std::chrono::system_clock::now();
         }
       }  // omp critical
@@ -265,7 +274,10 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
     if (in_volume) {
       bool success{false};
+      CPtr(scene.m_volume);
       auto f = scene.m_volume->sample(ray, rng, vit, success);
+      CVec3(f);
+
       if (success) {
         // if it is in volume(so t_min <= 0), and the sample is in the volume
         // T \mu s are take into consider by the Estimator
@@ -273,9 +285,11 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
         Vector3f wi;
         HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
+        assert(wi.norm() == 1.0);
         L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
+        CVec3(L);
 
-        if (bounces >= m_maxDepth) break;
+        if (bounces >= m_maxDepth || beta.isZero()) break;
         ray = vit.SpawnRay(wi);
       } else {
         // The sample is not permitted since it is already considered in the
@@ -284,13 +298,13 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       }
     }
 
-    if (bounces > 3) {
-      if (rng.get1D() < m_rrThreshold) {
-        break;
-      }
+    // if (bounces > 3) {
+    //   if (rng.get1D() < m_rrThreshold) {
+    //     break;
+    //   }
 
-      beta /= (1 - m_rrThreshold);
-    }
+    //   beta /= (1 - m_rrThreshold);
+    // }
   }
 
   return L;

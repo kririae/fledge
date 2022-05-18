@@ -41,6 +41,12 @@ inline Vector3f UniformSampleSphere(const Vector2f &u) {
   return {sinTheta * cosPhi, sinTheta * sinPhi, cosTheta};
 }
 
+inline Float HGP(const Vector3f &wi, const Vector3f &wo, Float g) {
+  Float cos_theta = wi.dot(wo);
+  Float denom     = 1 + g * g + 2 * g * cos_theta;
+  return (1 - g * g) / (denom * sqrt(denom)) * INV_4PI;
+}
+
 // The following two functions are adopted from rt-render with little
 // modification
 // (u, v) are the random values
@@ -60,14 +66,7 @@ inline Float HGSampleP(Vector3f &wo, Vector3f &wi, Float u, Float v, Float g) {
   CoordinateTransition ct{wo};
   wi = ct.LocalToWorld(local_wi).normalized();
 
-  Float denom = 1 + g * g + 2 * g * cos_theta;
-  return (1 - g * g) / (denom * sqrt(denom)) * INV_4PI;
-}
-
-inline Float HGP(const Vector3f &wi, const Vector3f &wo, Float g) {
-  Float cos_theta = wi.dot(wo);
-  Float denom     = 1 + g * g + 2 * g * cos_theta;
-  return (1 - g * g) / (denom * sqrt(denom)) * INV_4PI;
+  return HGP(wi, wo, g);
 }
 
 SV_NAMESPACE_END

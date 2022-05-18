@@ -141,17 +141,16 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
 // For testing the delta-tracking
 HVolume::HVolume() {
   // currently the same as above
-  m_sigma_a = 0.0;
-  m_sigma_s = 1.0;
+  m_sigma_s = 10.0;
+  m_sigma_a = 1.00;
   m_g       = 0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
-  m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
-                                  Vector3f{218.33, 213.33, 298.33});
-  // m_aabb =
-  //     std::make_shared<AABB>(Vector3f::Constant(-100),
-  //     Vector3f::Constant(100));
+  // m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
+  //                                 Vector3f{218.33, 213.33, 298.33});
+  m_aabb =
+      std::make_shared<AABB>(Vector3f::Constant(-0.5), Vector3f::Constant(0.5));
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
@@ -176,6 +175,8 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   // sample the distance by $p(t) = \sigma_t e^{-\sigma_t t}$
   Float t = -std::log(1 - rng.get1D()) / (m_density * m_sigma_t);
   // Float tr = std::exp(-t * m_density * m_sigma_t); // tr is elimated
+  CFloat(t);
+
   if (t < t_max) {
     // sampling the volume
     success = true;

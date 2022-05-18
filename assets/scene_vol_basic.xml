@@ -7,24 +7,30 @@
 
   <sensor type="perspective">
     <float name="fov" value="30" />
-    <string name="fovAxis" value="x" />
+    <string name="fovAxis" value="y" />
     <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0, 0, 800" target="0, 100, 0" />
+      <lookat up="0, 1, 0" origin="0, 0, 1200" target="0, 100, 0" />
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="4096" />
+      <integer name="sampleCount" value="8" />
     </sampler>
 
     <film type="hdrfilm">
       <integer name="width" value="1280" />
       <integer name="height" value="720" />
+
+      <rfilter type="gaussian">
+        <float name="size" value="0.5" />
+      </rfilter>
     </film>
   </sensor>
 
   <medium type="heterogeneous" id="cloud">
+    <string name="method" value="woodcock" />
+
     <volume name="density" type="nanovdbvolume">
-      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud.vdb" />
+      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_eighth.vdb" />
     </volume>
 
     <phase type="hg">
@@ -37,15 +43,15 @@
   </medium>
 
   <medium id="cloud_homo" type="homogeneous">
-    <spectrum name="sigmaS" value="1" />
-    <spectrum name="sigmaA" value="0" />
+    <spectrum name="sigmaS" value="0" />
+    <spectrum name="sigmaA" value="0.01" />
     <phase type="hg">
       <float name="g" value="0.877" />
     </phase>
   </medium>
 
   <shape type="cube">
-    <ref name="interior" id="cloud" />
+    <ref name="interior" id="cloud_homo" />
     <transform name="toWorld">
       <scale x="206.544" y="140.4" z="254.592" />
       <translate x="9.984" y="73.008" z="42.64" />

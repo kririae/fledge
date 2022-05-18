@@ -9,14 +9,17 @@ SV_NAMESPACE_BEGIN
 
 class Random {
 public:
-  Random() = default;
+  Random(uint32_t seed = 0) : m_seed(seed) {}
   // generate Float range from [0, 1]
   Float get1D() {
-    static thread_local std::mt19937      generator{std::random_device{}()};
+    static thread_local std::mt19937      generator{m_seed};
     std::uniform_real_distribution<Float> distribution(0, 1);
     return distribution(generator);
   }
   Vector2f get2D() { return {get1D(), get1D()}; }
+
+private:
+  uint32_t m_seed;
 };
 
 SV_NAMESPACE_END

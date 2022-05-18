@@ -19,7 +19,8 @@ Vector3f Texture::eval(Float u, Float v) const {
 
 ImageTexture::~ImageTexture() {
   SV_Log("ImageTexture destroy");
-  if (m_texture != nullptr) OIIO::TextureSystem::destroy(m_texture);
+  CPtr(m_texture);
+  OIIO::TextureSystem::destroy(m_texture);
 }
 
 ImageTexture::ImageTexture(const std::string &path) : m_filename(path) {
@@ -34,9 +35,12 @@ ImageTexture::ImageTexture(const std::string &path) : m_filename(path) {
 
 Vector3f ImageTexture::eval(const Vector2f &uv) const {
   float result[3];
-  auto  opt     = OIIO::TextureOpt();
-  bool  success = m_texture->texture(m_handle, nullptr, opt, uv.x(), uv.y(), 0,
-                                     0, 0, 0, 3, result);
+  auto  opt = OIIO::TextureOpt();
+  // bool  success = m_texture->texture(m_handle, nullptr, opt, uv.x(), uv.y(),
+  // 0,
+  //                                    0, 0, 0, 3, result);
+  bool success = m_texture->texture(OIIO::ustring(m_filename), opt, uv.x(),
+                                    uv.y(), 0, 0, 0, 0, 3, result);
   if (!success) SV_Err("texture access failed");
   return {result[0], result[1], result[2]};
 }

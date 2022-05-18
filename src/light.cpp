@@ -118,7 +118,7 @@ Float InfiniteAreaLight::pdfLi(const Interaction &) const {
 }
 
 Vector3f InfiniteAreaLight::Le(const Ray &ray) const {
-  auto  dir   = WorldToLight(ray.m_d);
+  auto  dir   = WorldToLight(ray.m_d).normalized();
   Float phi   = SphericalPhi(dir);
   Float theta = SphericalTheta(dir);
   return m_tex->eval(phi * INV_2PI, theta * INV_PI);

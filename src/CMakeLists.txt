@@ -1,5 +1,6 @@
 cpmaddpackage("gh:StableCoder/cmake-scripts#22.01")
 include(${cmake-scripts_SOURCE_DIR}/sanitizers.cmake)
+include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenImageIO REQUIRED)
@@ -36,7 +37,6 @@ file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
 file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
 
 # clang-format
-include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
 clang_format(format_smallvol "${all_source}")
 cmake_format(format_cmake "${cmake_files}")
 

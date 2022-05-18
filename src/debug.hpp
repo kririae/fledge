@@ -56,4 +56,13 @@ inline void backtrace() {
 #define LogVec3(vec3) \
   SV_Log(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
 
+#define CPtr(ptr)   assert(ptr != nullptr)
+#define CFloat(val) assert(!isnan(val) && !isinf(val))
+#define CVec3(vec3)   \
+  do {                \
+    CFloat(vec3.x()); \
+    CFloat(vec3.y()); \
+    CFloat(vec3.z()); \
+  } while (false)
+
 #endif
