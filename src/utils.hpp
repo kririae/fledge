@@ -2,9 +2,20 @@
 #define __UTILS_HPP__
 
 #include "fwd.hpp"
+#include "interaction.hpp"
 #include "material.hpp"
 
 SV_NAMESPACE_BEGIN
+
+inline void CoordinateSystem(const Vector3f &v1, Vector3f &v2, Vector3f &v3) {
+  if (std::abs(v1.x()) > std::abs(v1.y()))
+    v2 = Vector3f(-v1.z(), 0, v1.x()) /
+         std::sqrt(v1.x() * v1.x() + v1.z() * v1.z());
+  else
+    v2 = Vector3f(0, v1.z(), -v1.y()) /
+         std::sqrt(v1.y() * v1.y() + v1.z() * v1.z());
+  v3 = v1.cross(v2);
+}
 
 // copied from previous implementation
 inline Vector2f ConcentricSampleDisk(const Vector2f &u) {
@@ -61,11 +72,9 @@ inline Float HGSampleP(Vector3f &wo, Vector3f &wi, Float u, Float v, Float g) {
 
   Float    phi       = 2 * PI * v;
   Float    sin_theta = sqrt(fmax(0, 1 - cos_theta * cos_theta));
-  Vector3f local_wi(cosf(phi), sinf(phi), sin_theta);
-
-  CoordinateTransition ct{wo};
-  wi = ct.LocalToWorld(local_wi).normalized();
-
+  Vector3f v1, v2;
+  CoordinateSystem(wo, v1, v2);
+  wi = sin_theta * cos(phi) * v1 + sin_theta * sin(phi) * v2 + cos_theta * wo;
   return HGP(wi, wo, g);
 }
 

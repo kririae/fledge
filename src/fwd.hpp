@@ -17,7 +17,7 @@
 
 using namespace std::string_literals;
 
-using Float    = float;
+using Float = float;
 using Vector3f = Eigen::Vector3f;
 using Vector3d = Eigen::Vector3d;
 using Vector2f = Eigen::Vector2f;

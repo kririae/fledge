@@ -6,8 +6,12 @@
 #endif
 
 #include <math.h>
+#include <stddef.h>
+#include <stdio.h>
 
-#include <cstdio>
+// keep assert in release mode
+#undef NDEBUG
+#include <assert.h>
 
 #define SV_FG_BLACK        "\33[1;30m"
 #define SV_FG_RED          "\33[1;31m"
@@ -73,5 +77,13 @@ inline void backtrace() {
       assert(vec3.norm() == 1.0);              \
     }                                          \
   } while (false)
+
+namespace __test {
+static uint64_t ray_count  = 0;
+static uint64_t ray_bounce = 0;
+}  // namespace __test
+
+#define ARayCount(reason) \
+  { ++__test::ray_count; }
 
 #endif

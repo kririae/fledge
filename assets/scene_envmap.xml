@@ -17,8 +17,8 @@
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="height" value="1024" />
-      <integer name="width" value="1024" />
+      <integer name="height" value="512" />
+      <integer name="width" value="512" />
 
       <rfilter type="gaussian">
         <float name="size" value="0.5" />
@@ -30,7 +30,7 @@
     <spectrum name="sigmaS" value="10.00" />
     <spectrum name="sigmaA" value="1.00" />
     <phase type="hg">
-      <float name="g" value="0.877" />
+      <float name="g" value="-0.877" />
     </phase>
   </medium>
 
@@ -38,10 +38,15 @@
     <ref name="interior" id="cloud_homo" />
     <transform name="toWorld">
       <scale x="0.5" y="0.5" z="0.5" />
+      <translate x="0" y="0.5" z="0" />
     </transform>
   </shape>
 
   <emitter type="envmap">
     <string name="filename" value="venice_sunset_4k.exr" />
   </emitter>
+
+  <!-- <emitter type="constant">
+    <rgb name="radiance" value="1.0, 1.0, 1.0" />
+  </emitter> -->
 </scene>

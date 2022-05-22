@@ -142,15 +142,16 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
 HVolume::HVolume() {
   // currently the same as above
   m_sigma_s = 10.0;
-  m_sigma_a = 1.00;
-  m_g       = 0.877;
+  m_sigma_a = 1.0;
+  m_g       = -0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
   // m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
   //                                 Vector3f{218.33, 213.33, 298.33});
   m_aabb =
-      std::make_shared<AABB>(Vector3f::Constant(-0.5), Vector3f::Constant(0.5));
+      std::make_shared<AABB>(Vector3f::Constant(-0.5) + Vector3f{0, 0.5, 0},
+                             Vector3f::Constant(0.5) + Vector3f{0, 0.5, 0});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
@@ -173,6 +174,10 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   if (!m_aabb->intersect(ray, t_min, t_max)) {
     success = false;
     return Vector3f::Ones();
+  }
+
+  if (t_min > 1e-4) {
+    LFloat(t_min);
   }
 
   // sample the distance by $p(t) = \sigma_t e^{-\sigma_t t}$

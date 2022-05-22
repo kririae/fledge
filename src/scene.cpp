@@ -11,6 +11,7 @@
 #include "camera.hpp"
 #include "debug.hpp"
 #include "film.hpp"
+#include "fwd.hpp"
 #include "light.hpp"
 #include "texture.hpp"
 #include "volume.hpp"
@@ -23,11 +24,14 @@ Scene::Scene() {
   auto env_texture =
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
   auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
+  // auto infAreaLight =
+  //     std::make_shared<InfiniteAreaLight>(Vector3f{1.0, 1.0, 1.0});
+  SLog("infAreaLight init finished");
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 512;
   m_resY       = 512;
-  m_SPP        = 256;
-  m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 0, 0));
+  m_SPP        = 512;
+  m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
@@ -39,6 +43,8 @@ Scene::Scene() {
   // m_volume = std::make_shared<OpenVDBVolume>(
   //     "assets/wdas_cloud/wdas_cloud_eighth.vdb");
   m_volume = std::make_shared<HVolume>();
+
+  SLog("scene init finished");
 }
 
 Scene::Scene(const std::string &filename) {

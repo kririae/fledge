@@ -26,6 +26,7 @@ int main() {
   // 5. save the last rendered frame to file
   // Render render(std::make_shared<Scene>("assets/scene_basic.xml"));
   Render render(std::make_shared<Scene>());
+  SLog("render is created");
 
   render.init();
   render.preprocess();

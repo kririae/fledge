@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "debug.hpp"
 #include "film.hpp"
 #include "integrator.hpp"
 #include "light.hpp"
@@ -45,6 +46,7 @@ bool Render::render() {
   auto                          end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = end - start;
   SLog("rendering takes %.9lf s to finish", diff.count());
+  SLog("ray_count=%lu", __test::ray_count);
   return true;
 }
 

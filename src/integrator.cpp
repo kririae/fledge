@@ -237,6 +237,8 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 }
 
 Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
+  ARayCount("Li");
+
   Vector3f L    = Vector3f::Zero();
   Vector3f beta = Vector3f::Ones();
   auto     ray  = r;
@@ -285,8 +287,6 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
         Vector3f wi;
         HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
-        CNorm(vit.m_wo);
-        CNorm(wi);
 
         L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
         CVec3(L);
