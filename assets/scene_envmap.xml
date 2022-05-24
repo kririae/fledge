@@ -2,23 +2,23 @@
 
 <scene version="0.6.0">
   <integrator type="volpath">
-    <integer name="maxDepth" value="16" />
+    <integer name="maxDepth" value="1024" />
   </integrator>
 
   <sensor type="perspective">
     <float name="fov" value="30" />
     <string name="fovAxis" value="x" />
     <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0, 1, -5" target="0, 1, 0" />
+      <lookat up="0, 1, 0" origin="0, 100, 800" target="0, 100, 0" />
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="512" />
+      <integer name="sampleCount" value="64" />
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="height" value="512" />
-      <integer name="width" value="512" />
+      <integer name="height" value="720" />
+      <integer name="width" value="1280" />
 
       <rfilter type="gaussian">
         <float name="size" value="0.5" />
@@ -26,25 +26,41 @@
     </film>
   </sensor>
 
-  <medium id="cloud_homo" type="homogeneous">
-    <spectrum name="sigmaS" value="10.00" />
-    <spectrum name="sigmaA" value="1.00" />
-    <phase type="hg">
-      <float name="g" value="-0.877" />
-    </phase>
-  </medium>
+  <medium type="heterogeneous" id="cloud">
+    <string name="method" value="woodcock" />
 
-  <shape type="cube">
-    <ref name="interior" id="cloud_homo" />
-    <transform name="toWorld">
-      <scale x="0.5" y="0.5" z="0.5" />
-      <translate x="0" y="0.5" z="0" />
-    </transform>
-  </shape>
+    <volume name="density" type="nanovdbvolume">
+      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_eighth.vdb" />
+    </volume>
+
+    <phase type="hg">
+      <float name="g" value="0.877" />
+    </phase>
+
+    <volume name="albedo" type="constvolume">
+      <spectrum name="value" value="1.0" />
+    </volume>
+  </medium>
 
   <emitter type="envmap">
     <string name="filename" value="venice_sunset_4k.exr" />
   </emitter>
+
+  <medium id="cloud_homo" type="homogeneous">
+    <spectrum name="sigmaS" value="10.00" />
+    <spectrum name="sigmaA" value="1.00" />
+    <phase type="hg">
+      <float name="g" value="0.877" />
+    </phase>
+  </medium>
+
+  <shape type="cube">
+    <ref name="interior" id="cloud" />
+    <transform name="toWorld">
+      <scale x="206.544" y="140.4" z="254.592" />
+      <translate x="9.984" y="73.008" z="42.64" />
+    </transform>
+  </shape>
 
   <!-- <emitter type="constant">
     <rgb name="radiance" value="1.0, 1.0, 1.0" />

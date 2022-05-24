@@ -23,8 +23,8 @@ AABB Volume::getBound() const {
 
 OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
-  m_sigma_a = 0.0;
-  m_sigma_s = 1.0;
+  m_sigma_s = 10.0;
+  m_sigma_a = 1.0;
   m_g       = 0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
 
@@ -75,8 +75,6 @@ Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
   Float tr = 1, t = std::max(t_min, static_cast<Float>(0.0));
   t_max        = std::min(t_max, ray.m_tMax);
   Float max_mu = m_sigma_t * m_maxDensity;
-
-  assert(m_aabb->inside(ray(t_max)));
 
   while (true) {
     t += -std::log(1 - rng.get1D()) / max_mu;
@@ -147,11 +145,11 @@ HVolume::HVolume() {
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
 
-  // m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
-  //                                 Vector3f{218.33, 213.33, 298.33});
-  m_aabb =
-      std::make_shared<AABB>(Vector3f::Constant(-0.5) + Vector3f{0, 0.5, 0},
-                             Vector3f::Constant(0.5) + Vector3f{0, 0.5, 0});
+  m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
+                                  Vector3f{218.33, 213.33, 298.33});
+  // m_aabb =
+  //     std::make_shared<AABB>(Vector3f::Constant(-0.5) + Vector3f{0, 0.5, 0},
+  //                            Vector3f::Constant(0.5) + Vector3f{0, 0.5, 0});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {

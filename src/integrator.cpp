@@ -237,7 +237,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 }
 
 Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
-  ARayCount("Li");
+  ADD_ACC_MEASURE(ray_count);
 
   Vector3f L    = Vector3f::Zero();
   Vector3f beta = Vector3f::Ones();
@@ -247,6 +247,8 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
   // only use the "scene.m_volume" for integrating
   for (bounces = 0;; bounces++) {
+    ADD_ACC_MEASURE(ray_bounce);
+
     VInteraction vit;
 
     Float t_min, t_max;
@@ -268,7 +270,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         // environment light
         for (const auto &light : scene.m_infLight)
           L += beta.cwiseProduct(light->Le(ray));
-        break;
+        goto sample_environment;
       }
     }
 
@@ -296,18 +298,22 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       } else {
         // The sample is not permitted since it is already considered in the
         // UniformSampleOneLight(and bounces == 1)
-        break;
+        goto sample_surface;
       }
     }
 
-    // if (bounces > 3) {
-    //   if (rng.get1D() < m_rrThreshold) {
-    //     break;
-    //   }
+    if (bounces > 10) {
+      if (rng.get1D() < m_rrThreshold) {
+        break;
+      }
 
-    //   beta /= (1 - m_rrThreshold);
-    // }
+      beta /= (1 - m_rrThreshold);
+    }
   }
+
+sample_surface:
+  ADD_AVE_MEASURE(ray_depth, bounces);
+sample_environment:  // do not count this case
 
   return L;
 }

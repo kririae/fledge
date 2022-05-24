@@ -46,7 +46,11 @@ bool Render::render() {
   auto                          end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = end - start;
   SLog("rendering takes %.9lf s to finish", diff.count());
-  SLog("ray_count=%lu", __test::ray_count);
+  SLog("measurement: ");
+  PRINT_ACC_MEASURE(ray_count);
+  PRINT_ACC_MEASURE(ray_bounce);
+  PRINT_AVE_MEASURE(ray_depth);
+
   return true;
 }
 

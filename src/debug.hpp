@@ -78,12 +78,6 @@ inline void backtrace() {
     }                                          \
   } while (false)
 
-namespace __test {
-static uint64_t ray_count  = 0;
-static uint64_t ray_bounce = 0;
-}  // namespace __test
-
-#define ARayCount(reason) \
-  { ++__test::ray_count; }
+#include "stats.hpp"
 
 #endif

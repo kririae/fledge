@@ -28,10 +28,10 @@ Scene::Scene() {
   //     std::make_shared<InfiniteAreaLight>(Vector3f{1.0, 1.0, 1.0});
   SLog("infAreaLight init finished");
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 512;
-  m_resY       = 512;
-  m_SPP        = 512;
-  m_camera = std::make_shared<Camera>(Vector3f(0, 1, -5), Vector3f(0, 1, 0));
+  m_resX       = 333;
+  m_resY       = 180;
+  m_SPP        = 1;
+  m_camera = std::make_shared<Camera>(Vector3f(0, 0, 1200), Vector3f(0, 0, 0));
   m_film   = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
@@ -40,9 +40,9 @@ Scene::Scene() {
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume
-  // m_volume = std::make_shared<OpenVDBVolume>(
-  //     "assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  m_volume = std::make_shared<HVolume>();
+  m_volume = std::make_shared<OpenVDBVolume>(
+      "assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  // m_volume = std::make_shared<HVolume>();
 
   SLog("scene init finished");
 }
@@ -71,6 +71,7 @@ static bool parseIntegrator(const pt::ptree &integrator, Scene &scene) {
   SLog("integrator.maxDepth = %d", maxDepth);
   scene.m_maxDepth = maxDepth;
   */
+  TODO();
   return true;
 }
 
