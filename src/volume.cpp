@@ -41,7 +41,10 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
 
   // acquire the global maxDensity in nodes
   Float minDensity, maxDensity;
-  m_grid->evalMinMax(minDensity, maxDensity);
+  // m_grid->evalMinMax(minDensity, maxDensity);
+  auto minMax = openvdb::tools::minMax(m_grid->tree());
+  minDensity  = minMax.min();
+  maxDensity  = minMax.max();
   SLog("m_maxDensity=%f", maxDensity);
   m_maxDensity    = maxDensity;
   m_invMaxDensity = 1.0 / m_maxDensity;
@@ -181,7 +184,7 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   // sample the distance by $p(t) = \sigma_t e^{-\sigma_t t}$
   Float t = -std::log(1 - rng.get1D()) / (m_density * m_sigma_t);
   // Float tr = std::exp(-t * m_density * m_sigma_t); // tr is elimated
-  CFloat(t);
+  C(t);
 
   if (t < t_max) {
     // sampling the volume

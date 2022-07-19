@@ -74,15 +74,14 @@ Vector3f AreaLight::L(const Interaction &isect, const Vector3f &w) const {
 InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
     : m_tex(std::make_shared<ConstTexture>(color)) {
   SLog("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
-         color[1], color[2]);
+       color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
     : m_tex(std::make_shared<ImageTexture>(filename)) {
-  SLog("InfiniteAreaLight is initialized with filename=(%s)",
-         filename.c_str());
+  SLog("InfiniteAreaLight is initialized with filename=(%s)", filename.c_str());
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
 }
@@ -119,12 +118,10 @@ Float InfiniteAreaLight::pdfLi(const Interaction &) const {
 
 Vector3f InfiniteAreaLight::Le(const Ray &ray) const {
   auto dir = WorldToLight(ray.m_d).normalized();
-  CVec3(dir);
+  C(dir);
   Float phi   = SphericalPhi(dir);
   Float theta = SphericalTheta(dir);
-  CFloat(phi);
-  CFloat(theta);
-  return m_tex->eval(phi * INV_2PI, theta * INV_PI);
+  return m_tex->eval(C(phi) * INV_2PI, C(theta) * INV_PI);
 }
 
 SV_NAMESPACE_END

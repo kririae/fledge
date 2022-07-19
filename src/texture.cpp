@@ -19,7 +19,7 @@ Vector3f Texture::eval(Float u, Float v) const {
 
 ImageTexture::~ImageTexture() {
   SLog("ImageTexture destroy");
-  CPtr(m_texture);
+  C(m_texture);
   OIIO::TextureSystem::destroy(m_texture);
 }
 
@@ -40,9 +40,9 @@ Vector3f ImageTexture::eval(const Vector2f &uv) const {
                                      0, 0, 0, 3, result);
   // bool  success = m_texture->texture(OIIO::ustring(m_filename), opt, uv.x(),
   //                                    uv.y(), 0, 0, 0, 0, 3, result);
-  CFloat(result[0]);
-  CFloat(result[1]);
-  CFloat(result[2]);
+  C(result[0]);
+  C(result[1]);
+  C(result[2]);
   if (!success) SErr("texture access failed");
   return {result[0], result[1], result[2]};
 }

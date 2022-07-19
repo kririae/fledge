@@ -34,7 +34,7 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
 
 Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
   CPtr(scene.m_volume);
-  CNorm(ray.m_d);
+  C(ray.m_d);
   return scene.m_volume->tr(ray, rng);
 }
 
@@ -61,12 +61,12 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
 
-    CFloat(vit.m_g);
-    CNorm(vit.m_wo);
-    CNorm(wi);
+    C(vit.m_g);
+    C(vit.m_wo);
+    C(wi);
     // likely the BRDF to be applied
     f = Vector3f::Constant(HGP(wi, vit.m_wo, vit.m_g));
-    CVec3(f);
+    C(f);
   }
 
   if (f != Vector3f::Zero()) {
@@ -279,19 +279,19 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
       CPtr(scene.m_volume);
       auto f = scene.m_volume->sample(ray, rng, vit, success);
-      CVec3(f);
+      C(f);
 
       if (success) {
         // if it is in volume(so t_min <= 0), and the sample is in the volume
         // T \mu s are take into consider by the Estimator
         beta = beta.cwiseProduct(f);
-        CVec3(beta);
+        C(beta);
 
         Vector3f wi;
         HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
 
         L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
-        CVec3(L);
+        C(L);
 
         if (bounces >= m_maxDepth || beta.isZero()) break;
         ray = vit.SpawnRay(wi);

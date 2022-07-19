@@ -44,8 +44,6 @@ add_executable(smallvol "${source}")
 
 target_link_libraries(smallvol PUBLIC Eigen3::Eigen OpenVDB::openvdb
                                       OpenImageIO::OpenImageIO TBB::tbb)
-# target_link_libraries(smallvol PUBLIC Eigen3::Eigen OpenImageIO::OpenImageIO
-# TBB::tbb)
 set_target_properties(smallvol PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)
 if(USE_TBB)

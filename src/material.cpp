@@ -15,18 +15,18 @@ CoordinateTransition::CoordinateTransition(const Vector3f &normal)
   m_binormal.normalize();
   m_tangent = m_binormal.cross(m_normal);
 
-  CVec3(m_normal);
-  CVec3(m_binormal);
-  CVec3(m_tangent);
+  C(m_normal);
+  C(m_binormal);
+  C(m_tangent);
 }
 
 Vector3f CoordinateTransition::WorldToLocal(const Vector3f &p) const {
-  CVec3(p);
+  C(p);
   return Vector3f{p.dot(m_tangent), p.dot(m_binormal), p.dot(m_normal)};
 }
 
 Vector3f CoordinateTransition::LocalToWorld(const Vector3f &p) const {
-  CVec3(p);
+  C(p);
   return m_tangent * p[0] + m_binormal * p[1] + m_normal * p[2];
   ;
 }
@@ -42,8 +42,8 @@ Float DiffuseMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
                            const CoordinateTransition &trans) const {
   Vector3f wo = trans.WorldToLocal(w_wo);
   Vector3f wi = trans.WorldToLocal(w_wi);
-  CVec3(wo);
-  CVec3(wi); // valid check
+  C(wo);
+  C(wi);  // valid check
 
   return wo[2] * wi[2] > 0 ? abs(wi[2]) * INV_PI : 0;
 }

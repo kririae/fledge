@@ -78,6 +78,30 @@ inline void backtrace() {
     }                                          \
   } while (false)
 
+template <typename T>
+constexpr bool is_vector() {
+  return std::is_arithmetic<decltype(std::declval<T>().x())>::value;
+}
+template <typename T, typename U = void>
+auto C(T v) {
+  // TODO: shared_ptr support
+  if constexpr (std::is_pointer_v<T>) {
+    assert(v != nullptr);
+  } else if constexpr (std::is_arithmetic_v<T>) {
+    assert(!isnan(v));
+    assert(!isinf(v));
+  } else if constexpr (is_vector<T>()) {
+    C(v.x());
+    C(v.y());
+    C(v.z());
+    C(v.norm());
+  } else if constexpr (true) {
+    static_assert("The type is not captured");
+  }
+
+  return v;
+}
+
 #include "stats.hpp"
 
 #endif
