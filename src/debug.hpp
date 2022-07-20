@@ -62,43 +62,62 @@ inline void backtrace() {
 #define LVec3(vec3) SLog(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
 #define LClass(cls) SLog(#cls "=%s", cls.toString().c_str())
 
-#define CPtr(ptr)   assert(ptr != nullptr)
-#define CFloat(val) assert(!isnan(val) && !isinf(val))
-#define CVec3(vec3)   \
-  do {                \
-    CFloat(vec3.x()); \
-    CFloat(vec3.y()); \
-    CFloat(vec3.z()); \
-  } while (false)
-#define CNorm(vec3)                            \
-  do {                                         \
-    if (abs(vec3.norm() - 1.0) > 1e-4) {       \
-      SLog(#vec3 ".norm() = %f", vec3.norm()); \
-      assert(vec3.norm() == 1.0);              \
-    }                                          \
-  } while (false)
+#include <Eigen/Dense>
+#include <memory>
+#include <type_traits>
+
+template <typename, std::size_t N = 0>
+struct is_vector : std::false_type {};
+
+template <typename T, std::size_t N>
+struct is_vector<Eigen::Vector<T, N>> {
+  static constexpr bool value = std::is_arithmetic<T>::value;
+};
+
+template <typename T, std::size_t N>
+struct is_vector<Eigen::Vector<T, N>, N> {
+  static constexpr bool value = std::is_arithmetic<T>::value;
+};
+
+template <typename>
+struct is_shared_ptr : std::false_type {};
 
 template <typename T>
-constexpr bool is_vector() {
-  return std::is_arithmetic<decltype(std::declval<T>().x())>::value;
-}
-template <typename T, typename U = void>
-auto C(T v) {
-  // TODO: shared_ptr support
-  if constexpr (std::is_pointer_v<T>) {
-    assert(v != nullptr);
-  } else if constexpr (std::is_arithmetic_v<T>) {
-    assert(!isnan(v));
-    assert(!isinf(v));
-  } else if constexpr (is_vector<T>()) {
-    C(v.x());
-    C(v.y());
-    C(v.z());
-    C(v.norm());
-  } else if constexpr (true) {
-    static_assert("The type is not captured");
-  }
+struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
 
+template <typename>
+struct is_unique_ptr : std::false_type {};
+
+template <typename T>
+struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
+
+template <typename T>
+T C(T v) {
+  static_assert("Cannot check the type");
+  return v;
+}
+
+// naive pointer check
+template <typename T,
+          std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
+                           is_unique_ptr<T>::value>>
+T C(T v) {
+  assert(v != nullptr);
+  return v;
+}
+
+// naive value check
+template <typename T, std::enable_if_t<std::is_arithmetic_v<T>>>
+T C(T v) {
+  assert(!isnan(v));
+  assert(!isinf(v));
+  return v;
+}
+
+template <typename T, std::size_t N, std::enable_if_t<is_vector<T, N>::value>>
+T C(T v) {
+  for (size_t i = 0; i < N; ++i) C(v[i]);
+  C(v.norm());
   return v;
 }
 

@@ -33,7 +33,7 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
 }
 
 Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
-  CPtr(scene.m_volume);
+  C(scene.m_volume);
   C(ray.m_d);
   return scene.m_volume->tr(ray, rng);
 }
@@ -277,7 +277,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     if (in_volume) {
       bool success{false};
 
-      CPtr(scene.m_volume);
+      C(scene.m_volume);
       auto f = scene.m_volume->sample(ray, rng, vit, success);
       C(f);
 
