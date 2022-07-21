@@ -45,7 +45,7 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   auto minMax = openvdb::tools::minMax(m_grid->tree());
   minDensity  = minMax.min();
   maxDensity  = minMax.max();
-  SLog("m_maxDensity=%f", maxDensity);
+  SLog("m_minDensity=%f, m_maxDensity=%f", minDensity, maxDensity);
   m_maxDensity    = maxDensity;
   m_invMaxDensity = 1.0 / m_maxDensity;
 

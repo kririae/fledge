@@ -68,6 +68,12 @@ public:
     radius = (m_max - center).norm();
   }
 
+  Vector3f center() const { return (m_min + m_max) / 2; }
+
+  bool operator==(const AABB &a) const {
+    return m_min == a.m_min && m_max == a.m_max;
+  }
+
 private:
   Vector3f m_min{Vector3f::Zero()}, m_max{Vector3f::Zero()};
 };

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "aabb.hpp"
 #include "fwd.hpp"
 #include "primitive.hpp"
 
@@ -28,8 +29,30 @@ public:
   bool intersect(const Ray &ray, SInteraction &isect) const override;
   AABB getBound() const override;
 
-private:
+protected:
   std::vector<std::shared_ptr<Primitive>> m_primitives;
+};
+
+class NaiveBVHAccel : public Accel {
+  // Naive BVH implementation without extensive optimization
+  // Recursively defined
+
+public:
+  NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p, int depth = 0,
+                AABB *box = nullptr);
+  ~NaiveBVHAccel() override = default;
+  bool   intersect(const Ray &ray, SInteraction &isect) const override;
+  AABB   getBound() const override;
+  size_t getMemoryUsage() const { return m_memory_usage; }
+  size_t getDepth() const { return m_depth; }
+
+protected:
+  AABB                           m_box;
+  std::shared_ptr<NaiveBVHAccel> m_left, m_right;
+
+  std::vector<std::shared_ptr<Primitive>> m_primitives;
+
+  size_t m_memory_usage, m_depth;
 };
 
 SV_NAMESPACE_END

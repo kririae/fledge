@@ -40,10 +40,12 @@ file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
 clang_format(format_smallvol "${all_source}")
 cmake_format(format_cmake "${cmake_files}")
 
+add_library(smallvol_lib "${source}")
 add_executable(smallvol "${source}")
 
-target_link_libraries(smallvol PUBLIC Eigen3::Eigen OpenVDB::openvdb
+target_link_libraries(smallvol_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
                                       OpenImageIO::OpenImageIO TBB::tbb)
+target_link_libraries(smallvol PUBLIC smallvol_lib)
 set_target_properties(smallvol PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)
 if(USE_TBB)

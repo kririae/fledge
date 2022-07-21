@@ -13,4 +13,7 @@ set(USE_SANITIZER
 set(CMAKE_CXX_STANDARD 20)
 
 include("get_cpm.cmake")
+enable_testing()
+
 add_subdirectory(src/)
+add_subdirectory(tests/)
