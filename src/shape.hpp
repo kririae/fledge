@@ -2,6 +2,7 @@
 #define __SHAPE_HPP__
 
 #include "fwd.hpp"
+#include "plymesh.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -35,9 +36,29 @@ public:
   // Interaction sample(const Interaction &ref, const Vector2f &u,
   //                    Float &pdf) const override;
   AABB getBound() const override;
+  bool operator==(const Sphere &a) const {
+    return m_p == a.m_p && m_r == a.m_r;
+  }
 
   Vector3f m_p;
   Float    m_r;
+};
+
+class Triangle : public Shape {
+public:
+  Triangle(const Vector3f &a, const Vector3f &b, const Vector3f &c)
+      : m_p0(a), m_p1(b), m_p2(c) {}
+
+  bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
+  Float area() const override;
+  Interaction sample(const Vector2f &u, Float &pdf) const override;
+  AABB        getBound() const override;
+  bool        operator==(const Triangle &t) const {
+           // Order aware
+    return m_p0 == t.m_p0 && m_p1 == t.m_p1 && m_p2 == t.m_p2;
+  }
+
+  Vector3f m_p0, m_p1, m_p2;
 };
 
 SV_NAMESPACE_END

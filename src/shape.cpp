@@ -80,4 +80,56 @@ AABB Sphere::getBound() const {
   return AABB(m_p - v_r, m_p + v_r);
 }
 
+bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
+  // notice that this `intersect` will consider ray.t_Max
+  // but will not modify it
+  // Return no intersection if triangle is degenerate
+
+  // the naive intersection code is copied from Assignment in GAMES101
+  if (area() == 0) return {};
+
+  Vector3f E1 = m_p1 - m_p0;
+  Vector3f E2 = m_p2 - m_p0;
+  Vector3f P  = ray.m_d.cross(E2);
+  Float    D  = E1.dot(P);
+  if (D == 0 || D < 0) return false;
+
+  Vector3f T = ray.m_o - m_p0;
+  Float    u = T.dot(P);
+  if (u < 0 || u > D) return false;
+
+  Vector3f Q = T.cross(E1);
+  Float    v = ray.m_d.dot(Q);
+  if (v < 0 || u + v > D) return false;
+
+  float invDet = 1 / D;
+
+  Float tNear = E2.dot(Q) * invDet;
+  if (tNear >= ray.m_tMax) return false;
+
+  // HIT
+  isect.m_p  = ray(tHit);
+  isect.m_wo = -ray.m_d;
+  tHit       = tNear;
+
+  u *= invDet;
+  v *= invDet;
+
+  return true;
+}
+
+Float Triangle::area() const {
+  return (m_p1 - m_p0).cross(m_p2 - m_p0).norm();
+}
+
+Interaction Triangle::sample(const Vector2f &u, Float &pdf) const {
+  TODO();
+}
+
+AABB Triangle::getBound() const {
+  auto a_ = AABB(m_p0, m_p1);
+  auto b_ = AABB(m_p0, m_p2);
+  return a_.merge(b_);
+}
+
 SV_NAMESPACE_END

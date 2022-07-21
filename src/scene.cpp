@@ -28,11 +28,11 @@ Scene::Scene() {
   //     std::make_shared<InfiniteAreaLight>(Vector3f{1.0, 1.0, 1.0});
   SLog("infAreaLight init finished");
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
-  m_resX       = 333;
-  m_resY       = 180;
-  m_SPP        = 1;
-  m_camera = std::make_shared<Camera>(Vector3f(0, 0, 1200), Vector3f(0, 0, 0));
-  m_film   = std::make_shared<Film>(m_resX, m_resY);
+  m_resX       = 1280;
+  m_resY       = 720;
+  m_SPP        = 128;
+  m_camera     = std::make_shared<Camera>(Vector3f(0, 0, 3), Vector3f(0, 0, 0));
+  m_film       = std::make_shared<Film>(m_resX, m_resY);
   m_accel =
       std::make_shared<NaiveAccel>(std::vector<std::shared_ptr<Primitive>>{
           std::make_shared<ShapePrimitive>(sphere_1, diffuse)});
@@ -40,8 +40,8 @@ Scene::Scene() {
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume
-  m_volume = std::make_shared<OpenVDBVolume>(
-      "assets/wdas_cloud/wdas_cloud_eighth.vdb");
+  // m_volume = std::make_shared<OpenVDBVolume>(
+  // "assets/wdas_cloud/wdas_cloud_eighth.vdb");
   // m_volume = std::make_shared<HVolume>();
 
   SLog("scene init finished");
@@ -58,7 +58,7 @@ bool Scene::intersect(const Ray &ray, SInteraction &isect) const {
 
 AABB Scene::getBound() const {
   AABB aabb;
-  // aabb = m_accel->getBound();
+  aabb = m_accel->getBound();
   if (m_volume != nullptr) aabb = aabb.merge(m_volume->getBound());
   return aabb;
 }

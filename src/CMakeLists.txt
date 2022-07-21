@@ -1,6 +1,14 @@
-cpmaddpackage("gh:StableCoder/cmake-scripts#22.01")
+CPMAddPackage("gh:StableCoder/cmake-scripts#22.01")
 include(${cmake-scripts_SOURCE_DIR}/sanitizers.cmake)
 include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
+
+CPMAddPackage("gh:vilya/miniply#master")
+
+if (miniply_ADDED)
+  set(miniplySources ${miniply_SOURCE_DIR}/miniply.cpp)
+  add_library(miniply ${miniplySources})
+  target_include_directories(miniply PUBLIC ${miniply_SOURCE_DIR})
+endif()
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenImageIO REQUIRED)
@@ -44,7 +52,7 @@ add_library(smallvol_lib "${source}")
 add_executable(smallvol "${source}")
 
 target_link_libraries(smallvol_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
-                                      OpenImageIO::OpenImageIO TBB::tbb)
+                                      OpenImageIO::OpenImageIO TBB::tbb miniply)
 target_link_libraries(smallvol PUBLIC smallvol_lib)
 set_target_properties(smallvol PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)

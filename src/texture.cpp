@@ -6,6 +6,7 @@
 #include <OpenImageIO/ustring.h>
 
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 
 #include "debug.hpp"
@@ -25,6 +26,8 @@ ImageTexture::~ImageTexture() {
 
 ImageTexture::ImageTexture(const std::string &path) : m_filename(path) {
   SLog("ImageTexture(%s)", path.c_str());
+  if (!std::filesystem::exists(path))
+    SErr("texture file %s do not exists", path.c_str());
   m_texture = OIIO::TextureSystem::create(false);
   m_texture->attribute("max_memory_MB", 500.0f);
   m_handle = m_texture->get_texture_handle(OIIO::ustring(m_filename));
