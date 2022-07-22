@@ -9,6 +9,7 @@ set(USE_SANITIZER
       STRING
       "Compile with a sanitizer. Options are: Address, Memory, MemoryWithOrigins, Undefined, Thread, Leak, 'Address;Undefined', CFI"
 )
+option(USE_EMBREE "use Embree 3 as the acceleration structure" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 

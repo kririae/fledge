@@ -216,8 +216,6 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       break;
     }
 
-    // L += (isect.m_ng + Vector3f::Ones()) / 2;
-    // break;
     // consider the *direct lighting*, i.e. L_e terms in LTE
     L += beta.cwiseProduct(UniformSampleOneLight(isect, scene, rng));
 
@@ -227,6 +225,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     // spawn ray to new direction
     Vector3f wi, wo = -ray.m_d;
     Float    pdf;
+    C(isect.m_primitive);
     Vector3f f = isect.m_primitive->getMaterial()->sampleF(
         wo, wi, pdf, rng.get2D(), Vector2f::Zero(), trans);
     if (pdf == 0.0 || f.isZero()) break;
@@ -239,8 +238,6 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 }
 
 Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
-  ADD_ACC_MEASURE(ray_count);
-
   Vector3f L    = Vector3f::Zero();
   Vector3f beta = Vector3f::Ones();
   auto     ray  = r;
@@ -249,8 +246,6 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 
   // only use the "scene.m_volume" for integrating
   for (bounces = 0;; bounces++) {
-    ADD_ACC_MEASURE(ray_bounce);
-
     VInteraction vit;
 
     Float t_min, t_max;
@@ -314,7 +309,6 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   }
 
 sample_surface:
-  ADD_AVE_MEASURE(ray_depth, bounces);
 sample_environment:  // do not count this case
 
   return L;

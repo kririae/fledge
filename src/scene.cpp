@@ -10,6 +10,7 @@
 #include "accel.hpp"
 #include "camera.hpp"
 #include "debug.hpp"
+#include "embree/eprimitive.hpp"
 #include "film.hpp"
 #include "fwd.hpp"
 #include "light.hpp"
@@ -32,13 +33,13 @@ Scene::Scene() {
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 1280;
   m_resY       = 720;
-  m_SPP        = 4;
+  m_SPP        = 32;
   m_camera =
       std::make_shared<Camera>(Vector3f(0, 0.2, 0.3), Vector3f(0, 0.1, 0));
-  m_film = std::make_shared<Film>(m_resX, m_resY);
-  m_accel =
-      std::make_shared<MeshPrimitive>("assets/bun_zipper_res4.ply", diffuse);
-  m_light    = std::vector<std::shared_ptr<Light>>{infAreaLight};
+  m_film  = std::make_shared<Film>(m_resX, m_resY);
+  m_accel = std::make_shared<EmbreeMeshPrimitive>("assets/bun_zipper_res4.ply",
+                                                  diffuse);
+  m_light = std::vector<std::shared_ptr<Light>>{infAreaLight};
   m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
 
   // volume

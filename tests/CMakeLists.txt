@@ -18,3 +18,4 @@ endmacro()
 
 sv_add_test(accel_tests)
 sv_add_test(shape_tests)
+sv_add_test(embree_tests)

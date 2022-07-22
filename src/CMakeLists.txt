@@ -41,6 +41,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 endif()
 
+add_subdirectory(embree/)
+
 file(GLOB source "${PROJECT_SOURCE_DIR}/src/*.c*")
 file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
 file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
@@ -53,10 +55,13 @@ add_library(smallvol_lib "${source}")
 add_executable(smallvol "${source}")
 
 target_link_libraries(smallvol_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
-                                      OpenImageIO::OpenImageIO TBB::tbb miniply)
+                                      OpenImageIO::OpenImageIO TBB::tbb miniply smallvol_embree)
 target_link_libraries(smallvol PUBLIC smallvol_lib)
 set_target_properties(smallvol PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)
 if(USE_TBB)
   target_compile_definitions(smallvol PUBLIC -DUSE_TBB)
 endif()
+# if (USE_EMBREE)
+  target_compile_definitions(smallvol PUBLIC -DUSE_EMBREE)
+# endif()

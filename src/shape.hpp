@@ -49,6 +49,9 @@ public:
 // Following the design of PBRT
 // https://pbr-book.org/3ed-2018/Shapes/Triangle_Meshes
 struct TriangleMesh {
+  // assume that n := nTriangles
+  // nInd = 3*n
+  // nVert = ???
   int nInd, nVert;
 
   std::unique_ptr<int[]>      ind;

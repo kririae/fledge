@@ -121,6 +121,4 @@ T C(T v) {
   return v;
 }
 
-#include "stats.hpp"
-
 #endif

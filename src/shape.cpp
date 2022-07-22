@@ -98,15 +98,6 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   const auto p1 = m_mesh->p[i1];
   const auto p2 = m_mesh->p[i2];
 
-  bool     has_normal = false;
-  Vector3f n0, n1, n2;
-  if (m_mesh->n != nullptr) {
-    has_normal = true;
-    n0         = m_mesh->n[i0];
-    n1         = m_mesh->n[i1];
-    n2         = m_mesh->n[i2];
-  }
-
   Vector3f E1 = p1 - p0;
   Vector3f E2 = p2 - p0;
   Vector3f P  = ray.m_d.cross(E2);
@@ -131,8 +122,9 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   isect.m_wo = -ray.m_d;
   isect.m_ng = E1.cross(E2).normalized();
   if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
-  if (has_normal)
-    isect.m_ns = u * n0 + v * n1 + (1 - u - v) * n2;
+  if (m_mesh->n != nullptr)
+    isect.m_ns =
+        u * m_mesh->n[i0] + v * m_mesh->n[i1] + (1 - u - v) * m_mesh->n[i2];
   else
     isect.m_ns = isect.m_ng;
   tHit = tNear;
