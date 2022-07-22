@@ -88,13 +88,32 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   // the naive intersection code is copied from Assignment in GAMES101
   if (area() == 0) return {};
 
-  Vector3f E1 = m_p1 - m_p0;
-  Vector3f E2 = m_p2 - m_p0;
+  const auto i0 = *m_v;
+  const auto i1 = *(m_v + 1);
+  const auto i2 = *(m_v + 2);
+  assert(i0 < m_mesh->nVert);
+  assert(i1 < m_mesh->nVert);
+  assert(i2 < m_mesh->nVert);
+  const auto p0 = m_mesh->p[i0];
+  const auto p1 = m_mesh->p[i1];
+  const auto p2 = m_mesh->p[i2];
+
+  bool     has_normal = false;
+  Vector3f n0, n1, n2;
+  if (m_mesh->n != nullptr) {
+    has_normal = true;
+    n0         = m_mesh->n[i0];
+    n1         = m_mesh->n[i1];
+    n2         = m_mesh->n[i2];
+  }
+
+  Vector3f E1 = p1 - p0;
+  Vector3f E2 = p2 - p0;
   Vector3f P  = ray.m_d.cross(E2);
   Float    D  = E1.dot(P);
   if (D == 0 || D < 0) return false;
 
-  Vector3f T = ray.m_o - m_p0;
+  Vector3f T = ray.m_o - p0;
   Float    u = T.dot(P);
   if (u < 0 || u > D) return false;
 
@@ -110,7 +129,13 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   // HIT
   isect.m_p  = ray(tHit);
   isect.m_wo = -ray.m_d;
-  tHit       = tNear;
+  isect.m_ng = E1.cross(E2).normalized();
+  if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
+  if (has_normal)
+    isect.m_ns = u * n0 + v * n1 + (1 - u - v) * n2;
+  else
+    isect.m_ns = isect.m_ng;
+  tHit = tNear;
 
   u *= invDet;
   v *= invDet;
@@ -119,7 +144,10 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
 }
 
 Float Triangle::area() const {
-  return (m_p1 - m_p0).cross(m_p2 - m_p0).norm();
+  const auto p0 = m_mesh->p[*m_v];
+  const auto p1 = m_mesh->p[*(m_v + 1)];
+  const auto p2 = m_mesh->p[*(m_v + 2)];
+  return (p1 - p0).cross(p2 - p0).norm();
 }
 
 Interaction Triangle::sample(const Vector2f &u, Float &pdf) const {
@@ -127,8 +155,12 @@ Interaction Triangle::sample(const Vector2f &u, Float &pdf) const {
 }
 
 AABB Triangle::getBound() const {
-  auto a_ = AABB(m_p0, m_p1);
-  auto b_ = AABB(m_p0, m_p2);
+  const auto p0 = m_mesh->p[*m_v];
+  const auto p1 = m_mesh->p[*(m_v + 1)];
+  const auto p2 = m_mesh->p[*(m_v + 2)];
+
+  auto a_ = AABB(p0, p1);
+  auto b_ = AABB(p0, p2);
   return a_.merge(b_);
 }
 

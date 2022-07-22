@@ -37,6 +37,7 @@
 build/
 assets/*.exr
 assets/*.mip
+assets/*.ply
 assets/wdas_cloud/
 compile_commands.json
 

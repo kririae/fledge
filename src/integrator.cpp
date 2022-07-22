@@ -216,6 +216,8 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       break;
     }
 
+    // L += (isect.m_ng + Vector3f::Ones()) / 2;
+    // break;
     // consider the *direct lighting*, i.e. L_e terms in LTE
     L += beta.cwiseProduct(UniformSampleOneLight(isect, scene, rng));
 

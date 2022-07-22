@@ -1,6 +1,8 @@
 #ifndef __SHAPE_HPP__
 #define __SHAPE_HPP__
 
+#include <memory>
+
 #include "fwd.hpp"
 #include "plymesh.hpp"
 
@@ -44,10 +46,24 @@ public:
   Float    m_r;
 };
 
+// Following the design of PBRT
+// https://pbr-book.org/3ed-2018/Shapes/Triangle_Meshes
+struct TriangleMesh {
+  int nInd, nVert;
+
+  std::unique_ptr<int[]>      ind;
+  std::unique_ptr<Vector3f[]> p, n{};
+  std::unique_ptr<Vector2f[]> uv;
+};
+
 class Triangle : public Shape {
 public:
-  Triangle(const Vector3f &a, const Vector3f &b, const Vector3f &c)
-      : m_p0(a), m_p1(b), m_p2(c) {}
+  Triangle(std::shared_ptr<TriangleMesh> mesh, int *v) : m_mesh(mesh), m_v(v) {}
+  // Triangle Mesh can be indexed with index of triangle, where
+  // ind[idx], ind[idx+1], ind[idx+2] will point to three positions of the
+  // triangle
+  Triangle(std::shared_ptr<TriangleMesh> mesh, int idx)
+      : m_mesh(mesh), m_v(mesh->ind.get() + 3 * idx) {}
 
   bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
   Float area() const override;
@@ -55,10 +71,17 @@ public:
   AABB        getBound() const override;
   bool        operator==(const Triangle &t) const {
            // Order aware
-    return m_p0 == t.m_p0 && m_p1 == t.m_p1 && m_p2 == t.m_p2;
+    const auto p0   = m_mesh->p[*m_v];
+    const auto p1   = m_mesh->p[*(m_v + 1)];
+    const auto p2   = m_mesh->p[*(m_v + 2)];
+    const auto t_p0 = t.m_mesh->p[*t.m_v];
+    const auto t_p1 = t.m_mesh->p[*(t.m_v + 1)];
+    const auto t_p2 = t.m_mesh->p[*(t.m_v + 2)];
+    return p0 == t_p0 && p1 == t_p1 && p2 == t_p2;
   }
 
-  Vector3f m_p0, m_p1, m_p2;
+  std::shared_ptr<TriangleMesh> m_mesh;
+  int                          *m_v;
 };
 
 SV_NAMESPACE_END

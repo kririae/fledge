@@ -36,6 +36,8 @@ AABB NaiveAccel::getBound() const {
 
 NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
                              int depth, AABB *box) {
+  if (depth == 0) SLog("BVH construction start");
+
   if (box == nullptr) {
     for (auto &primitive : p) m_box = m_box.merge(primitive->getBound());
   } else {
@@ -43,7 +45,7 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   }
 
   // Termination
-  if (p.size() < 50 || depth > 32) {
+  if (p.size() < 100 || depth > 32) {
     m_primitives = p;
     m_left = m_right = nullptr;
     m_memory_usage =
@@ -79,8 +81,10 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   if (depth == 0) {
     // Print out the BVH info
     SLog("BVH num primitives: %lu", p.size());
-    SLog("BVH memory usage: %lu", m_memory_usage);
+    SLog("BVH memory usage: %lu KB", m_memory_usage / 1024);
     SLog("BVH depth: %lu", m_depth);
+
+    SLog("BVH construction finished");
   }
 }
 

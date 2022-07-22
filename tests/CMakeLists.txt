@@ -6,11 +6,15 @@ CPMAddPackage(
   OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
-add_executable(accel_tests accel_tests.cpp)
-target_include_directories(accel_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-target_link_libraries(accel_tests
-  gtest gtest_main
-  smallvol_lib
-)
+macro(sv_add_test name)
+  add_executable(${name}_exe ${name}.cpp)
+  target_include_directories(${name}_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
+  target_link_libraries(${name}_exe
+    gtest gtest_main
+    smallvol_lib
+  )
+  add_test(${name} ${name}_exe)
+endmacro()
 
-add_test(test_all accel_tests)
+sv_add_test(accel_tests)
+sv_add_test(shape_tests)

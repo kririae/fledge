@@ -7,6 +7,7 @@ CPMAddPackage("gh:vilya/miniply#master")
 if (miniply_ADDED)
   set(miniplySources ${miniply_SOURCE_DIR}/miniply.cpp)
   add_library(miniply ${miniplySources})
+  set_property(TARGET miniply PROPERTY POSITION_INDEPENDENT_CODE ON)
   target_include_directories(miniply PUBLIC ${miniply_SOURCE_DIR})
 endif()
 
