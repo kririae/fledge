@@ -15,6 +15,11 @@ SV_NAMESPACE_BEGIN
 class EmbreeMeshPrimitive : public Primitive {
 public:
   EmbreeMeshPrimitive(
+      const std::shared_ptr<TriangleMesh> &mesh,
+      const std::shared_ptr<Material>     &material =  // default to diffuse
+      std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
+      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+  EmbreeMeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
@@ -29,9 +34,9 @@ public:
   Material  *getMaterial() const override;
 
 private:
+  std::shared_ptr<TriangleMesh> m_mesh;
   std::shared_ptr<Material>     m_material;
   std::shared_ptr<AreaLight>    m_areaLight;
-  std::shared_ptr<TriangleMesh> m_mesh;
 
   // embree properties
   RTCDevice    m_device;

@@ -41,14 +41,10 @@ Material *ShapePrimitive::getMaterial() const {
   return m_material.get();
 }
 
-MeshPrimitive::MeshPrimitive(const std::string                &path,
-                             const std::shared_ptr<Material>  &material,
-                             const std::shared_ptr<AreaLight> &areaLight)
-    : m_material(material), m_areaLight(areaLight) {
-  if (!std::filesystem::exists(path))
-    SErr("mesh %s is not found", path.c_str());
-
-  m_mesh = make_TriangleMesh(path);
+MeshPrimitive::MeshPrimitive(const std::shared_ptr<TriangleMesh> &mesh,
+                             const std::shared_ptr<Material>     &material,
+                             const std::shared_ptr<AreaLight>    &areaLight)
+    : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
   assert(m_mesh->nInd % 3 == 0);
   for (int i = 0; i < m_mesh->nInd / 3; ++i)
     m_triangles.push_back(std::make_shared<Triangle>(m_mesh, i));
@@ -61,6 +57,11 @@ MeshPrimitive::MeshPrimitive(const std::string                &path,
         std::make_shared<ShapePrimitive>(ShapePrimitive(m_triangles[i])));
   m_accel = std::shared_ptr<NaiveBVHAccel>(new NaiveBVHAccel(p_triangles));
 }
+
+MeshPrimitive::MeshPrimitive(const std::string                &path,
+                             const std::shared_ptr<Material>  &material,
+                             const std::shared_ptr<AreaLight> &areaLight)
+    : MeshPrimitive(MakeTriangleMesh(path), material, areaLight) {}
 
 AABB MeshPrimitive::getBound() const {
   return m_accel->getBound();

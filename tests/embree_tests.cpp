@@ -4,5 +4,4 @@
 
 TEST(Accel, EmbreeSingleGeometry) {
   using namespace SmallVolNS;
-  TODO();
 }

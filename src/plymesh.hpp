@@ -11,6 +11,7 @@
 SV_NAMESPACE_BEGIN
 
 std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path);
+std::shared_ptr<TriangleMesh> MakeMeshedSphere();
 
 SV_NAMESPACE_END
 #endif

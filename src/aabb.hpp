@@ -23,6 +23,7 @@ public:
     Vector3f vt_max = vt1.cwiseMax(vt2);
     Float    l_min  = vt_min.maxCoeff();
     Float    l_max  = vt_max.minCoeff();
+    if (l_min > l_max) std::swap(l_min, l_max);
     if (l_min < l_max && l_max >= 0) {
       t_min = l_min;
       t_max = l_max;
@@ -36,16 +37,16 @@ public:
     Float t0 = 0, t1 = ray.m_tMax;
     for (int i = 0; i < 3; ++i) {
       // Update interval for _i_th bounding box slab
-      Float invRayDir = 1 / ray.m_d[i];
-      Float tNear     = (m_min[i] - ray.m_o[i]) * invRayDir;
-      Float tFar      = (m_max[i] - ray.m_o[i]) * invRayDir;
+      Float inv_ray_dir = 1 / ray.m_d[i];
+      Float t_near      = (m_min[i] - ray.m_o[i]) * inv_ray_dir;
+      Float t_far       = (m_max[i] - ray.m_o[i]) * inv_ray_dir;
 
       // Update parametric interval from slab intersection $t$ values
-      if (tNear > tFar) std::swap(tNear, tFar);
+      if (t_near > t_far) std::swap(t_near, t_far);
 
       // Update _tFar_ to ensure robust ray--bounds intersection
-      t0 = tNear > t0 ? tNear : t0;
-      t1 = tFar < t1 ? tFar : t1;
+      t0 = t_near > t0 ? t_near : t0;
+      t1 = t_far < t1 ? t_far : t1;
       if (t0 > t1) return false;
     }
 

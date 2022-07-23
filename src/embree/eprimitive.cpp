@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <type_traits>
 
 #include "aabb.hpp"
@@ -19,16 +20,13 @@
 SV_NAMESPACE_BEGIN
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(
-    const std::string &path, const std::shared_ptr<Material> &material,
-    const std::shared_ptr<AreaLight> &areaLight)
-    : m_material(material), m_areaLight(areaLight) {
+    const std::shared_ptr<TriangleMesh> &mesh,
+    const std::shared_ptr<Material>     &material,
+    const std::shared_ptr<AreaLight>    &areaLight)
+    : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
   m_device = embreeInitializeDevice();
   m_scene  = rtcNewScene(m_device);
   m_geom   = rtcNewGeometry(m_device, RTC_GEOMETRY_TYPE_TRIANGLE);
-
-  if (!std::filesystem::exists(path))
-    SErr("mesh %s is not found", path.c_str());
-  m_mesh = make_TriangleMesh(path);
 
   static_assert(std::is_same_v<Float, float>,
                 "currently only Float=float is supported");
@@ -53,7 +51,13 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(
   rtcReleaseGeometry(m_geom);
   rtcCommitScene(m_scene);
   // Embree init finished
+  SLog("Embree is ready");
 }
+
+EmbreeMeshPrimitive::EmbreeMeshPrimitive(
+    const std::string &path, const std::shared_ptr<Material> &material,
+    const std::shared_ptr<AreaLight> &areaLight)
+    : EmbreeMeshPrimitive(MakeTriangleMesh(path), material, areaLight) {}
 
 AABB EmbreeMeshPrimitive::getBound() const {
   // > The provided destination pointer must be aligned to 16 bytes.

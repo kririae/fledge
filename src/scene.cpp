@@ -27,21 +27,22 @@ Scene::Scene() {
   auto sphere_1 = std::make_shared<Sphere>(Vector3f{0.0, 0.2, 0.0}, 0.1);
   auto env_texture =
       std::make_shared<ImageTexture>("assets/venice_sunset_4k.exr");
-  auto infAreaLight = std::make_shared<InfiniteAreaLight>(env_texture);
+  auto inf_area_light = std::make_shared<InfiniteAreaLight>(env_texture);
   // auto infAreaLight =
   //     std::make_shared<InfiniteAreaLight>(Vector3f{1.0, 1.0, 1.0});
   SLog("infAreaLight init finished");
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 1280;
   m_resY       = 720;
-  m_SPP        = 512;
+  m_SPP        = 32;
   m_camera =
-      std::make_shared<Camera>(Vector3f(0, 0.2, 0.5), Vector3f(0, 0.1, 0));
-  m_film = std::make_shared<Film>(m_resX, m_resY);
-  m_accel =
-      std::make_shared<MeshPrimitive>("assets/bun_zipper_res4.ply", diffuse);
-  m_light    = std::vector<std::shared_ptr<Light>>{infAreaLight};
-  m_infLight = std::vector<std::shared_ptr<Light>>{infAreaLight};
+      std::make_shared<Camera>(Vector3f(0, 0.2, 0.5), Vector3f(0, 0.0, 0));
+  m_film  = std::make_shared<Film>(m_resX, m_resY);
+  m_accel = std::make_shared<MeshPrimitive>(MakeMeshedSphere(), diffuse);
+  // m_accel =
+  //     std::make_shared<MeshPrimitive>("assets/bun_zipper_res4.ply", diffuse);
+  m_light    = std::vector<std::shared_ptr<Light>>{inf_area_light};
+  m_infLight = std::vector<std::shared_ptr<Light>>{inf_area_light};
 
   // volume
   // m_volume =

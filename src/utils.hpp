@@ -1,11 +1,18 @@
 #ifndef __UTILS_HPP__
 #define __UTILS_HPP__
 
+#include <memory>
+
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "material.hpp"
 
 SV_NAMESPACE_BEGIN
+
+inline Vector3f SphericalDirection(Float sin_theta, Float cos_theta,
+                                   Float phi) {
+  return {sin_theta * std::cos(phi), sin_theta * std::sin(phi), cos_theta};
+}
 
 inline void CoordinateSystem(const Vector3f &v1, Vector3f &v2, Vector3f &v3) {
   if (std::abs(v1.x()) > std::abs(v1.y()))

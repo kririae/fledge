@@ -59,6 +59,11 @@ class MeshPrimitive : public Primitive {
 
 public:
   MeshPrimitive(
+      const std::shared_ptr<TriangleMesh> &mesh,
+      const std::shared_ptr<Material>     &material =  // default to diffuse
+      std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
+      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+  MeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f::Ones()),

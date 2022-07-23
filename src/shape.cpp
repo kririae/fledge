@@ -45,7 +45,7 @@ bool Sphere::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
     return false;
   }
 
-  s = sqrt(s);
+  s       = sqrt(s);
   Float t = -(b + s) / (2 * a);
   if (t <= 0 || t > ray.m_tMax) {
     return false;
@@ -55,7 +55,7 @@ bool Sphere::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
   isect.m_p        = isect_p;
   isect.m_ns = isect.m_ng = (isect_p - m_p) / m_r;
   isect.m_wo              = -ray.m_d;
-  t_hit = t;
+  t_hit                   = t;
 
   return true;
 }
@@ -98,31 +98,27 @@ bool Triangle::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
   const auto p1 = m_mesh->p[i1];
   const auto p2 = m_mesh->p[i2];
 
-  Vector3f e1 = p1 - p0;
-  Vector3f e2 = p2 - p0;
-  Vector3f p = ray.m_d.cross(e2);
-  Float d = e1.dot(p);
-  if (d == 0 || d < 0) return false;
+  Vector3f e1      = p1 - p0;
+  Vector3f e2      = p2 - p0;
+  Vector3f p       = ray.m_d.cross(e2);
+  Float    d       = e1.dot(p);
+  float    inv_det = 1 / d;
+  if (d == 0) return false;
 
   Vector3f t = ray.m_o - p0;
-  Float u = t.dot(p);
-  if (u < 0 || u > d) return false;
+  Float    u = t.dot(p) * inv_det;
+  if (u < 0 || u > 1) return false;
 
   Vector3f q = t.cross(e1);
-  Float v = ray.m_d.dot(q);
-  if (v < 0 || u + v > d) return false;
-
-  float inv_det = 1 / d;
+  Float    v = ray.m_d.dot(q) * inv_det;
+  if (v < 0 || u + v > 1) return false;
 
   Float t_near = e2.dot(q) * inv_det;
   if (t_near >= ray.m_tMax || t_near <= 0) return false;
 
   // HIT
-  u *= inv_det;
-  v *= inv_det;
-
-  t_hit = t_near;
-  isect.m_p = ray(t_hit);
+  t_hit      = t_near;
+  isect.m_p  = ray(t_hit);
   isect.m_wo = -ray.m_d;
   isect.m_ng = e1.cross(e2).normalized();
   if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
@@ -131,7 +127,6 @@ bool Triangle::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
         u * m_mesh->n[i0] + v * m_mesh->n[i1] + (1 - u - v) * m_mesh->n[i2];
   else
     isect.m_ns = isect.m_ng;
-  assert(t_hit > 0);
 
   return true;
 }
@@ -140,7 +135,7 @@ Float Triangle::area() const {
   const auto p0 = m_mesh->p[*m_v];
   const auto p1 = m_mesh->p[*(m_v + 1)];
   const auto p2 = m_mesh->p[*(m_v + 2)];
-  return (p1 - p0).cross(p2 - p0).norm();
+  return (p1 - p0).cross(p2 - p0).norm() / 2;
 }
 
 Interaction Triangle::sample(const Vector2f &u, Float &pdf) const {
