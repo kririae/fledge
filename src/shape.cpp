@@ -86,7 +86,7 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   // Return no intersection if triangle is degenerate
 
   // the naive intersection code is copied from Assignment in GAMES101
-  if (area() == 0) return {};
+  if (area() == 0) return false;
 
   const auto i0 = *m_v;
   const auto i1 = *(m_v + 1);
@@ -115,9 +115,13 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
   float invDet = 1 / D;
 
   Float tNear = E2.dot(Q) * invDet;
-  if (tNear >= ray.m_tMax) return false;
+  if (tNear >= ray.m_tMax || tNear <= 0) return false;
 
   // HIT
+  u *= invDet;
+  v *= invDet;
+
+  tHit       = tNear;
   isect.m_p  = ray(tHit);
   isect.m_wo = -ray.m_d;
   isect.m_ng = E1.cross(E2).normalized();
@@ -127,10 +131,7 @@ bool Triangle::intersect(const Ray &ray, Float &tHit, SInteraction &isect) {
         u * m_mesh->n[i0] + v * m_mesh->n[i1] + (1 - u - v) * m_mesh->n[i2];
   else
     isect.m_ns = isect.m_ng;
-  tHit = tNear;
-
-  u *= invDet;
-  v *= invDet;
+  assert(tHit > 0);
 
   return true;
 }

@@ -17,11 +17,11 @@ public:
   virtual ~Interaction() = default;
   virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f::Zero(); }
   virtual Ray  SpawnRay(const Vector3f &d) const {
-    return {m_p + m_ng * SHADOW_EPS, d.normalized()};
+     return {m_p + m_ns * SHADOW_EPS, d.normalized()};
   }
   virtual Ray SpawnRayTo(const Vector3f &p) const {
     Float norm = (p - m_p).norm();
-    return {m_p + m_ng * SHADOW_EPS, (p - m_p) / norm, norm - SHADOW_EPS};
+    return {m_p + m_ns * SHADOW_EPS, (p - m_p) / norm, norm - SHADOW_EPS};
   }
   virtual Ray SpawnRayTo(const Interaction &it) const {
     return SpawnRayTo(it.m_p);
@@ -44,7 +44,7 @@ public:
   virtual Vector3f Le(const Vector3f &w) const;
   bool             isSInteraction() const override { return true; }
 
-  const Primitive *m_primitive;
+  const Primitive *m_primitive{nullptr};
 };
 
 class VInteraction : public Interaction {

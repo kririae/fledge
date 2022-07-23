@@ -74,7 +74,6 @@ public:
     return m_min == a.m_min && m_max == a.m_max;
   }
 
-private:
   Vector3f m_min{Vector3f::Zero()}, m_max{Vector3f::Zero()};
 };
 

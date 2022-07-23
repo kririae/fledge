@@ -44,6 +44,7 @@ std::shared_ptr<TriangleMesh> make_TriangleMesh(const std::string &path) {
         mesh->n = std::make_unique<Vector3f[]>(mesh->nVert);
         reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
                                   mesh->n.get());
+        SLog("normal found in ply file");
       }
 
       // extract UV

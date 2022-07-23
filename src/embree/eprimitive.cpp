@@ -43,18 +43,11 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(
   C(verticies);
   C(indicies);
 
-  if (m_mesh->n != nullptr) {
-    float *normals = (float *)rtcSetNewGeometryBuffer(
-        m_geom, RTC_BUFFER_TYPE_NORMAL, 0, RTC_FORMAT_FLOAT3, 3 * sizeof(float),
-        m_mesh->nVert);
-    C(normals);
-    memcpy(normals, m_mesh->n.get(), 3 * sizeof(float) * m_mesh->nInd);
-  }
-
   memcpy(verticies, m_mesh->p.get(), 3 * sizeof(float) * m_mesh->nVert);
   // Notice the implicit conversion
   memcpy(indicies, m_mesh->ind.get(), sizeof(int) * m_mesh->nInd);
 
+  rtcSetGeometryBuildQuality(m_geom, RTC_BUILD_QUALITY_HIGH);
   rtcCommitGeometry(m_geom);
   m_geomID = rtcAttachGeometry(m_scene, m_geom);
   rtcReleaseGeometry(m_geom);
@@ -100,8 +93,9 @@ bool EmbreeMeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
     isect.m_p  = ray(ray.m_tMax);
     isect.m_wo = -ray.m_d;
     isect.m_ng = Vector3f{rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z}
-                     .normalized();
-    if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ns = isect.m_ng = -isect.m_ng;
+                     .stableNormalized();
+    if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
+    isect.m_ns        = isect.m_ng;
     isect.m_primitive = this;
     return true;
   } else {

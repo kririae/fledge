@@ -97,7 +97,6 @@ void InfiniteAreaLight::preprocess(const Scene &scene) {
   scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
   SLog("m_worldRadius=%f", m_worldRadius);
   LVec3(m_worldCenter);
-  m_worldRadius *= 4;
 }
 
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
