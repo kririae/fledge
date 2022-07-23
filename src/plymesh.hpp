@@ -10,7 +10,7 @@
 
 SV_NAMESPACE_BEGIN
 
-std::shared_ptr<TriangleMesh> make_TriangleMesh(const std::string &path);
+std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path);
 
 SV_NAMESPACE_END
 #endif

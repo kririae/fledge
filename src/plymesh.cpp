@@ -17,19 +17,19 @@ std::shared_ptr<TriangleMesh> make_TriangleMesh(const std::string &path) {
   miniply::PLYReader reader(path.c_str());
   if (!reader.valid()) SErr("miniply reader failed to initialize");
 
-  uint32_t             faceIdxs[3];
-  miniply::PLYElement *faceElem =
+  uint32_t face_idxs[3];
+  miniply::PLYElement *face_elem =
       reader.get_element(reader.find_element(miniply::kPLYFaceElement));
-  if (faceElem == nullptr) SErr("face element failed to initialize");
-  faceElem->convert_list_to_fixed_size(
-      faceElem->find_property("vertex_indices"), 3, faceIdxs);
+  if (face_elem == nullptr) SErr("face element failed to initialize");
+  face_elem->convert_list_to_fixed_size(
+      face_elem->find_property("vertex_indices"), 3, face_idxs);
 
   uint32_t indexes[3];
-  bool     gotVerts = false, gotFaces = false;
+  bool got_verts = false, got_faces = false;
 
   SLog("ply mesh loading");
   auto mesh = std::make_shared<TriangleMesh>();
-  while (reader.has_element() && (!gotVerts || !gotFaces)) {
+  while (reader.has_element() && (!got_verts || !got_faces)) {
     if (reader.element_is(miniply::kPLYVertexElement) &&
         reader.load_element() && reader.find_pos(indexes)) {
       mesh->nVert = reader.num_rows();
@@ -54,21 +54,21 @@ std::shared_ptr<TriangleMesh> make_TriangleMesh(const std::string &path) {
                                   mesh->uv.get());
       }
 
-      gotVerts = true;
-    } else if (!gotFaces && reader.element_is(miniply::kPLYFaceElement) &&
+      got_verts = true;
+    } else if (!got_faces && reader.element_is(miniply::kPLYFaceElement) &&
                reader.load_element()) {
       mesh->nInd = reader.num_rows() * 3;
       mesh->ind  = std::make_unique<int[]>(mesh->nInd);
-      reader.extract_properties(faceIdxs, 3, miniply::PLYPropertyType::Int,
+      reader.extract_properties(face_idxs, 3, miniply::PLYPropertyType::Int,
                                 mesh->ind.get());
-      gotFaces = true;
+      got_faces = true;
     }
 
-    if (gotVerts && gotFaces) break;
+    if (got_verts && got_faces) break;
     reader.next_element();
   }
 
-  if (!gotVerts || !gotFaces) SErr("failed to create mesh");
+  if (!got_verts || !got_faces) SErr("failed to create mesh");
 
   SLog("ply mesh loaded");
   return mesh;
