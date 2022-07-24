@@ -45,7 +45,7 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   }
 
   // Termination
-  if (p.size() < 100 || depth > 32) {
+  if (p.size() <= 64 || depth > 20) {
     m_primitives = p;
     m_left = m_right = nullptr;
     m_memory_usage =
@@ -98,6 +98,7 @@ bool NaiveBVHAccel::intersect(const Ray &ray, SInteraction &isect) const {
   Float t_min, t_max;
   bool  inter = m_box.intersect_pbrt(ray, t_min, t_max);
   if (!inter) return false;
+  if (ray.m_tMax < t_min) return false;
 
   // If there is intersection
   // and if the node is leaf node

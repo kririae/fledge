@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 20)
+
 CPMAddPackage("gh:StableCoder/cmake-scripts#22.01")
 include(${cmake-scripts_SOURCE_DIR}/sanitizers.cmake)
 include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)

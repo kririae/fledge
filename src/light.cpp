@@ -1,9 +1,11 @@
 #include "light.hpp"
 
 #include <memory>
+#include <vector>
 
 #include "aabb.hpp"
 #include "debug.hpp"
+#include "distribution.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
@@ -77,20 +79,24 @@ InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
        color[1], color[2]);
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
+  m_dist        = std::make_shared<Dist2D>(std::vector<Float>(1).data(), 1, 1);
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
-    : m_tex(std::make_shared<ImageTexture>(filename)) {
-  SLog("InfiniteAreaLight is initialized with filename=(%s)", filename.c_str());
-  m_worldCenter = Vector3f::Zero();
-  m_worldRadius = 0;
-}
+    : InfiniteAreaLight(std::make_shared<ImageTexture>(filename)) {}
 
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
-  SLog("InfiniteAreaLight is initialized with Texture object");
+  SLog("InfiniteAreaLight is initialized with Texture object or filename");
   m_worldCenter = Vector3f::Zero();
   m_worldRadius = 0;
+
+  std::vector<Float> f(NU * NV, 0);
+  for (int v = 0; v < NV; ++v)
+    for (int u = 0; u < NU; ++u)
+      f[v * NU + u] = m_tex->eval(Float(u) / NU, Float(v) / NV).norm();
+  m_dist = std::make_shared<Dist2D>(f.data(), NU, NV);
+  // m_dist = std::make_shared<Dist2D>(std::vector<Float>(1, 1).data(), 1, 1);
 }
 
 void InfiniteAreaLight::preprocess(const Scene &scene) {
@@ -102,16 +108,24 @@ void InfiniteAreaLight::preprocess(const Scene &scene) {
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
                                      Vector3f &wi, Float &pdf,
                                      Interaction &sample) const {
-  auto dir   = UniformSampleSphere(u);
+  Vector2f uv    = m_dist->sampleC(u, pdf);
+  Float    phi   = uv[0] * 2 * PI;
+  Float    theta = uv[1] * PI;
+  auto     dir   = SphericalDirection(std::sin(theta), std::cos(theta), phi);
+  dir            = LightToWorld(dir);
+  C(pdf, uv, dir);
+  // auto     dir = UniformSampleSphere(u);
   auto p     = m_worldCenter + dir * 2 * m_worldRadius;
   sample.m_p = p;
-  pdf        = 0.5 * INV_2PI;
+  // pdf        = 0.5 * INV_2PI;
+  pdf /= (2 * PI * PI * std::sin(theta));
 
   wi = (sample.m_p - ref.m_p).normalized();
   return Le(Ray{ref.m_p, wi});
 }
 
-Float InfiniteAreaLight::pdfLi(const Interaction &) const {
+Float InfiniteAreaLight::pdfLi(const Interaction &it) const {
+  TODO();
   return 0.5 * INV_PI;
 }
 

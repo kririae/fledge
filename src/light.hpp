@@ -4,6 +4,7 @@
 #include <future>
 #include <memory>
 
+#include "distribution.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "scene.hpp"
@@ -66,6 +67,8 @@ private:
   Float    m_worldRadius;
 
   std::shared_ptr<Texture> m_tex;
+  std::shared_ptr<Dist2D>  m_dist;
+  static constexpr int     NU = 512, NV = 512;
 };
 
 SV_NAMESPACE_END

@@ -22,7 +22,7 @@ TEST(Triangle, Watertight) {
   using namespace SmallVolNS;
 
   Random rng(114514);
-  int    n_theta = 16, n_phi = 16;
+  int    n_theta = 32, n_phi = 32;
 
   int  n_vert = n_theta * n_phi;
   auto mesh   = std::make_shared<TriangleMesh>();
@@ -44,7 +44,7 @@ TEST(Triangle, Watertight) {
         // Close it up exactly at the end
         vertices.push_back(vertices[vertices.size() - (n_phi - 1)]);
       else {
-        radius += 5 * rng.get1D();
+        // radius += 5 * rng.get1D();
         vertices.push_back(Vector3f(0, 0, 0) +
                            radius *
                                SphericalDirection(sin_theta, cos_theta, phi));
@@ -96,7 +96,13 @@ TEST(Triangle, Watertight) {
     u = rng.get2D();
     Ray r(p, UniformSampleSphere(u));
 
-    SInteraction isect;
-    EXPECT_TRUE(mesh_primitive.intersect(r, isect));
+    SInteraction isect1;
+    EXPECT_TRUE(mesh_primitive.intersect(r, isect1));
+
+    // // Might be too strict..
+    // Vector3f vert = vertices[int(rng.get1D() * (vertices.size() - 1))];
+    // r             = Ray(p, (vert - p).normalized());
+    // SInteraction isect2;
+    // EXPECT_TRUE(mesh_primitive.intersect(r, isect2));
   }
 }

@@ -64,20 +64,11 @@ inline void backtrace() {
 
 #include <Eigen/Dense>
 #include <memory>
+#include <source_location>
 #include <type_traits>
 
-template <typename, std::size_t N = 0>
-struct is_vector : std::false_type {};
-
-template <typename T, std::size_t N>
-struct is_vector<Eigen::Vector<T, N>> {
-  static constexpr bool value = std::is_arithmetic<T>::value;
-};
-
-template <typename T, std::size_t N>
-struct is_vector<Eigen::Vector<T, N>, N> {
-  static constexpr bool value = std::is_arithmetic<T>::value;
-};
+template <typename T>
+using is_vector = typename std::is_base_of<Eigen::MatrixBase<T>, T>;
 
 template <typename>
 struct is_shared_ptr : std::false_type {};
@@ -91,34 +82,74 @@ struct is_unique_ptr : std::false_type {};
 template <typename T>
 struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
 
-template <typename T>
-T C(T v) {
-  static_assert("Cannot check the type");
-  return v;
-}
-
 // naive pointer check
 template <typename T,
           std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
-                           is_unique_ptr<T>::value>>
-T C(T v) {
-  assert(v != nullptr);
+                               is_unique_ptr<T>::value,
+                           bool> = true>
+inline T C(T v, const std::source_location location =
+                    std::source_location::current()) {
+  if (v == nullptr)
+    SErr("check pointer failed in %s:%d", location.file_name(),
+         location.line());
   return v;
 }
 
 // naive value check
-template <typename T, std::enable_if_t<std::is_arithmetic_v<T>>>
-T C(T v) {
-  assert(!isnan(v));
-  assert(!isinf(v));
+template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
+inline T C(T v, const std::source_location location =
+                    std::source_location::current()) {
+  if (isnan(v) || isinf(v))
+    SErr("check value failed in %s:%d", location.file_name(), location.line());
+
   return v;
 }
 
-template <typename T, std::size_t N, std::enable_if_t<is_vector<T, N>::value>>
-T C(T v) {
-  for (size_t i = 0; i < N; ++i) C(v[i]);
-  C(v.norm());
+template <typename T, std::enable_if_t<is_vector<T>::value, bool> = true>
+inline T C(T v, const std::source_location location =
+                    std::source_location::current()) {
+  for (int i = 0; i < v.size(); ++i) C(v[i], location);
+  C(v.norm(), location);
   return v;
+}
+
+// FIXME: better solution?
+template <typename T1, typename T2>
+inline void C(
+    T1 v1, T2 v2,
+    const std::source_location location = std::source_location::current()) {
+  C(v1, location);
+  C(v2, location);
+}
+
+template <typename T1, typename T2, typename T3>
+inline void C(
+    T1 v1, T2 v2, T3 v3,
+    const std::source_location location = std::source_location::current()) {
+  C(v1, location);
+  C(v2, location);
+  C(v3, location);
+}
+
+template <typename T1, typename T2, typename T3, typename T4>
+inline void C(
+    T1 v1, T2 v2, T3 v3, T4 v4,
+    const std::source_location location = std::source_location::current()) {
+  C(v1, location);
+  C(v2, location);
+  C(v3, location);
+  C(v4, location);
+}
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5>
+inline void C(
+    T1 v1, T2 v2, T3 v3, T4 v4, T5 v5,
+    const std::source_location location = std::source_location::current()) {
+  C(v1, location);
+  C(v2, location);
+  C(v3, location);
+  C(v4, location);
+  C(v5, location);
 }
 
 #endif
