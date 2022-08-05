@@ -34,12 +34,12 @@ Scene::Scene() {
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
   m_resX       = 1280;
   m_resY       = 720;
-  m_SPP        = 512;
+  m_SPP        = 4096;
   m_camera =
       std::make_shared<Camera>(Vector3f(0, 0.2, 0.5), Vector3f(0, 0.1, 0));
   m_film  = std::make_shared<Film>(m_resX, m_resY);
   m_accel = std::make_shared<EmbreeMeshPrimitive>(
-      MakeTriangleMesh("assets/bun_zipper_res4.ply"), diffuse);
+      MakeTriangleMesh("assets/bun_zipper.ply"), diffuse);
   m_light    = std::vector<std::shared_ptr<Light>>{inf_area_light};
   m_infLight = std::vector<std::shared_ptr<Light>>{inf_area_light};
 

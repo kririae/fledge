@@ -121,6 +121,7 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   pdf /= (2 * PI * PI * std::sin(theta));
 
   wi = (sample.m_p - ref.m_p).normalized();
+  // return Vector3f::Constant(pdf) * 5;
   return Le(Ray{ref.m_p, wi});
 }
 

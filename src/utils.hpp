@@ -5,13 +5,49 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
-#include "material.hpp"
 
 SV_NAMESPACE_BEGIN
 
 inline Vector3f SphericalDirection(Float sin_theta, Float cos_theta,
                                    Float phi) {
   return {sin_theta * std::cos(phi), sin_theta * std::sin(phi), cos_theta};
+}
+
+// Simple math utils
+inline Float CosTheta(const Vector3f &w) {
+  return w.z();
+}
+inline Float Cos2Theta(const Vector3f &w) {
+  return w.z() * w.z();
+}
+inline Float AbsCosTheta(const Vector3f &w) {
+  return std::abs(w.z());
+}
+inline Float Sin2Theta(const Vector3f &w) {
+  return std::max((Float)0, (Float)1 - Cos2Theta(w));
+}
+inline Float SinTheta(const Vector3f &w) {
+  return std::sqrt(Sin2Theta(w));
+}
+inline Float TanTheta(const Vector3f &w) {
+  return SinTheta(w) / CosTheta(w);
+}
+inline Float Tan2Theta(const Vector3f &w) {
+  return Sin2Theta(w) / Cos2Theta(w);
+}
+inline Float CosPhi(const Vector3f &w) {
+  Float sin_theta = SinTheta(w);
+  return (sin_theta == 0) ? 1 : std::clamp<Float>(w.x() / sin_theta, -1, 1);
+}
+inline Float SinPhi(const Vector3f &w) {
+  Float sin_theta = SinTheta(w);
+  return (sin_theta == 0) ? 0 : std::clamp<Float>(w.y() / sin_theta, -1, 1);
+}
+inline Float Cos2Phi(const Vector3f &w) {
+  return CosPhi(w) * CosPhi(w);
+}
+inline Float Sin2Phi(const Vector3f &w) {
+  return SinPhi(w) * SinPhi(w);
 }
 
 inline void CoordinateSystem(const Vector3f &v1, Vector3f &v2, Vector3f &v3) {
@@ -52,11 +88,11 @@ inline Vector2f UniformSampleTriangle(const Vector2f &u) {
 }
 
 inline Vector3f UniformSampleSphere(const Vector2f &u) {
-  Float theta    = acos(1 - 2 * u.y());
-  Float phi      = 2 * PI * u.x();
-  Float sinTheta = sin(theta), cosTheta = cos(theta);
-  Float sinPhi = sin(phi), cosPhi = cos(phi);
-  return {sinTheta * cosPhi, sinTheta * sinPhi, cosTheta};
+  Float theta     = acos(1 - 2 * u.y());
+  Float phi       = 2 * PI * u.x();
+  Float sin_theta = sin(theta), cos_theta = cos(theta);
+  Float sin_phi = sin(phi), cos_phi = cos(phi);
+  return {sin_theta * cos_phi, sin_theta * sin_phi, cos_theta};
 }
 
 inline Float HGP(const Vector3f &wi, const Vector3f &wo, Float g) {
