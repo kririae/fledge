@@ -1,6 +1,8 @@
 #ifndef __MATERIAL_HPP__
 #define __MATERIAL_HPP__
 
+#include <memory>
+
 #include "fwd.hpp"
 #include "utils.hpp"
 
@@ -16,7 +18,7 @@ private:
   Vector3f m_normal, m_tangent, m_binormal;
 };
 
-enum class EMaterialType : int { DIFFUSE = 0, EMPTY };
+enum class EMaterialType : int { DIFFUSE = 0, MICROFACET = 1, EMPTY };
 class Material {
 public:
   virtual ~Material() = default;
@@ -56,6 +58,7 @@ struct BeckmannDistribution {
            0.000640711f * x * x * x * x;
   }
 
+  BeckmannDistribution(Float alpha) : m_alpha_x(alpha), m_alpha_y(alpha) {}
   BeckmannDistribution(Float alpha_x, Float alpha_y)
       : m_alpha_x(alpha_x), m_alpha_y(alpha_y) {}
   Float D(const Vector3f &wh) const {
@@ -115,17 +118,21 @@ struct BeckmannDistribution {
 
 class MicrofacetMaterial : public Material {
 public:
-  MicrofacetMaterial(const Vector3f &R);
-  Vector3f f(const Vector3f &wo, const Vector3f &wi, const Vector2f &uv,
+  // roughness, k: absorption coefficient
+  MicrofacetMaterial(const Vector3f &R, Float roughness = 0.4,
+                     const Vector3f &k = Vector3f::Constant(2.0));
+  Vector3f f(const Vector3f &w_wo, const Vector3f &w_wi, const Vector2f &uv,
              const CoordinateTransition &trans) const override;
-  Float    pdf(const Vector3f &wo, const Vector3f &wi,
+  Float    pdf(const Vector3f &w_wo, const Vector3f &w_wi,
                const CoordinateTransition &trans) const override;
-  Vector3f sampleF(const Vector3f &wo, Vector3f &wi, Float &pdf,
+  Vector3f sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
                    const Vector2f &u, const Vector2f &uv,
                    const CoordinateTransition &trans) const override;
 
 private:
-  Vector3f m_R;
+  Vector3f                              m_R, m_k;
+  Float                                 m_roughness;
+  std::shared_ptr<BeckmannDistribution> m_dist;
 };
 
 SV_NAMESPACE_END

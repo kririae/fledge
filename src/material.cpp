@@ -1,5 +1,8 @@
 #include "material.hpp"
 
+#include <memory>
+
+#include "fresnel.hpp"
 #include "fwd.hpp"
 #include "utils.hpp"
 
@@ -57,6 +60,62 @@ Vector3f DiffuseMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
   _pdf     = pdf(w_wo, w_wi, trans);
   auto l_f = f(w_wo, w_wi, uv, trans);
   return l_f;
+}
+
+// Yet adapted from PBRT src/core/reflection.cpp
+MicrofacetMaterial::MicrofacetMaterial(const Vector3f &R, Float roughness,
+                                       const Vector3f &k)
+    : m_R(R),
+      m_k(k),
+      m_roughness(roughness),
+      m_dist(std::make_shared<BeckmannDistribution>(
+          BeckmannDistribution::roughnessToAlpha(roughness))) {
+}  // TODO: constant roughness for now
+Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
+                               const Vector2f             &uv,
+                               const CoordinateTransition &trans) const {
+  Vector3f wo = trans.WorldToLocal(w_wo);
+  Vector3f wi = trans.WorldToLocal(w_wi);
+  C(wo, wi);  // validity check
+
+  Float    cosThetaO = AbsCosTheta(wo), cosThetaI = AbsCosTheta(wi);
+  Vector3f wh = wi + wo;
+  if (cosThetaI == 0 || cosThetaO == 0) return Vector3f::Zero();
+  if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0) return Vector3f::Zero();
+
+  wh.normalize();
+  Vector3f F =
+      FresnelConductor(wi.dot(wh), Vector3f::Ones(), Vector3f::Ones(), m_k);
+  return (m_R * m_dist->D(wh) * m_dist->G(wo, wi)).cwiseProduct(F) /
+         (4 * cosThetaI * cosThetaO);
+}
+
+Float MicrofacetMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
+                              const CoordinateTransition &trans) const {
+  Vector3f wo = trans.WorldToLocal(w_wo);
+  Vector3f wi = trans.WorldToLocal(w_wi);
+  Vector3f wh = (wo + wi).stableNormalized();
+  return m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
+}
+
+Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
+                                     Float &pdf, const Vector2f &u,
+                                     const Vector2f             &uv,
+                                     const CoordinateTransition &trans) const {
+  // As usual, begin with coordinate transition
+  Vector3f wo = trans.WorldToLocal(w_wo);
+
+  // Sample microfacet orientation $\wh$ and reflected direction $\wi$
+  if (wo.z() == 0) return Vector3f::Zero();
+  Vector3f wh = m_dist->sampleWh(wo, u);
+  if (wo.dot(wh) < 0) return Vector3f::Zero();  // Should be rare
+  auto wi = Reflect(wo, wh);
+  w_wi    = trans.LocalToWorld(wi);
+  if (!SameHemisphere(wo, wi)) return Vector3f::Zero();
+
+  // Compute PDF of _wi_ for microfacet reflection
+  pdf = m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
+  return f(w_wo, w_wi, Vector2f::Zero(), trans);
 }
 
 SV_NAMESPACE_END

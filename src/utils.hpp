@@ -120,6 +120,12 @@ inline Float HGSampleP(Vector3f &wo, Vector3f &wi, Float u, Float v, Float g) {
   wi = sin_theta * cos(phi) * v1 + sin_theta * sin(phi) * v2 + cos_theta * wo;
   return HGP(wi, wo, g);
 }
+inline Vector3f Reflect(const Vector3f &wo, const Vector3f &n) {
+  return -wo + 2 * wo.dot(n) * n;
+}
+inline bool SameHemisphere(const Vector3f &w, const Vector3f &wp) {
+  return w.z() * wp.z() > 0;
+}
 
 SV_NAMESPACE_END
 
