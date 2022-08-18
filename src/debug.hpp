@@ -68,17 +68,20 @@ inline void backtrace() {
 
 #include "vector.hpp"
 
-template <class T, template <class...> class Template>
-struct is_specialization : std::false_type {};
+// template <class T, template <class...> class Template>
+// struct is_specialization : std::false_type {};
 
-template <template <class...> class Template, class... Args>
-struct is_specialization<Template<Args...>, Template> : std::true_type {};
+// template <template <class...> class Template, class... Args>
+// struct is_specialization<Template<Args...>, Template> : std::true_type {};
 
-template <typename>
-struct is_vector : std::false_type {};
+// template <typename>
+// struct is_vector : std::false_type {};
 
-template <typename T, int N>
-struct is_vector<SmallVolNS::Vector<T, N>> : std::true_type {};
+// template <typename T, int N>
+// struct is_vector<SmallVolNS::Vector<T, N>> : std::true_type {};
+
+template <typename T>
+using is_vector = typename std::is_base_of<Eigen::MatrixBase<T>, T>;
 
 template <typename>
 struct is_shared_ptr : std::false_type {};
@@ -118,7 +121,7 @@ inline T C(T v, const std::source_location location =
 template <typename T, std::enable_if_t<is_vector<T>::value, bool> = true>
 inline T C(T v, const std::source_location location =
                     std::source_location::current()) {
-  for (int i = 0; i < T::size; ++i) C(v[i], location);
+  for (int i = 0; i < v.size(); ++i) C(v[i], location);
   C(v.norm(), location);
   return v;
 }

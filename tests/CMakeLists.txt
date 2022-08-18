@@ -16,6 +16,7 @@ macro(sv_add_test name)
   add_test(${name} ${name}_exe)
 endmacro()
 
+sv_add_test(vector_tests)
 sv_add_test(accel_tests)
 sv_add_test(shape_tests)
 sv_add_test(embree_tests)
