@@ -32,16 +32,17 @@ Scene::Scene() {
   // auto infAreaLight =
   //     std::make_shared<InfiniteAreaLight>(Vector3f{1.0, 1.0, 1.0});
   SLog("InfiniteAreaLight init finished");
-  auto diffuse = std::make_shared<MicrofacetMaterial>(
+  auto mat = std::make_shared<MicrofacetMaterial>(
       Vector3f::Constant(1.0), 0.007, Vector3f(2.0, 2.0, 2.0));
-  m_resX = 1280;
-  m_resY = 720;
-  m_SPP  = 2048;
+  m_resX = 1000;
+  m_resY = 1000;
+  m_SPP  = 1024;
   m_camera =
-      std::make_shared<Camera>(Vector3f(0, 0.2, 0.5), Vector3f(0, 0.1, 0));
-  m_film  = std::make_shared<Film>(m_resX, m_resY);
-  m_accel = std::make_shared<EmbreeMeshPrimitive>(
-      MakeTriangleMesh("assets/bun_zipper.ply"), diffuse);
+      std::make_shared<Camera>(Vector3f(0, 0.6, -0.8), Vector3f(0, 0.2, 0));
+  m_film = std::make_shared<Film>(m_resX, m_resY);
+  // m_accel = std::make_shared<EmbreeMeshPrimitive>(
+  //     MakeTriangleMesh("assets/bun_zipper.ply"), mat);
+  m_accel    = std::make_shared<ShapePrimitive>(sphere_1, mat);
   m_light    = std::vector<std::shared_ptr<Light>>{inf_area_light};
   m_infLight = std::vector<std::shared_ptr<Light>>{inf_area_light};
 
