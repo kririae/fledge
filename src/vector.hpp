@@ -14,9 +14,22 @@ inline void Depreciated() {
   assert(false);
 }
 
-// Temporary implementation inherited from Eigen::Vector
 template <typename T, int N>
 struct Vector {
+  // Vector class
+  //   implemented only for cpu currently
+  // Usage:
+  //   Vector(): initialize to zero
+  //   Vector({...}): initialize through initializer list
+  //   forEach(function): return a new Vector<T, N> with function<T(T)>, i.e.,
+  //     accepting one parameters and return the modified element, applied for
+  //     each element
+  //   forEach(Vector, function): accept another Vector<T, N> as parameter and a
+  //     function<T(T, T)>, i.e., accepting two parameters and return x op y,
+  //     and return a new Vector
+  // Notice that all normal operators are implemented in a piecewise(linear) way
+  // Note: All the operations except cast<T_, N_>() will preserve
+  // T, i.e., not promote int to float like standard operator
   using type                = T;
   constexpr static int size = N;
 
@@ -43,7 +56,11 @@ struct Vector {
     return true;
   }
   Vector &operator=(const Vector &rhs) {
-    for (int i = 0; i < size; ++i) m_vec[i] = rhs.m_vec[i];
+    std::copy(rhs.m_vec, rhs.m_vec + rhs.size, m_vec);
+  }
+  template <int N_>
+  Vector &operator=(T const (&x)[N_]) {
+    std::copy(x, x + N_, m_vec);
   }
   const T &operator[](int i) const { return m_vec[i]; }
   T       &operator[](int i) { return m_vec[i]; }
@@ -110,6 +127,8 @@ struct Vector {
     return os;
   }
 };
+
+// Type will not be promoted here yet
 template <typename T, typename T_, int N>
 Vector<T, N> operator*(T_ const &s, Vector<T, N> rhs) {
   return rhs * s;
