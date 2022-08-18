@@ -19,6 +19,7 @@
 #include "primitive.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
+#include "vector.hpp"
 #include "volume.hpp"
 
 SV_NAMESPACE_BEGIN

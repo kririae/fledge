@@ -3,6 +3,7 @@
 
 #include "fwd.hpp"
 #include "ray.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

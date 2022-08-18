@@ -1,4 +1,8 @@
+#ifndef __FRESNEL_HPP__
+#define __FRESNEL_HPP__
+
 #include "fwd.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 
@@ -77,3 +81,4 @@ inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
 }
 
 SV_NAMESPACE_END
+#endif

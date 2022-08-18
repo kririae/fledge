@@ -12,6 +12,7 @@
 #include "rng.hpp"
 #include "shape.hpp"
 #include "utils.hpp"
+#include "vector.hpp"
 
 TEST(Triangle, ComprehensiveTestWithEmbree) {
   using namespace SmallVolNS;

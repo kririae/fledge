@@ -5,6 +5,7 @@
 
 #include "fwd.hpp"
 #include "interaction.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

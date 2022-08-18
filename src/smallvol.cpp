@@ -10,6 +10,7 @@
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
+#include "vector.hpp"
 #include "volume.hpp"
 
 using namespace SmallVolNS;

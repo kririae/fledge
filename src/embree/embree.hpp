@@ -5,6 +5,7 @@
 
 #include "debug.hpp"
 #include "fwd.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

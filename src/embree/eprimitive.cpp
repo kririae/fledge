@@ -16,6 +16,7 @@
 #include "embree.hpp"
 #include "fwd.hpp"
 #include "plymesh.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

@@ -12,6 +12,7 @@
 #include "scene.hpp"
 #include "texture.hpp"
 #include "utils.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

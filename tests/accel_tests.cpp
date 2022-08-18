@@ -9,6 +9,7 @@
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
+#include "vector.hpp"
 
 TEST(Accel, NaiveBVHAccel) {
   using namespace SmallVolNS;

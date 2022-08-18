@@ -7,6 +7,7 @@
 #include "aabb.hpp"
 #include "fwd.hpp"
 #include "primitive.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

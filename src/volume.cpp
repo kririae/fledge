@@ -14,6 +14,7 @@
 #include "interaction.hpp"
 #include "ray.hpp"
 #include "rng.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

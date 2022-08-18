@@ -5,6 +5,7 @@
 #include "fresnel.hpp"
 #include "fwd.hpp"
 #include "utils.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 CoordinateTransition::CoordinateTransition(const Vector3f &normal)

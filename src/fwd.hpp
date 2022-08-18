@@ -17,17 +17,7 @@
 
 using namespace std::string_literals;
 
-using Float    = float;
-using Vector3f = Eigen::Vector3f;
-using Vector3d = Eigen::Vector3d;
-using Vector2f = Eigen::Vector2f;
-using Vector2d = Eigen::Vector2d;
-using Matrix3f = Eigen::Matrix3f;
-using Matrix3d = Eigen::Matrix3d;
-
-// currently not used
-using Color3f = Vector3f;
-
+using Float                = float;
 constexpr Float INF        = std::numeric_limits<Float>::infinity();
 constexpr Float PI         = static_cast<Float>(3.14159265358979323846);
 constexpr Float PI_OVER2   = PI / 2;

@@ -7,6 +7,7 @@
 #include "rng.hpp"
 #include "shape.hpp"
 #include "utils.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

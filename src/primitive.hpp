@@ -5,6 +5,7 @@
 
 #include "fwd.hpp"
 #include "material.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

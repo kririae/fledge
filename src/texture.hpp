@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "fwd.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

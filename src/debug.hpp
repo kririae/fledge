@@ -62,13 +62,23 @@ inline void backtrace() {
 #define LVec3(vec3) SLog(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
 #define LClass(cls) SLog(#cls "=%s", cls.toString().c_str())
 
-#include <Eigen/Dense>
 #include <memory>
 #include <source_location>
 #include <type_traits>
 
-template <typename T>
-using is_vector = typename std::is_base_of<Eigen::MatrixBase<T>, T>;
+#include "vector.hpp"
+
+template <class T, template <class...> class Template>
+struct is_specialization : std::false_type {};
+
+template <template <class...> class Template, class... Args>
+struct is_specialization<Template<Args...>, Template> : std::true_type {};
+
+template <typename>
+struct is_vector : std::false_type {};
+
+template <typename T, int N>
+struct is_vector<SmallVolNS::Vector<T, N>> : std::true_type {};
 
 template <typename>
 struct is_shared_ptr : std::false_type {};
@@ -108,7 +118,7 @@ inline T C(T v, const std::source_location location =
 template <typename T, std::enable_if_t<is_vector<T>::value, bool> = true>
 inline T C(T v, const std::source_location location =
                     std::source_location::current()) {
-  for (int i = 0; i < v.size(); ++i) C(v[i], location);
+  for (int i = 0; i < T::size; ++i) C(v[i], location);
   C(v.norm(), location);
   return v;
 }

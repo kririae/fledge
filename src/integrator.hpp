@@ -2,6 +2,7 @@
 #define __INTEGRATOR_HPP__
 
 #include "fwd.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

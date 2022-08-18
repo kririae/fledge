@@ -3,6 +3,7 @@
 #include "distribution.hpp"
 #include "fwd.hpp"
 #include "rng.hpp"
+#include "vector.hpp"
 
 using namespace SmallVolNS;
 

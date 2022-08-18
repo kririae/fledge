@@ -9,6 +9,7 @@
 #include "fwd.hpp"
 #include "light.hpp"
 #include "primitive.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

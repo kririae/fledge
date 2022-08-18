@@ -10,6 +10,7 @@
 #include "scene.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 

@@ -18,6 +18,7 @@
 #include "rng.hpp"
 #include "scene.hpp"
 #include "utils.hpp"
+#include "vector.hpp"
 #include "volume.hpp"
 
 SV_NAMESPACE_BEGIN

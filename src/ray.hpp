@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "fwd.hpp"
+#include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
 
