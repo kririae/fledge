@@ -78,12 +78,12 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   }
   const T &operator[](int i) const { return m_vec[i]; }
   T       &operator[](int i) { return m_vec[i]; }
-  Vector   operator-() const {
-      return forEach([](const T &x) -> T { return -x; });
-  }
 
   // Notice that type T will not be promoted currently
   // TODO: specification using SSE
+  Vector operator-() const {
+    return forEach([](const T &x) -> T { return -x; });
+  }
   Vector operator*(const Vector &rhs) const {
     return forEach(rhs, [](const T &x, const T &y) -> T { return x * y; });
   }
@@ -164,6 +164,46 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   friend std::ostream &operator<<(std::ostream &os, const Vector &x) {
     os << x.toString();
     return os;
+  }
+
+  // Specified optimization
+  Vector operator-() const requires(N == 3) {
+    return {-m_vec[0], -m_vec[1], -m_vec[2]};
+  }
+  Vector operator*(const Vector &rhs) const requires(N == 3) {
+    return {m_vec[0] * rhs.m_vec[0], m_vec[1] * rhs.m_vec[1],
+            m_vec[2] * rhs.m_vec[2]};
+  }
+  Vector operator/(const Vector &rhs) const requires(N == 3) {
+    return {m_vec[0] / rhs.m_vec[0], m_vec[1] / rhs.m_vec[1],
+            m_vec[2] / rhs.m_vec[2]};
+  }
+  Vector operator+(const Vector &rhs) const requires(N == 3) {
+    return {m_vec[0] + rhs.m_vec[0], m_vec[1] + rhs.m_vec[1],
+            m_vec[2] + rhs.m_vec[2]};
+  }
+  Vector operator-(const Vector &rhs) const requires(N == 3) {
+    return {m_vec[0] - rhs.m_vec[0], m_vec[1] - rhs.m_vec[1],
+            m_vec[2] - rhs.m_vec[2]};
+  }
+  Vector operator*(const T &rhs) const requires(N == 3) {
+    return {m_vec[0] * rhs, m_vec[1] * rhs, m_vec[2] * rhs};
+  }
+  Vector operator/(const T &rhs) const requires(N == 3) {
+    return {m_vec[0] / rhs, m_vec[1] / rhs, m_vec[2] / rhs};
+  }
+  Vector &operator=(const Vector &rhs) requires(N == 3) {
+    m_vec[0] = rhs.m_vec[0];
+    m_vec[1] = rhs.m_vec[1];
+    m_vec[2] = rhs.m_vec[2];
+    return *this;
+  }
+  template <int N_>
+  Vector &operator=(T const (&x)[N_]) requires(N == 3) {
+    m_vec[0] = x[0];
+    m_vec[1] = x[1];
+    m_vec[2] = x[2];
+    return *this;
   }
 };
 
