@@ -34,8 +34,10 @@ TEST(Accel, NaiveBVHAccel) {
   std::clog << "depth: " << bacc.getDepth() << std::endl;
 
   for (int i = 0; i < 10; ++i) {
-    auto ray1 = Ray(Vector3f(0.0), Vector3f::Random().stableNormalized());
-    auto ray2 = ray1;
+    auto ray1 =
+        Ray(Vector3f(0.0),
+            Vector3f(rng.get1D(), rng.get1D(), rng.get1D()).stableNormalized());
+    auto         ray2 = ray1;
     SInteraction isect1, isect2;
 
     bool res1 = acc.intersect(ray1, isect1);

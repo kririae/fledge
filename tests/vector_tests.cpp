@@ -36,6 +36,7 @@ TEST(Vector, Comprehensive) {
 
   EXPECT_EQ(Sum(a), 6);
   EXPECT_EQ(SquaredNorm(a), 14);
+  EXPECT_NEAR(Norm(a), 3.74165738677394, 1e-5);
   EXPECT_EQ(Normalize(MakeVector3f(2, 0, 0)), MakeVector3f(1, 0, 0));
   EXPECT_EQ(Dot(a, b), 32);
   EXPECT_EQ(Cross(MakeVector3f(1, 0, 0), MakeVector3f(0, 1, 0)),

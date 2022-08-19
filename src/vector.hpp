@@ -2,10 +2,12 @@
 #define __VECTOR_HPP__
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
 
+#include "debug.hpp"
 #include "fwd.hpp"
 
 SV_NAMESPACE_BEGIN
@@ -53,9 +55,11 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   const T &x() const requires(N >= 1) { return m_vec[0]; }
   const T &y() const requires(N >= 2) { return m_vec[1]; }
   const T &z() const requires(N >= 3) { return m_vec[2]; }
+  const T &w() const requires(N >= 4) { return m_vec[3]; }
   T       &x() requires(N >= 1) { return m_vec[0]; }
   T       &y() requires(N >= 2) { return m_vec[1]; }
   T       &z() requires(N >= 3) { return m_vec[2]; }
+  T       &w() requires(N >= 4) { return m_vec[3]; }
 
   bool operator==(const Vector &rhs) const {
     for (int i = 0; i < size; ++i)
@@ -115,6 +119,7 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   Vector cwiseProduct(const Vector &rhs) const { return (*this) * rhs; }
   T      maxCoeff() const { return MaxElement(*this); }
   T      minCoeff() const { return MinElement(*this); }
+  bool   isZero() const { return SquaredNorm(*this) == 0; }
 
   void   normalize() { (*this) = normalized(); }
   void   stableNormalize() { (*this) = normalized(); }
@@ -194,8 +199,7 @@ inline T Norm(const Vector<T, N> &x) requires(std::is_arithmetic<T>::value) {
 template <typename T, int N>
 inline Vector<T, N> Normalize(const Vector<T, N> &x) requires(
     std::is_arithmetic<T>::value) {
-  T acc = x.reduce([](T x, T y) -> T { return x + y; });
-  return x / acc;
+  return x / Norm(x);
 }
 
 template <typename T, int N>
@@ -220,6 +224,11 @@ inline T MaxElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
 template <typename T, int N>
 inline T MinElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
   return x.reduce([](T x, T y) -> T { return std::max(x, y); });
+}
+
+template <typename T, int N>
+inline Vector<T, N> RandVec() requires(std::is_arithmetic<T>::value) {
+  TODO();
 }
 
 using Vector3f = Vector<Float, 3>;
