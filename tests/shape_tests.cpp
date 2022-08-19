@@ -92,7 +92,7 @@ TEST(Triangle, Watertight) {
 
   for (int i = 0; i < 1000; ++i) {
     Vector2f u = rng.get2D();
-    Vector3f p = Vector3f::Zero() + 0.5 * UniformSampleSphere(u);
+    Vector3f p = Vector3f(0.0) + 0.5 * UniformSampleSphere(u);
 
     u = rng.get2D();
     Ray r(p, UniformSampleSphere(u));

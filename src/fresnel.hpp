@@ -58,12 +58,12 @@ inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
   Vector3f eta2         = eta.cwiseProduct(eta);
   Vector3f eta_k2       = eta_k.cwiseProduct(eta_k);
 
-  Vector3f t0         = eta2 - eta_k2 - Vector3f::Constant(sin_theta_i2);
+  Vector3f t0         = eta2 - eta_k2 - Vector3f(sin_theta_i2);
   Vector3f a2_plus_b2 = (t0.cwiseProduct(t0) + 4 * eta2.cwiseProduct(eta_k2));
   a2_plus_b2[0]       = std::sqrt(a2_plus_b2[0]);
   a2_plus_b2[1]       = std::sqrt(a2_plus_b2[1]);
   a2_plus_b2[2]       = std::sqrt(a2_plus_b2[2]);
-  Vector3f t1         = a2_plus_b2 + Vector3f::Constant(cos_theta_i2);
+  Vector3f t1         = a2_plus_b2 + Vector3f(cos_theta_i2);
   Vector3f a          = 0.5f * (a2_plus_b2 + t0);
   a[0]                = std::sqrt(a[0]);
   a[1]                = std::sqrt(a[1]);
@@ -71,8 +71,8 @@ inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
   Vector3f t2         = (Float)2 * cosThetaI * a;
   Vector3f rs         = (t1 - t2).cwiseProduct((t1 + t2).cwiseInverse());
 
-  Vector3f t3 = cos_theta_i2 * a2_plus_b2 +
-                Vector3f::Constant(sin_theta_i2 * sin_theta_i2);
+  Vector3f t3 =
+      cos_theta_i2 * a2_plus_b2 + Vector3f(sin_theta_i2 * sin_theta_i2);
   Vector3f t4 = t2 * sin_theta_i2;
   Vector3f rp =
       rs.cwiseProduct((t3 - t4).cwiseProduct((t3 + t4).cwiseInverse()));

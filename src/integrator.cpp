@@ -27,9 +27,9 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
   // only consider the result to be 0 or 1 currently
   SInteraction isect;
   if (scene.intersect(ray, isect)) {
-    return Vector3f::Zero();
+    return Vector3f(0.0);
   } else {
-    return Vector3f::Ones();
+    return Vector3f(1.0);
   }
 }
 
@@ -42,20 +42,19 @@ Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
 Vector3f EstimateDirect(const Interaction &it, const Light &light,
                         const Scene &scene, Random &rng) {
   Float       pdf;
-  Vector3f    wi, L = Vector3f::Zero();
+  Vector3f    wi, L = Vector3f(0.0);
   Vector2f    u_light = rng.get2D();
   Interaction light_sample;
   Vector3f    Li = light.sampleLi(it, u_light, wi, pdf, light_sample);
-  if (pdf == 0 || Li == Vector3f::Zero()) return Vector3f::Zero();
+  if (pdf == 0 || Li == Vector3f(0.0)) return Vector3f(0.0);
 
-  Vector3f f = Vector3f::Zero();
+  Vector3f f = Vector3f(0.0);
   if (it.isSInteraction()) {
     // Surface Interaction
     CoordinateTransition trans(it.m_ng);
     auto                 t_it = reinterpret_cast<const SInteraction &>(it);
     assert(t_it.m_primitive->getMaterial() != nullptr);
-    f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f::Zero(),
-                                           trans) *
+    f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f(0.0), trans) *
         abs(wi.dot(t_it.m_ns));
     // SErr("do not support SInteraction yet");
   } else {
@@ -66,11 +65,11 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     C(vit.m_wo);
     C(wi);
     // likely the BRDF to be applied
-    f = Vector3f::Constant(HGP(wi, vit.m_wo, vit.m_g));
+    f = Vector3f(HGP(wi, vit.m_wo, vit.m_g));
     C(f);
   }
 
-  if (f != Vector3f::Zero()) {
+  if (f != Vector3f(0.0)) {
     // Notice that *SpawnRayTo* is responsible for initializing the
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
@@ -86,7 +85,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
 Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
                                Random &rng) {
   int n_lights = scene.m_light.size();
-  if (n_lights == 0) return Vector3f::Zero();
+  if (n_lights == 0) return Vector3f(0.0);
   int light_num =
       std::min(static_cast<int>(rng.get1D() * static_cast<Float>(n_lights)),
                n_lights - 1);
@@ -110,7 +109,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
   // define to lambdas here for further evaluation
   auto evalPixel = [&](int x, int y, int SPP, Random &rng) -> Vector3f {
-    Vector3f color = Vector3f::Zero();
+    Vector3f color = Vector3f(0.0);
 
     // temporary implementation
     for (int s = 0; s < SPP; ++s) {
@@ -181,18 +180,18 @@ void SampleIntegrator::render(const Scene &scene) {
 }
 
 Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng) {
-  Vector3f     L = Vector3f::Zero();
+  Vector3f     L = Vector3f(0.0);
   SInteraction isect;
   if (scene.m_accel->intersect(ray, isect))
-    L = (isect.m_ns + Vector3f::Constant(1.0)) / 2;
+    L = (isect.m_ns + Vector3f(1.0)) / 2;
   else
-    L = Vector3f::Constant(0.00);
+    L = Vector3f(0.00);
   return L;
 }
 
 Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
-  Vector3f L    = Vector3f::Zero();
-  Vector3f beta = Vector3f::Ones();
+  Vector3f L    = Vector3f(0.0);
+  Vector3f beta = Vector3f(1.0);
   auto     ray  = r;
   int      bounces{0};
   bool     specular{false};
@@ -228,7 +227,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     Float    pdf;
     C(isect.m_primitive);
     Vector3f f = isect.m_primitive->getMaterial()->sampleF(
-        wo, wi, pdf, rng.get2D(), Vector2f::Zero(), trans);
+        wo, wi, pdf, rng.get2D(), Vector2f(0.0), trans);
     if (pdf == 0.0 || f.isZero()) break;
 
     beta = beta.cwiseProduct(f * abs(wi.dot(isect.m_ns)) / pdf);
@@ -239,8 +238,8 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
 }
 
 Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
-  Vector3f L    = Vector3f::Zero();
-  Vector3f beta = Vector3f::Ones();
+  Vector3f L    = Vector3f(0.0);
+  Vector3f beta = Vector3f(1.0);
   auto     ray  = r;
   bool     in_volume{false};
   int      bounces{0};

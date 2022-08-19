@@ -16,7 +16,7 @@ public:
               const Vector3f &wo)
       : m_p(p), m_ns(ns), m_ng(ng), m_wo(wo) {}
   virtual ~Interaction() = default;
-  virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f::Zero(); }
+  virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f(0.0); }
   virtual Ray  SpawnRay(const Vector3f &d) const {
      return {m_p + m_ns * SHADOW_EPS, d.normalized()};
   }
@@ -30,7 +30,7 @@ public:
   virtual bool isSInteraction() const { return false; }
 
   // shading normal, geometry normal
-  Vector3f m_p, m_ns{Vector3f::Zero()}, m_ng{Vector3f::Zero()}, m_wo;
+  Vector3f m_p, m_ns{Vector3f(0.0)}, m_ng{Vector3f(0.0)}, m_wo;
 
 private:
 };
@@ -52,7 +52,7 @@ class VInteraction : public Interaction {
 public:
   VInteraction() = default;
   VInteraction(const Vector3f &p, const Vector3f &wo, Float g)
-      : Interaction(p, Vector3f::Zero(), Vector3f::Zero(), wo), m_g(g) {}
+      : Interaction(p, Vector3f(0.0), Vector3f(0.0), wo), m_g(g) {}
   virtual ~VInteraction() = default;
   bool isSInteraction() const override { return false; }
 

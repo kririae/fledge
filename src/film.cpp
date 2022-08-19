@@ -6,7 +6,7 @@ SV_NAMESPACE_BEGIN
 
 Film::Film(int resX, int resY) : m_resX(resX), m_resY(resY) {
   m_pixels.resize(m_resX * m_resY);
-  m_pixels.assign(m_pixels.size(), Vector3f::Constant(0));
+  m_pixels.assign(m_pixels.size(), Vector3f(0));
 }
 
 int Film::getPixelIdx(int x, int y) const {

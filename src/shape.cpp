@@ -77,7 +77,7 @@ Interaction Sphere::sample(const Vector2f &u, Float &pdf) const {
 }
 
 AABB Sphere::getBound() const {
-  auto v_r = Vector3f::Constant(m_r);
+  auto v_r = Vector3f(m_r);
   return AABB(m_p - v_r, m_p + v_r);
 }
 

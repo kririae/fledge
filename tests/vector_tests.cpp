@@ -5,6 +5,7 @@
 #include "aabb.hpp"
 #include "accel.hpp"
 #include "fwd.hpp"
+#include "gtest/gtest.h"
 #include "interaction.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
@@ -28,4 +29,15 @@ TEST(Vector, Comprehensive) {
   EXPECT_EQ(c2, MakeVector3f(4, 10, 18));
   EXPECT_EQ(a * 2, MakeVector3f(2, 4, 6));
   EXPECT_EQ(2 * a, MakeVector3f(2, 4, 6));
+
+  Vector<int, 3> d{7, 8, 9};
+  bool res = std::is_same_v<decltype(d.cast<Float, 3>())::type, Float>;
+  EXPECT_TRUE(res);
+
+  EXPECT_EQ(Sum(a), 6);
+  EXPECT_EQ(SquaredNorm(a), 14);
+  EXPECT_EQ(Normalize(MakeVector3f(2, 0, 0)), MakeVector3f(1, 0, 0));
+  EXPECT_EQ(Dot(a, b), 32);
+  EXPECT_EQ(Cross(MakeVector3f(1, 0, 0), MakeVector3f(0, 1, 0)),
+            MakeVector3f(0, 0, 1));
 }

@@ -15,7 +15,7 @@ TEST(Accel, NaiveBVHAccel) {
   using namespace SmallVolNS;
   Random rng;
 
-  auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f::Constant(1.0));
+  auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f(1.0));
 
   std::vector<std::shared_ptr<Primitive>> p;
 
@@ -34,7 +34,7 @@ TEST(Accel, NaiveBVHAccel) {
   std::clog << "depth: " << bacc.getDepth() << std::endl;
 
   for (int i = 0; i < 10; ++i) {
-    auto ray1 = Ray(Vector3f::Zero(), Vector3f::Random().stableNormalized());
+    auto ray1 = Ray(Vector3f(0.0), Vector3f::Random().stableNormalized());
     auto ray2 = ray1;
     SInteraction isect1, isect2;
 

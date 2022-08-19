@@ -121,7 +121,7 @@ class MicrofacetMaterial : public Material {
 public:
   // roughness, k: absorption coefficient
   MicrofacetMaterial(const Vector3f &R, Float roughness = 0.4,
-                     const Vector3f &k = Vector3f::Constant(2.0));
+                     const Vector3f &k = Vector3f(2.0));
   Vector3f f(const Vector3f &w_wo, const Vector3f &w_wi, const Vector2f &uv,
              const CoordinateTransition &trans) const override;
   Float    pdf(const Vector3f &w_wo, const Vector3f &w_wi,

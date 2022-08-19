@@ -36,7 +36,7 @@ public:
   ShapePrimitive(
       const std::shared_ptr<Shape>    &shape,
       const std::shared_ptr<Material> &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
+      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
       const std::shared_ptr<AreaLight> &areaLight = nullptr);
   ~ShapePrimitive() override = default;
 
@@ -62,12 +62,12 @@ public:
   MeshPrimitive(
       const std::shared_ptr<TriangleMesh> &mesh,
       const std::shared_ptr<Material>     &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
+      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
       const std::shared_ptr<AreaLight> &areaLight = nullptr);
   MeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f::Ones()),
+      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
       const std::shared_ptr<AreaLight> &areaLight = nullptr);
   ~MeshPrimitive() override = default;
 

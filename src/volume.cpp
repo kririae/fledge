@@ -73,7 +73,7 @@ Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
   auto sampler = openvdb::tools::GridSampler<decltype(accessor), sampler_type>(
       accessor, m_grid->transform());
   Float t_min, t_max;
-  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) return Vector3f::Ones();
+  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) return Vector3f(1.0);
 
   // ratio-tracking (I cannot understand it correctness currently)
   Float tr = 1, t = std::max(t_min, static_cast<Float>(0.0));
@@ -91,12 +91,12 @@ Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
     const Float rrThreshold = .1;
     if (tr < rrThreshold) {
       Float q = std::max((Float).05, 1 - tr);
-      if (rng.get1D() < q) return Vector3f::Zero();
+      if (rng.get1D() < q) return Vector3f(0.0);
       tr /= 1 - q;
     }
   }
 
-  return Vector3f::Constant(tr);
+  return Vector3f(tr);
 }
 
 Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
@@ -111,7 +111,7 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   Float t_min, t_max;
   if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) {
     success = false;
-    return Vector3f::Ones();
+    return Vector3f(1.0);
   }
 
   Float t      = std::max(t_min, static_cast<Float>(0));
@@ -132,12 +132,12 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
       // sample
       success = true;
       vi      = VInteraction(pos, -ray.m_d, m_g);
-      return Vector3f::Constant(m_sigma_s / m_sigma_t);
+      return Vector3f(m_sigma_s / m_sigma_t);
     }  // else: continue the rejection process
   }
 
   success = false;
-  return Vector3f::Ones();
+  return Vector3f(1.0);
 }
 
 // For testing the delta-tracking
@@ -152,8 +152,8 @@ HVolume::HVolume() {
   m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
                                   Vector3f{218.33, 213.33, 298.33});
   // m_aabb =
-  //     std::make_shared<AABB>(Vector3f::Constant(-0.5) + Vector3f{0, 0.5, 0},
-  //                            Vector3f::Constant(0.5) + Vector3f{0, 0.5, 0});
+  //     std::make_shared<AABB>(Vector3f(-0.5) + Vector3f{0, 0.5, 0},
+  //                            Vector3f(0.5) + Vector3f{0, 0.5, 0});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
@@ -161,12 +161,12 @@ Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
   Float t_min, t_max;
 
   if (!m_aabb->intersect(ray, t_min, t_max)) {
-    return Vector3f::Ones();
+    return Vector3f(1.0);
   }
 
   // clamp the t_max
   t_min = std::max(static_cast<Float>(0), t_min);
-  return Vector3f::Constant(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
+  return Vector3f(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
 }
 
 Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
@@ -175,7 +175,7 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   Float t_min, t_max;
   if (!m_aabb->intersect(ray, t_min, t_max)) {
     success = false;
-    return Vector3f::Ones();
+    return Vector3f(1.0);
   }
 
   if (t_min > 1e-4) {
@@ -194,13 +194,13 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
     vi.m_p  = ray(t);
     vi.m_wo = -ray.m_d;
     vi.m_g  = m_g;
-    return Vector3f::Constant(m_sigma_s / m_sigma_t);
+    return Vector3f(m_sigma_s / m_sigma_t);
   } else {
     // sampling the surface
     success = false;
     // since we are sampling the surface, the result must be divided by the pdf,
     // which is exactly tr
-    return Vector3f::Ones();
+    return Vector3f(1.0);
   }
 }
 

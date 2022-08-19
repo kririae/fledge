@@ -40,7 +40,7 @@ void Light::preprocess(const Scene &scene) {
 
 // interface for infinite light
 Vector3f Light::sampleLe() const {
-  return Vector3f::Zero();
+  return Vector3f(0.0);
 }
 
 Float Light::pdfLe() const {
@@ -48,7 +48,7 @@ Float Light::pdfLe() const {
 }
 
 Vector3f Light::Le(const Ray &) const {
-  return Vector3f::Zero();
+  return Vector3f(0.0);
 }
 
 AreaLight::AreaLight(const std::shared_ptr<Shape> &shape, const Vector3f &Le)
@@ -60,7 +60,7 @@ Vector3f AreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   // m_shape->sample (ref, u, pdf) will return the pdf corresponds to
   // d\omega(actually, the p(w) should be put in *pdf*).
   sample = m_shape->sample(ref, u, pdf);
-  if (pdf == 0) return Vector3f::Zero();
+  if (pdf == 0) return Vector3f(0.0);
   wi = (sample.m_p - ref.m_p).normalized();
   return L(sample, -wi);
 }
@@ -71,14 +71,14 @@ Float AreaLight::pdfLi(const Interaction &isect) const {
 
 Vector3f AreaLight::L(const Interaction &isect, const Vector3f &w) const {
   // isect.wo must be initialized
-  return isect.m_ng.dot(w) > 0 ? m_Le : Vector3f::Zero();
+  return isect.m_ng.dot(w) > 0 ? m_Le : Vector3f(0.0);
 }
 
 InfiniteAreaLight::InfiniteAreaLight(const Vector3f &color)
     : m_tex(std::make_shared<ConstTexture>(color)) {
   SLog("InfiniteAreaLight is initialized with color=(%f, %f, %f)", color[0],
        color[1], color[2]);
-  m_worldCenter = Vector3f::Zero();
+  m_worldCenter = Vector3f(0.0);
   m_worldRadius = 0;
   m_dist        = std::make_shared<Dist2D>(std::vector<Float>(1).data(), 1, 1);
 }
@@ -89,7 +89,7 @@ InfiniteAreaLight::InfiniteAreaLight(const std::string &filename)
 InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     : m_tex(tex) {
   SLog("InfiniteAreaLight is initialized with Texture object or filename");
-  m_worldCenter = Vector3f::Zero();
+  m_worldCenter = Vector3f(0.0);
   m_worldRadius = 0;
 
   std::vector<Float> f(NU * NV, 0);
@@ -122,7 +122,7 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   pdf /= (2 * PI * PI * std::sin(theta));
 
   wi = (sample.m_p - ref.m_p).normalized();
-  // return Vector3f::Constant(pdf) * 5;
+  // return Vector3f(pdf) * 5;
   return Le(Ray{ref.m_p, wi});
 }
 

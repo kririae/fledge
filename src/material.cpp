@@ -81,12 +81,11 @@ Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
 
   Float    cosThetaO = AbsCosTheta(wo), cosThetaI = AbsCosTheta(wi);
   Vector3f wh = wi + wo;
-  if (cosThetaI == 0 || cosThetaO == 0) return Vector3f::Zero();
-  if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0) return Vector3f::Zero();
+  if (cosThetaI == 0 || cosThetaO == 0) return Vector3f(0.0);
+  if (wh.x() == 0 && wh.y() == 0 && wh.z() == 0) return Vector3f(0.0);
 
   wh.normalize();
-  Vector3f F =
-      FresnelConductor(wi.dot(wh), Vector3f::Ones(), Vector3f::Ones(), m_k);
+  Vector3f F = FresnelConductor(wi.dot(wh), Vector3f(1.0), Vector3f(1.0), m_k);
   return (m_R * m_dist->D(wh) * m_dist->G(wo, wi)).cwiseProduct(F) /
          (4 * cosThetaI * cosThetaO);
 }
@@ -107,16 +106,16 @@ Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
   Vector3f wo = trans.WorldToLocal(w_wo);
 
   // Sample microfacet orientation $\wh$ and reflected direction $\wi$
-  if (wo.z() == 0) return Vector3f::Zero();
+  if (wo.z() == 0) return Vector3f(0.0);
   Vector3f wh = m_dist->sampleWh(wo, u);
-  if (wo.dot(wh) < 0) return Vector3f::Zero();  // Should be rare
+  if (wo.dot(wh) < 0) return Vector3f(0.0);  // Should be rare
   auto wi = Reflect(wo, wh);
   w_wi    = trans.LocalToWorld(wi);
-  if (!SameHemisphere(wo, wi)) return Vector3f::Zero();
+  if (!SameHemisphere(wo, wi)) return Vector3f(0.0);
 
   // Compute PDF of _wi_ for microfacet reflection
   pdf = m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
-  return f(w_wo, w_wi, Vector2f::Zero(), trans);
+  return f(w_wo, w_wi, Vector2f(0.0), trans);
 }
 
 SV_NAMESPACE_END
