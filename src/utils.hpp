@@ -128,6 +128,30 @@ inline bool SameHemisphere(const Vector3f &w, const Vector3f &wp) {
   return w.z() * wp.z() > 0;
 }
 
+// Correct implementation from PBRT again
+inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
+                    Vector3f &wt) {
+  Float cos_theta_i  = Dot(n, wi);
+  Float sin2_theta_i = std::max(0.f, 1.f - cos_theta_i * cos_theta_i);
+  Float sin2_theta_t = eta * eta * sin2_theta_i;
+  if (sin2_theta_t >= 1) return false;
+  Float cos_theta_t = std::sqrt(1 - sin2_theta_t);
+  wt = eta * -wi + (eta * cos_theta_i - cos_theta_t) * Vector3f(n);
+  return true;
+}
+
+inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
+                                const Vector3f &dir) {
+  // This function is intended to be called when spawning rays.
+  // It will assure that the modified ray will not intersect with the geometry
+  // near p
+  // Out strategy is to move the origin towards the target direction along
+  // normal
+  Vector3f offset = n;
+  if (Dot(n, dir) < 0) offset = -n;
+  return p + offset * SHADOW_EPS;
+}
+
 SV_NAMESPACE_END
 
 #endif

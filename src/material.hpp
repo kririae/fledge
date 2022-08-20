@@ -31,6 +31,7 @@ public:
   virtual Vector3f sampleF(const Vector3f &wo, Vector3f &wi, Float &pdf,
                            const Vector2f &u, const Vector2f &uv,
                            const CoordinateTransition &trans) const = 0;
+  virtual bool     isDelta() const { return false; }
   EMaterialType    m_matType;
 };
 
@@ -134,6 +135,22 @@ private:
   Vector3f                              m_R, m_k;
   Float                                 m_roughness;
   std::shared_ptr<BeckmannDistribution> m_dist;
+};
+
+class Transmission : public Material {
+public:
+  Transmission(Float etaI, Float etaT) : m_etaI(etaI), m_etaT(etaT) {}
+  Vector3f f(const Vector3f &w_wo, const Vector3f &w_wi, const Vector2f &uv,
+             const CoordinateTransition &trans) const override;
+  Float    pdf(const Vector3f &w_wo, const Vector3f &w_wi,
+               const CoordinateTransition &trans) const override;
+  Vector3f sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
+                   const Vector2f &u, const Vector2f &uv,
+                   const CoordinateTransition &trans) const override;
+  bool     isDelta() const override { return true; }
+
+private:
+  Float m_etaI, m_etaT;
 };
 
 SV_NAMESPACE_END

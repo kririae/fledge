@@ -23,6 +23,9 @@ inline void Deprecated() {
   assert(false);
 }
 
+#define EIGEN_FUNC
+// #define EIGEN_FUNC __attribute__((deprecated))
+
 template <typename T, int N>
 requires(std::is_arithmetic<T>::value) struct Vector {
   // Vector class
@@ -117,6 +120,7 @@ requires(std::is_arithmetic<T>::value) struct Vector {
     return res;
   }
   Vector operator/(const T &rhs) const {
+    assert(rhs != 0);
     Vector res;
     ispc::DivConst(res.m_vec, m_vec, rhs, N);
     return res;
@@ -155,53 +159,54 @@ requires(std::is_arithmetic<T>::value) struct Vector {
     return (*this) = (*this) * rhs;
   }
   Vector &operator/=(const T &rhs) {
+    assert(rhs != 0);
     return (*this) = (*this) / rhs;
   }
 
   // Depreciated Functions from Eigen
-  __attribute__((deprecated)) T norm() const {
+  EIGEN_FUNC T norm() const {
     return Norm(*this);
   }
-  __attribute__((deprecated)) T squaredNorm() const {
+  EIGEN_FUNC T squaredNorm() const {
     return SquaredNorm(*this);
   }
-  __attribute__((deprecated)) Vector normalized() const {
+  EIGEN_FUNC Vector normalized() const {
     return Normalize(*this);
   }
-  __attribute__((deprecated)) Vector stableNormalized() const {
+  EIGEN_FUNC Vector stableNormalized() const {
     return Normalize(*this);
   }
-  __attribute__((deprecated)) Vector cwiseInverse() const {
+  EIGEN_FUNC Vector cwiseInverse() const {
     return 1.0 / (*this);
   }
-  __attribute__((deprecated)) T dot(const Vector &rhs) const {
+  EIGEN_FUNC T dot(const Vector &rhs) const {
     return Dot(*this, rhs);
   }
-  __attribute__((deprecated)) Vector cross(const Vector &rhs) const {
+  EIGEN_FUNC Vector cross(const Vector &rhs) const {
     return Cross(*this, rhs);
   }
-  __attribute__((deprecated)) Vector cwiseProduct(const Vector &rhs) const {
+  EIGEN_FUNC Vector cwiseProduct(const Vector &rhs) const {
     return (*this) * rhs;
   }
-  __attribute__((deprecated)) T maxCoeff() const {
+  EIGEN_FUNC T maxCoeff() const {
     return MaxElement(*this);
   }
-  __attribute__((deprecated)) T minCoeff() const {
+  EIGEN_FUNC T minCoeff() const {
     return MinElement(*this);
   }
-  __attribute__((deprecated)) bool isZero() const {
+  EIGEN_FUNC bool isZero() const {
     return SquaredNorm(*this) == 0;
   }
-  __attribute__((deprecated)) void normalize() {
+  EIGEN_FUNC void normalize() {
     (*this) = normalized();
   }
-  __attribute__((deprecated)) void stableNormalize() {
+  EIGEN_FUNC void stableNormalize() {
     (*this) = normalized();
   }
-  __attribute__((deprecated)) Vector cwiseMax(const Vector &rhs) const {
+  EIGEN_FUNC Vector cwiseMax(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::max(x, y); });
   }
-  __attribute__((deprecated)) Vector cwiseMin(const Vector &rhs) const {
+  EIGEN_FUNC Vector cwiseMin(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::min(x, y); });
   }
 
@@ -250,6 +255,9 @@ requires(std::is_arithmetic<T>::value) struct Vector {
             m_vec[2] * rhs.m_vec[2]};
   }
   Vector operator/(const Vector &rhs) const requires(N == 3) {
+    assert(rhs.m_vec[0] != 0);
+    assert(rhs.m_vec[1] != 0);
+    assert(rhs.m_vec[2] != 0);
     return {m_vec[0] / rhs.m_vec[0], m_vec[1] / rhs.m_vec[1],
             m_vec[2] / rhs.m_vec[2]};
   }
@@ -265,6 +273,7 @@ requires(std::is_arithmetic<T>::value) struct Vector {
     return {m_vec[0] * rhs, m_vec[1] * rhs, m_vec[2] * rhs};
   }
   Vector operator/(const T &rhs) const requires(N == 3) {
+    assert(rhs != 0);
     return {m_vec[0] / rhs, m_vec[1] / rhs, m_vec[2] / rhs};
   }
   Vector &operator=(const Vector &rhs) requires(N == 3) {
@@ -332,6 +341,12 @@ inline Vector<T, N> Normalize(const Vector<T, N> &x) requires(
 }
 
 template <typename T, int N>
+inline void NormalizeInplace(Vector<T, N> &x) requires(
+    std::is_arithmetic<T>::value) {
+  x /= Norm(x);
+}
+
+template <typename T, int N>
 inline T Dot(const Vector<T, N> &x,
              const Vector<T, N> &y) requires(std::is_arithmetic<T>::value) {
   return Sum(x * y);
@@ -368,6 +383,12 @@ template <typename T, int N>
 inline Vector<T, N> Min(const Vector<T, N> &x, const Vector<T, N> &y) requires(
     std::is_arithmetic<T>::value) {
   return x.forEach(y, [](T x, T y) -> T { return std::min(x, y); });
+}
+
+template <typename T, int N>
+inline Vector<T, N> Abs(const Vector<T, N> &x) requires(
+    std::is_arithmetic<T>::value) {
+  return x.forEach([](T x) -> T { return std::abs(x); });
 }
 
 template <typename T, int N>

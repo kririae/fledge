@@ -8,25 +8,25 @@
 #include "vector.hpp"
 
 SV_NAMESPACE_BEGIN
+
+// After any transition, (0, 0, 1) is the local normal
 CoordinateTransition::CoordinateTransition(const Vector3f &normal)
     : m_normal(normal) {
-  m_normal.normalize();
+  NormalizeInplace(m_normal);
   if (abs(m_normal[0]) > abs(m_normal[2])) {
     m_binormal = Vector3f(-m_normal[1], m_normal[0], 0);
   } else {
     m_binormal = Vector3f(0, -m_normal[2], m_normal[1]);
   }
-  m_binormal.normalize();
-  m_tangent = m_binormal.cross(m_normal);
+  NormalizeInplace(m_binormal);
+  m_tangent = Cross(m_binormal, m_normal);
 
-  C(m_normal);
-  C(m_binormal);
-  C(m_tangent);
+  C(m_normal, m_binormal, m_tangent);
 }
 
 Vector3f CoordinateTransition::WorldToLocal(const Vector3f &p) const {
   C(p);
-  return Vector3f{p.dot(m_tangent), p.dot(m_binormal), p.dot(m_normal)};
+  return {Dot(p, m_tangent), Dot(p, m_binormal), Dot(p, m_normal)};
 }
 
 Vector3f CoordinateTransition::LocalToWorld(const Vector3f &p) const {
@@ -116,6 +116,46 @@ Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
   // Compute PDF of _wi_ for microfacet reflection
   pdf = m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
   return f(w_wo, w_wi, Vector2f(0.0), trans);
+}
+
+// Transmission Material
+Vector3f Transmission::f(const Vector3f &w_wo, const Vector3f &w_wi,
+                         const Vector2f             &uv,
+                         const CoordinateTransition &trans) const {
+  return Vector3f(0.0);
+}
+
+Float Transmission::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
+                        const CoordinateTransition &trans) const {
+  return 0.0;
+}
+
+Vector3f Transmission::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
+                               const Vector2f &u, const Vector2f &uv,
+                               const CoordinateTransition &trans) const {
+  Vector3f wo = trans.WorldToLocal(w_wo), wi;
+
+  bool  entering = CosTheta(wo) > 0;
+  Float etaI     = entering ? m_etaI : m_etaT;
+  Float etaT     = entering ? m_etaT : m_etaI;
+
+  Float F = FresnelDielectric(CosTheta(wo), etaI, etaT);
+  if (u[0] < F) {
+    wi   = {-wo.x(), -wo.y(), wo.z()};
+    wi   = -wo;
+    w_wi = trans.LocalToWorld(wi);
+    pdf  = F;
+    return F / AbsCosTheta(wi);
+  } else {
+    Vector3f n = CosTheta(wo) > 0 ? Vector3f(0, 0, 1) : Vector3f(0, 0, -1);
+    if (!Refract(wo, n, etaI / etaT, wi)) return 0;
+    w_wi = trans.LocalToWorld(wi);
+
+    pdf         = 1 - F;
+    Vector3f ft = Vector3f(1 - F);
+    ft *= (etaI * etaI) / (etaT * etaT);
+    return ft / AbsCosTheta(wi);
+  }
 }
 
 SV_NAMESPACE_END

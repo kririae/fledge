@@ -214,8 +214,13 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       break;
     }
 
-    // consider the *direct lighting*, i.e. L_e terms in LTE
-    L += beta * UniformSampleOneLight(isect, scene, rng);
+    // Handling intersection with specular material
+    if (!isect.m_primitive->getMaterial()->isDelta()) {
+      // consider the *direct lighting*, i.e. L_e terms in LTE
+      L += beta * UniformSampleOneLight(isect, scene, rng);
+    } else {
+      specular = true;
+    }
 
     // use the shading normal
     CoordinateTransition trans(isect.m_ns);

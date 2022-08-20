@@ -103,7 +103,7 @@ template <typename T,
 inline T C(T v, const std::source_location location =
                     std::source_location::current()) {
   if (v == nullptr)
-    SErr("check pointer failed in %s:%d", location.file_name(),
+    SErr("check pointer failed in %s:%d; nullptr found", location.file_name(),
          location.line());
   return v;
 }
@@ -113,8 +113,8 @@ template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
 inline T C(T v, const std::source_location location =
                     std::source_location::current()) {
   if (isnan(v) || isinf(v))
-    SErr("check value failed in %s:%d", location.file_name(), location.line());
-
+    SErr("check value failed in %s:%d; nan or inf found", location.file_name(),
+         location.line());
   return v;
 }
 
