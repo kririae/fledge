@@ -231,7 +231,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     C(isect.m_primitive);
     Vector3f f = isect.m_primitive->getMaterial()->sampleF(
         wo, wi, pdf, rng.get2D(), Vector2f(0.0), trans);
-    if (pdf == 0.0 || f.isZero()) break;
+    // if (pdf == 0.0 || f.isZero()) break;
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);

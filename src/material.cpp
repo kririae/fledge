@@ -142,15 +142,13 @@ Vector3f Transmission::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
   Float F = FresnelDielectric(CosTheta(wo), etaI, etaT);
   if (u[0] < F) {
     wi   = {-wo.x(), -wo.y(), wo.z()};
-    wi   = -wo;
     w_wi = trans.LocalToWorld(wi);
     pdf  = F;
     return F / AbsCosTheta(wi);
   } else {
     Vector3f n = CosTheta(wo) > 0 ? Vector3f(0, 0, 1) : Vector3f(0, 0, -1);
     if (!Refract(wo, n, etaI / etaT, wi)) return 0;
-    w_wi = trans.LocalToWorld(wi);
-
+    w_wi        = trans.LocalToWorld(wi);
     pdf         = 1 - F;
     Vector3f ft = Vector3f(1 - F);
     ft *= (etaI * etaI) / (etaT * etaT);

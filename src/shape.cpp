@@ -46,10 +46,25 @@ bool Sphere::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
     return false;
   }
 
-  s       = sqrt(s);
-  Float t = -(b + s) / (2 * a);
-  if (t <= 0 || t > ray.m_tMax) {
-    return false;
+  s        = sqrt(s);
+  Float t1 = (-b + s) / (2 * a);
+  Float t2 = (-b - s) / (2 * a);
+  Float t;
+  if (t1 > t2) std::swap(t1, t2);
+  // Here, t1 < t2
+  if (t1 > 0) {
+    if (t1 > ray.m_tMax)
+      return false;
+    else
+      t = t1;
+  } else {
+    // t1, t2 < 0
+    if (t2 < 0)
+      return false;
+    else if (t2 > ray.m_tMax)
+      return false;
+    else
+      t = t2;
   }
 
   Vector3f isect_p = ray(t);
