@@ -53,7 +53,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     auto                 t_it = reinterpret_cast<const SInteraction &>(it);
     assert(t_it.m_primitive->getMaterial() != nullptr);
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f(0.0), trans) *
-        abs(wi.dot(t_it.m_ns));
+        abs(Dot(wi, t_it.m_ns));
     // SErr("do not support SInteraction yet");
   } else {
     // Volume Interaction
@@ -73,8 +73,8 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = EstimateTr(shadow_ray, scene, rng);
     C(tr);
-    Li = Li.cwiseProduct(tr);
-    L += f.cwiseProduct(Li) / pdf;
+    Li = Li * tr;
+    L += f * Li / pdf;
   }
 
   return L;
@@ -201,11 +201,11 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     bool find_isect = scene.intersect(ray, isect);
     if (bounces == 0 || specular) {
       if (find_isect) {
-        L += beta.cwiseProduct(isect.Le(-ray.m_d));
+        L += beta * isect.Le(-ray.m_d);
       } else {
         // environment light
         for (const auto &light : scene.m_infLight) {
-          L += beta.cwiseProduct(light->Le(ray));
+          L += beta * light->Le(ray);
         }
       }
     }
@@ -215,7 +215,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     }
 
     // consider the *direct lighting*, i.e. L_e terms in LTE
-    L += beta.cwiseProduct(UniformSampleOneLight(isect, scene, rng));
+    L += beta * UniformSampleOneLight(isect, scene, rng);
 
     // use the shading normal
     CoordinateTransition trans(isect.m_ns);
@@ -228,7 +228,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         wo, wi, pdf, rng.get2D(), Vector2f(0.0), trans);
     if (pdf == 0.0 || f.isZero()) break;
 
-    beta = beta.cwiseProduct(f * abs(wi.dot(isect.m_ns)) / pdf);
+    beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);
   }
 
@@ -252,8 +252,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       if (find_isect) {
         // consider T(p, p_e) L_o(p_e, -w), i.e. P(p_0)
         auto tr = scene.m_volume->tr(ray, rng);
-        for (const auto &light : scene.m_infLight)
-          L += tr.cwiseProduct(light->Le(ray));
+        for (const auto &light : scene.m_infLight) L += tr * light->Le(ray);
         in_volume = true;
 
         assert(t_min >= 0);
@@ -263,8 +262,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
         continue;
       } else {
         // environment light
-        for (const auto &light : scene.m_infLight)
-          L += beta.cwiseProduct(light->Le(ray));
+        for (const auto &light : scene.m_infLight) L += beta * light->Le(ray);
         goto sample_environment;
       }
     }
@@ -279,13 +277,13 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
       if (success) {
         // if it is in volume(so t_min <= 0), and the sample is in the volume
         // T \mu s are take into consider by the Estimator
-        beta = beta.cwiseProduct(f);
+        beta = beta * f;
         C(beta);
 
         Vector3f wi;
         HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
 
-        L += beta.cwiseProduct(UniformSampleOneLight(vit, scene, rng));
+        L += beta * UniformSampleOneLight(vit, scene, rng);
         C(L);
 
         if (bounces >= m_maxDepth || beta.isZero()) break;

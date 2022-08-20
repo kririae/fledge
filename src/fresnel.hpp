@@ -50,16 +50,16 @@ inline Float FresnelSchlick(Float cosThetaI, Float etaI, Float etaT) {
 inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
                                  const Vector3f &etaT, const Vector3f &k) {
   cosThetaI      = std::clamp<Float>(cosThetaI, -1, 1);
-  Vector3f eta   = etaT.cwiseProduct(etaI.cwiseInverse());
-  Vector3f eta_k = k.cwiseProduct(etaI.cwiseInverse());
+  Vector3f eta   = etaT / etaI;
+  Vector3f eta_k = k / etaI;
 
   Float    cos_theta_i2 = cosThetaI * cosThetaI;
   Float    sin_theta_i2 = 1 - cos_theta_i2;
-  Vector3f eta2         = eta.cwiseProduct(eta);
-  Vector3f eta_k2       = eta_k.cwiseProduct(eta_k);
+  Vector3f eta2         = eta * eta;
+  Vector3f eta_k2       = eta_k * eta_k;
 
   Vector3f t0         = eta2 - eta_k2 - Vector3f(sin_theta_i2);
-  Vector3f a2_plus_b2 = (t0.cwiseProduct(t0) + 4 * eta2.cwiseProduct(eta_k2));
+  Vector3f a2_plus_b2 = (t0 * t0 + 4 * eta2 * eta_k2);
   a2_plus_b2[0]       = std::sqrt(a2_plus_b2[0]);
   a2_plus_b2[1]       = std::sqrt(a2_plus_b2[1]);
   a2_plus_b2[2]       = std::sqrt(a2_plus_b2[2]);
@@ -69,13 +69,14 @@ inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
   a[1]                = std::sqrt(a[1]);
   a[2]                = std::sqrt(a[2]);
   Vector3f t2         = (Float)2 * cosThetaI * a;
-  Vector3f rs         = (t1 - t2).cwiseProduct((t1 + t2).cwiseInverse());
+  Vector3f rs         = (t1 - t2) / (t1 + t2);
 
   Vector3f t3 =
       cos_theta_i2 * a2_plus_b2 + Vector3f(sin_theta_i2 * sin_theta_i2);
   Vector3f t4 = t2 * sin_theta_i2;
-  Vector3f rp =
-      rs.cwiseProduct((t3 - t4).cwiseProduct((t3 + t4).cwiseInverse()));
+  Vector3f rp = rs * (t3 - t4) / (t3 + t4);
+  // Vector3f rp =
+  //     rs*((t3 - t4)*((t3 + t4).cwiseInverse()));
 
   return 0.5 * (rp + rs);
 }

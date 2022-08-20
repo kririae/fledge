@@ -18,7 +18,7 @@ Interaction Shape::sample(const Interaction &ref, const Vector2f &u,
                           Float &pdf) const {
   Interaction intr   = sample(u, pdf);
   Vector3f    wi     = intr.m_p - ref.m_p;
-  Float       s_norm = wi.squaredNorm();
+  Float       s_norm = SquaredNorm(wi);
   if (s_norm == 0) {
     pdf = 0.0;
   } else {

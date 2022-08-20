@@ -18,8 +18,8 @@
 
 SV_NAMESPACE_BEGIN
 
-inline void Depreciated() {
-  static_assert("This function is depreciated");
+inline void Deprecated() {
+  static_assert("This function is deprecated");
   assert(false);
 }
 
@@ -159,50 +159,49 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   }
 
   // Depreciated Functions from Eigen
-  T norm() const {
+  __attribute__((deprecated)) T norm() const {
     return Norm(*this);
   }
-  T squaredNorm() const {
+  __attribute__((deprecated)) T squaredNorm() const {
     return SquaredNorm(*this);
   }
-  Vector normalized() const {
+  __attribute__((deprecated)) Vector normalized() const {
     return Normalize(*this);
   }
-  Vector stableNormalized() const {
+  __attribute__((deprecated)) Vector stableNormalized() const {
     return Normalize(*this);
   }
-  Vector cwiseInverse() const {
+  __attribute__((deprecated)) Vector cwiseInverse() const {
     return 1.0 / (*this);
   }
-  T dot(const Vector &rhs) const {
+  __attribute__((deprecated)) T dot(const Vector &rhs) const {
     return Dot(*this, rhs);
   }
-  Vector cross(const Vector &rhs) const {
+  __attribute__((deprecated)) Vector cross(const Vector &rhs) const {
     return Cross(*this, rhs);
   }
-  Vector cwiseProduct(const Vector &rhs) const {
+  __attribute__((deprecated)) Vector cwiseProduct(const Vector &rhs) const {
     return (*this) * rhs;
   }
-  T maxCoeff() const {
+  __attribute__((deprecated)) T maxCoeff() const {
     return MaxElement(*this);
   }
-  T minCoeff() const {
+  __attribute__((deprecated)) T minCoeff() const {
     return MinElement(*this);
   }
-  bool isZero() const {
+  __attribute__((deprecated)) bool isZero() const {
     return SquaredNorm(*this) == 0;
   }
-
-  void normalize() {
+  __attribute__((deprecated)) void normalize() {
     (*this) = normalized();
   }
-  void stableNormalize() {
+  __attribute__((deprecated)) void stableNormalize() {
     (*this) = normalized();
   }
-  Vector cwiseMax(const Vector &rhs) const {
+  __attribute__((deprecated)) Vector cwiseMax(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::max(x, y); });
   }
-  Vector cwiseMin(const Vector &rhs) const {
+  __attribute__((deprecated)) Vector cwiseMin(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::min(x, y); });
   }
 
@@ -333,27 +332,42 @@ inline Vector<T, N> Normalize(const Vector<T, N> &x) requires(
 }
 
 template <typename T, int N>
-inline T Dot(Vector<T, N> x,
-             Vector<T, N> y) requires(std::is_arithmetic<T>::value) {
+inline T Dot(const Vector<T, N> &x,
+             const Vector<T, N> &y) requires(std::is_arithmetic<T>::value) {
   return Sum(x * y);
 }
 
 template <typename T>
-inline Vector<T, 3> Cross(Vector<T, 3> x, Vector<T, 3> y) requires(
-    std::is_arithmetic<T>::value) {
+inline Vector<T, 3> Cross(
+    const Vector<T, 3> &x,
+    const Vector<T, 3> &y) requires(std::is_arithmetic<T>::value) {
   return {x.m_vec[1] * y.m_vec[2] - x.m_vec[2] * y.m_vec[1],
           x.m_vec[2] * y.m_vec[0] - x.m_vec[0] * y.m_vec[2],
           x.m_vec[0] * y.m_vec[1] - x.m_vec[1] * y.m_vec[0]};
 }
 
 template <typename T, int N>
-inline T MaxElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
+inline T MaxElement(const Vector<T, N> &x) requires(
+    std::is_arithmetic<T>::value) {
   return x.reduce([](T x, T y) -> T { return std::max<T>(x, y); });
 }
 
 template <typename T, int N>
-inline T MinElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
+inline T MinElement(const Vector<T, N> &x) requires(
+    std::is_arithmetic<T>::value) {
   return x.reduce([](T x, T y) -> T { return std::min<T>(x, y); });
+}
+
+template <typename T, int N>
+inline Vector<T, N> Max(const Vector<T, N> &x, const Vector<T, N> &y) requires(
+    std::is_arithmetic<T>::value) {
+  return x.forEach(y, [](T x, T y) -> T { return std::max(x, y); });
+}
+
+template <typename T, int N>
+inline Vector<T, N> Min(const Vector<T, N> &x, const Vector<T, N> &y) requires(
+    std::is_arithmetic<T>::value) {
+  return x.forEach(y, [](T x, T y) -> T { return std::min(x, y); });
 }
 
 template <typename T, int N>

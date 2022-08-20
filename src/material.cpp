@@ -86,7 +86,7 @@ Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
 
   wh.normalize();
   Vector3f F = FresnelConductor(wi.dot(wh), Vector3f(1.0), Vector3f(1.0), m_k);
-  return (m_R * m_dist->D(wh) * m_dist->G(wo, wi)).cwiseProduct(F) /
+  return (m_R * m_dist->D(wh) * m_dist->G(wo, wi)) * (F) /
          (4 * cosThetaI * cosThetaO);
 }
 

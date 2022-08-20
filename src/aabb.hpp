@@ -11,15 +11,15 @@ class AABB {
 public:
   AABB() = default;
   AABB(Vector3f t_min, Vector3f t_max) : m_min(t_min), m_max(t_max) {
-    m_min = t_min.cwiseMin(t_max);
-    m_max = t_max.cwiseMax(t_min);
+    m_min = Min(t_min, t_max);
+    m_max = Max(t_max, t_min);
   }
   ~AABB() = default;
 
   bool intersect(const Ray &ray, Float &t_min, Float &t_max) const {
     auto     inv_d  = ray.m_d.cwiseInverse();
-    Vector3f vt1    = (m_min - ray.m_o).cwiseProduct(inv_d);
-    Vector3f vt2    = (m_max - ray.m_o).cwiseProduct(inv_d);
+    Vector3f vt1    = (m_min - ray.m_o) * (inv_d);
+    Vector3f vt2    = (m_max - ray.m_o) * (inv_d);
     Vector3f vt_min = vt1.cwiseMin(vt2);
     Vector3f vt_max = vt1.cwiseMax(vt2);
     Float    l_min  = vt_min.maxCoeff();
