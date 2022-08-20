@@ -148,7 +148,7 @@ inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
   // Out strategy is to move the origin towards the target direction along
   // normal
   Vector3f offset = n;
-  if (Dot(n, dir) < 0) offset = -n;
+  if (Dot(n, dir) <= 0) offset = -n;
   return p + offset * SHADOW_EPS;
 }
 
