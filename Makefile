@@ -42,7 +42,7 @@ run:
 
 .PHONY: format
 format: .FORCE
-	@$(CC_FORMAT_EXEC) -i $(shell find -type f -wholename "$(SRC_DIR)/*.[c|h]p*")
+	@$(CC_FORMAT_EXEC) -i $(shell find -type f -regextype posix-extended -regex '$(SRC_DIR).*\.([c|h]p*|(ispc))')
 	@$(PY_FORMAT_EXEC) --in-place --recursive "$(SRC_DIR)"
 
 .PHONY: test

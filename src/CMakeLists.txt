@@ -56,6 +56,12 @@ cmake_format(format_cmake "${cmake_files}")
 add_library(smallvol_lib "${source}")
 add_executable(smallvol "${source}")
 
+if (USE_ISPC)
+  add_subdirectory(ispc/)
+  target_link_libraries(smallvol_lib PUBLIC smallvol_lib_ispc)
+  target_compile_definitions(smallvol_lib PUBLIC -DUSE_ISPC)
+endif()
+
 target_link_libraries(smallvol_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
                                       OpenImageIO::OpenImageIO TBB::tbb miniply smallvol_embree)
 target_link_libraries(smallvol PUBLIC smallvol_lib)

@@ -42,3 +42,15 @@ TEST(Vector, Comprehensive) {
   EXPECT_EQ(Cross(MakeVector3f(1, 0, 0), MakeVector3f(0, 1, 0)),
             MakeVector3f(0, 0, 1));
 }
+
+TEST(Vector, Vectorized) {
+  constexpr int    N = 100000;
+  Vector<Float, N> a, b;
+  for (int i = 0; i < N; ++i) {
+    a[i] = i;
+    b[i] = i * 2;
+  }
+
+  auto c = a + b;
+  for (int i = 0; i < N; ++i) EXPECT_EQ(c[i], 3 * i);
+}

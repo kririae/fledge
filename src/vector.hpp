@@ -3,12 +3,18 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
+#include <functional>
 #include <initializer_list>
+#include <sstream>
 #include <type_traits>
 
 #include "debug.hpp"
 #include "fwd.hpp"
+
+// ispc optimization
+#ifdef USE_ISPC
+#include "ispc/vector_ispc.h"
+#endif
 
 SV_NAMESPACE_BEGIN
 
@@ -81,6 +87,41 @@ requires(std::is_arithmetic<T>::value) struct Vector {
 
   // Notice that type T will not be promoted currently
   // TODO: specification using SSE
+#ifdef USE_ISPC
+  Vector operator-() const {
+    return forEach([](const T &x) -> T { return -x; });
+  }
+  Vector operator*(const Vector &rhs) const {
+    Vector res;
+    ispc::Mul(res.m_vec, m_vec, rhs.m_vec, N);
+    return res;
+  }
+  Vector operator/(const Vector &rhs) const {
+    Vector res;
+    ispc::Div(res.m_vec, m_vec, rhs.m_vec, N);
+    return res;
+  }
+  Vector operator+(const Vector &rhs) const {
+    Vector res;
+    ispc::Add(res.m_vec, m_vec, rhs.m_vec, N);
+    return res;
+  }
+  Vector operator-(const Vector &rhs) const {
+    Vector res;
+    ispc::Sub(res.m_vec, m_vec, rhs.m_vec, N);
+    return res;
+  }
+  Vector operator*(const T &rhs) const {
+    Vector res;
+    ispc::MulConst(res.m_vec, m_vec, rhs, N);
+    return res;
+  }
+  Vector operator/(const T &rhs) const {
+    Vector res;
+    ispc::DivConst(res.m_vec, m_vec, rhs, N);
+    return res;
+  }
+#else
   Vector operator-() const {
     return forEach([](const T &x) -> T { return -x; });
   }
@@ -102,27 +143,62 @@ requires(std::is_arithmetic<T>::value) struct Vector {
   Vector operator/(const T &rhs) const {
     return forEach([rhs](const T &x) -> T { return x / rhs; });
   }
+#endif
 
-  Vector &operator+=(const Vector &rhs) { return (*this) = (*this) + rhs; }
-  Vector &operator-=(const Vector &rhs) { return (*this) = (*this) - rhs; }
-  Vector &operator*=(const T &rhs) { return (*this) = (*this) * rhs; }
-  Vector &operator/=(const T &rhs) { return (*this) = (*this) / rhs; }
+  Vector &operator+=(const Vector &rhs) {
+    return (*this) = (*this) + rhs;
+  }
+  Vector &operator-=(const Vector &rhs) {
+    return (*this) = (*this) - rhs;
+  }
+  Vector &operator*=(const T &rhs) {
+    return (*this) = (*this) * rhs;
+  }
+  Vector &operator/=(const T &rhs) {
+    return (*this) = (*this) / rhs;
+  }
 
   // Depreciated Functions from Eigen
-  T      norm() const { return Norm(*this); }
-  T      squaredNorm() const { return SquaredNorm(*this); }
-  Vector normalized() const { return Normalize(*this); }
-  Vector stableNormalized() const { return Normalize(*this); }
-  Vector cwiseInverse() const { return 1.0 / (*this); }
-  T      dot(const Vector &rhs) const { return Dot(*this, rhs); }
-  Vector cross(const Vector &rhs) const { return Cross(*this, rhs); }
-  Vector cwiseProduct(const Vector &rhs) const { return (*this) * rhs; }
-  T      maxCoeff() const { return MaxElement(*this); }
-  T      minCoeff() const { return MinElement(*this); }
-  bool   isZero() const { return SquaredNorm(*this) == 0; }
+  T norm() const {
+    return Norm(*this);
+  }
+  T squaredNorm() const {
+    return SquaredNorm(*this);
+  }
+  Vector normalized() const {
+    return Normalize(*this);
+  }
+  Vector stableNormalized() const {
+    return Normalize(*this);
+  }
+  Vector cwiseInverse() const {
+    return 1.0 / (*this);
+  }
+  T dot(const Vector &rhs) const {
+    return Dot(*this, rhs);
+  }
+  Vector cross(const Vector &rhs) const {
+    return Cross(*this, rhs);
+  }
+  Vector cwiseProduct(const Vector &rhs) const {
+    return (*this) * rhs;
+  }
+  T maxCoeff() const {
+    return MaxElement(*this);
+  }
+  T minCoeff() const {
+    return MinElement(*this);
+  }
+  bool isZero() const {
+    return SquaredNorm(*this) == 0;
+  }
 
-  void   normalize() { (*this) = normalized(); }
-  void   stableNormalize() { (*this) = normalized(); }
+  void normalize() {
+    (*this) = normalized();
+  }
+  void stableNormalize() {
+    (*this) = normalized();
+  }
   Vector cwiseMax(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::max(x, y); });
   }
@@ -223,12 +299,26 @@ inline T Sum(const Vector<T, N> &x) requires(std::is_arithmetic<T>::value) {
   return x.reduce([](T x, T y) -> T { return x + y; });
 }
 
+template <typename T>
+inline T Sum(const Vector<T, 3> &x) requires(std::is_arithmetic<T>::value) {
+  return x.m_vec[0] + x.m_vec[1] + x.m_vec[2];
+}
+
 template <typename T, int N>
 inline T SquaredNorm(const Vector<T, N> &x) requires(
     std::is_arithmetic<T>::value) {
   return x.forEach([](T x) -> T { return x * x; }).reduce([](T x, T y) -> T {
     return x + y;
   });
+}
+
+template <typename T>
+inline T SquaredNorm(const Vector<T, 3> &x) requires(
+    std::is_arithmetic<T>::value) {
+  const T a = x.m_vec[0];
+  const T b = x.m_vec[1];
+  const T c = x.m_vec[2];
+  return a * a + b * b + c * c;
 }
 
 template <typename T, int N>
@@ -245,7 +335,7 @@ inline Vector<T, N> Normalize(const Vector<T, N> &x) requires(
 template <typename T, int N>
 inline T Dot(Vector<T, N> x,
              Vector<T, N> y) requires(std::is_arithmetic<T>::value) {
-  return Sum(x.forEach(y, [](T a, T b) -> T { return a * b; }));
+  return Sum(x * y);
 }
 
 template <typename T>
@@ -258,12 +348,12 @@ inline Vector<T, 3> Cross(Vector<T, 3> x, Vector<T, 3> y) requires(
 
 template <typename T, int N>
 inline T MaxElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
-  return x.reduce([](T x, T y) -> T { return std::max(x, y); });
+  return x.reduce([](T x, T y) -> T { return std::max<T>(x, y); });
 }
 
 template <typename T, int N>
 inline T MinElement(Vector<T, N> x) requires(std::is_arithmetic<T>::value) {
-  return x.reduce([](T x, T y) -> T { return std::max(x, y); });
+  return x.reduce([](T x, T y) -> T { return std::min<T>(x, y); });
 }
 
 template <typename T, int N>
@@ -275,12 +365,6 @@ using Vector3f = Vector<Float, 3>;
 using Vector3d = Vector<int, 3>;
 using Vector2f = Vector<Float, 2>;
 using Vector2d = Vector<int, 2>;
-// using Vector3f = Eigen::Vector3f;
-// using Vector3d = Eigen::Vector3d;
-// using Vector2f = Eigen::Vector2f;
-// using Vector2d = Eigen::Vector2d;
-using Matrix3f = Eigen::Matrix3f;
-using Matrix3d = Eigen::Matrix3d;
 
 // currently not used
 using Color3f  = Vector3f;

@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
-project(smallvol)
+project(smallvol LANGUAGES CXX C ISPC)
 
 # project options
 option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)
+option(USE_ISPC "use ISPC for SIMD execution" ON)
 set(USE_SANITIZER
     ""
     CACHE
@@ -14,7 +15,7 @@ option(USE_EMBREE "use Embree 3 as the acceleration structure" ON)
 set(CMAKE_CXX_STANDARD 20)
 
 include("get_cpm.cmake")
-enable_testing()
-
 add_subdirectory(src/)
+
+enable_testing()
 add_subdirectory(tests/)

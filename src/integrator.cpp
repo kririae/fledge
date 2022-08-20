@@ -1,7 +1,5 @@
 #include "integrator.hpp"
 
-#include <Eigen/src/Core/Reverse.h>
-
 #include <chrono>
 #include <cstddef>
 #include <thread>

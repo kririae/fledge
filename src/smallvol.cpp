@@ -2,7 +2,6 @@
 #include <openvdb/Types.h>
 #include <openvdb/openvdb.h>
 
-#include <Eigen/Dense>
 #include <iostream>
 #include <memory>
 

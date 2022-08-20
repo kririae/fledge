@@ -1,7 +1,6 @@
 #ifndef __FWD_HPP__
 #define __FWD_HPP__
 
-#include <Eigen/Dense>
 #include <iostream>
 #include <limits>
 #include <memory>
