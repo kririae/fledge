@@ -14,6 +14,12 @@
 #define SV_NAMESPACE_END }  // namespace SmallVolNS
 #endif
 
+#if defined(__CUDACC__)
+#define S_CPU_GPU __host__ __device__
+#else
+#define S_CPU_GPU
+#endif
+
 using namespace std::string_literals;
 
 using Float                = float;

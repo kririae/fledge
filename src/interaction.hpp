@@ -17,9 +17,19 @@ public:
       : m_p(p), m_ns(ns), m_ng(ng), m_wo(wo) {}
   virtual ~Interaction() = default;
   virtual void reset() { m_p = m_ns = m_ng = m_wo = Vector3f(0.0); }
-  virtual Ray  SpawnRay(const Vector3f &d) const;
-  virtual Ray  SpawnRayTo(const Vector3f &p) const;
-  virtual Ray  SpawnRayTo(const Interaction &it) const;
+  virtual Ray  SpawnRay(const Vector3f &d) const {
+     const auto o = OffsetRayOrigin(m_p, m_ns, d);
+     return {o, Normalize(d)};
+  }
+  virtual Ray SpawnRayTo(const Vector3f &p) const {
+    Float      norm = (p - m_p).norm();
+    auto       d    = (p - m_p) / norm;
+    const auto o    = OffsetRayOrigin(m_p, m_ns, d);
+    return {o, d, norm - SHADOW_EPS};
+  }
+  virtual Ray SpawnRayTo(const Interaction &it) const {
+    return SpawnRayTo(it.m_p);
+  }
   virtual bool isSInteraction() const { return false; }
 
   // shading normal, geometry normal

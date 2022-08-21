@@ -194,16 +194,15 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   int      bounces{0};
   bool     specular{false};
 
+  Vector3f p(0.0);
+  Float    rate = 0.0;
   // \sum P(p_n) as a *vector*
   for (bounces = 0;; ++bounces) {
     SInteraction isect;
 
     bool find_isect = scene.intersect(ray, isect);
-    // if (bounces == 1 && find_isect) {
-    //   std::cout << "Norm: " << Norm(-isect.m_p) << std::endl;
-    //   std::cout << "Dot: " << Dot(-isect.m_p, ray.m_d) << std::endl;
-    //   std::cout << "Dot: " << Dot(isect.m_p, isect.m_ng) << std::endl;
-    // }
+    if (find_isect) {
+    }
     if (bounces == 0 || specular) {
       if (find_isect) {
         L += beta * isect.Le(-ray.m_d);

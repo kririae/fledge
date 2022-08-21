@@ -132,9 +132,9 @@ public:
                    const CoordinateTransition &trans) const override;
 
 private:
-  Vector3f                              m_R, m_k;
-  Float                                 m_roughness;
-  std::shared_ptr<BeckmannDistribution> m_dist;
+  Vector3f             m_R, m_k;
+  Float                m_roughness;
+  BeckmannDistribution m_dist;
 };
 
 class Transmission : public Material {

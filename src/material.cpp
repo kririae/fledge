@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "fresnel.hpp"
+#include "fresnel.h"
 #include "fwd.hpp"
 #include "utils.hpp"
 #include "vector.hpp"
@@ -69,7 +69,7 @@ MicrofacetMaterial::MicrofacetMaterial(const Vector3f &R, Float roughness,
     : m_R(R),
       m_k(k),
       m_roughness(roughness),
-      m_dist(std::make_shared<BeckmannDistribution>(
+      m_dist(BeckmannDistribution(
           BeckmannDistribution::roughnessToAlpha(roughness))) {
 }  // TODO: constant roughness for now
 Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
@@ -86,7 +86,7 @@ Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
 
   wh.normalize();
   Vector3f F = FresnelConductor(wi.dot(wh), Vector3f(1.0), Vector3f(1.0), m_k);
-  return (m_R * m_dist->D(wh) * m_dist->G(wo, wi)) * (F) /
+  return (m_R * m_dist.D(wh) * m_dist.G(wo, wi)) * (F) /
          (4 * cosThetaI * cosThetaO);
 }
 
@@ -95,7 +95,7 @@ Float MicrofacetMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
   Vector3f wo = trans.WorldToLocal(w_wo);
   Vector3f wi = trans.WorldToLocal(w_wi);
   Vector3f wh = (wo + wi).stableNormalized();
-  return m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
+  return m_dist.pdf(wo, wh) / (4 * wo.dot(wh));
 }
 
 Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
@@ -107,14 +107,14 @@ Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
 
   // Sample microfacet orientation $\wh$ and reflected direction $\wi$
   if (wo.z() == 0) return Vector3f(0.0);
-  Vector3f wh = m_dist->sampleWh(wo, u);
+  Vector3f wh = m_dist.sampleWh(wo, u);
   if (wo.dot(wh) < 0) return Vector3f(0.0);  // Should be rare
   auto wi = Reflect(wo, wh);
   w_wi    = trans.LocalToWorld(wi);
   if (!SameHemisphere(wo, wi)) return Vector3f(0.0);
 
   // Compute PDF of _wi_ for microfacet reflection
-  pdf = m_dist->pdf(wo, wh) / (4 * wo.dot(wh));
+  pdf = m_dist.pdf(wo, wh) / (4 * wo.dot(wh));
   return f(w_wo, w_wi, Vector2f(0.0), trans);
 }
 

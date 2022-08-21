@@ -140,17 +140,6 @@ inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
   return true;
 }
 
-inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
-                                const Vector3f &dir) {
-  // This function is intended to be called when spawning rays.
-  // It will assure that the modified ray will not intersect with the geometry
-  // near p
-  // Out strategy is to move the origin towards the target direction along
-  // normal
-  Vector3f offset = n;
-  if (Dot(n, dir) <= 0) offset = -n;
-  return p + offset * SHADOW_EPS;
-}
 
 SV_NAMESPACE_END
 
