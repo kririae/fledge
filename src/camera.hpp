@@ -18,8 +18,6 @@ public:
         m_right((m_up.cross(m_forward)).stableNormalized()),
         m_fov(fov) {
     assert(m_up.norm() == 1);
-    std::cout << m_forward.norm() << std::endl;
-    assert(m_forward.norm() == 1);
     assert(m_right.norm() == 1);
   }
 

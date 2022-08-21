@@ -199,6 +199,11 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     SInteraction isect;
 
     bool find_isect = scene.intersect(ray, isect);
+    // if (bounces == 1 && find_isect) {
+    //   std::cout << "Norm: " << Norm(-isect.m_p) << std::endl;
+    //   std::cout << "Dot: " << Dot(-isect.m_p, ray.m_d) << std::endl;
+    //   std::cout << "Dot: " << Dot(isect.m_p, isect.m_ng) << std::endl;
+    // }
     if (bounces == 0 || specular) {
       if (find_isect) {
         L += beta * isect.Le(-ray.m_d);
@@ -231,7 +236,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     C(isect.m_primitive);
     Vector3f f = isect.m_primitive->getMaterial()->sampleF(
         wo, wi, pdf, rng.get2D(), Vector2f(0.0), trans);
-    // if (pdf == 0.0 || f.isZero()) break;
+    if (pdf == 0.0 || f.isZero()) break;
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);

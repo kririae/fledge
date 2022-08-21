@@ -39,8 +39,18 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(
   unsigned int *indicies = (unsigned int *)rtcSetNewGeometryBuffer(
       m_geom, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3,
       3 * sizeof(unsigned int), m_mesh->nInd / 3);
-  C(verticies);
-  C(indicies);
+  float *normals;
+  if (m_mesh->n != nullptr) {
+    // Added normal data
+    rtcSetGeometryVertexAttributeCount(m_geom, 1);
+    normals = (float *)rtcSetNewGeometryBuffer(
+        m_geom, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3,
+        3 * sizeof(float), m_mesh->nVert);
+    C(normals);
+    memcpy(normals, m_mesh->n.get(), 3 * sizeof(float) * m_mesh->nVert);
+  }
+
+  C(verticies, indicies);
 
   memcpy(verticies, m_mesh->p.get(), 3 * sizeof(float) * m_mesh->nVert);
   // Notice the implicit conversion
@@ -97,10 +107,17 @@ bool EmbreeMeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
     ray.m_tMax = rayhit.ray.tfar;
     isect.m_p  = ray(ray.m_tMax);
     isect.m_wo = -ray.m_d;
-    isect.m_ng = Vector3f{rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z}
-                     .stableNormalized();
-    if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
-    isect.m_ns        = isect.m_ng;
+    isect.m_ng =
+        Normalize(Vector3f{rayhit.hit.Ng_x, rayhit.hit.Ng_y, rayhit.hit.Ng_z});
+    // interpolate through
+    isect.m_ns = isect.m_ng;
+    if (m_mesh->n) {
+#if 1
+      rtcInterpolate0(m_geom, 0, rayhit.hit.u, rayhit.hit.v,
+                      RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, isect.m_ns.m_vec, 0);
+      NormalizeInplace(isect.m_ns);
+#endif
+    }
     isect.m_primitive = this;
     return true;
   } else {

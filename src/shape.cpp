@@ -137,7 +137,7 @@ bool Triangle::intersect(const Ray &ray, Float &t_hit, SInteraction &isect) {
   isect.m_p  = ray(t_hit);
   isect.m_wo = -ray.m_d;
   isect.m_ng = e1.cross(e2).normalized();
-  if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
+  // if (isect.m_ng.dot(ray.m_d) > 0) isect.m_ng = -isect.m_ng;
   if (m_mesh->n != nullptr)
     isect.m_ns =
         u * m_mesh->n[i0] + v * m_mesh->n[i1] + (1 - u - v) * m_mesh->n[i2];

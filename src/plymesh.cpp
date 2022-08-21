@@ -1,5 +1,6 @@
 #include "plymesh.hpp"
 
+#include <cstdlib>
 #include <memory>
 
 #include "debug.hpp"
@@ -38,21 +39,29 @@ std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path) {
       mesh->nVert = reader.num_rows();
 
       // extract position
-      mesh->p = std::make_unique<Vector3f[]>(mesh->nVert);
+      mesh->p = std::unique_ptr<Vector3f[]>(
+          (Vector3f *)std::aligned_alloc(16, sizeof(Vector3f) * mesh->nVert));
+      // mesh->p = std::make_unique<Vector3f[]>(mesh->nVert);
       reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
                                 mesh->p.get());
 
       // extract normal
       if (reader.find_normal(indexes)) {
-        mesh->n = std::make_unique<Vector3f[]>(mesh->nVert);
+        mesh->n = std::unique_ptr<Vector3f[]>(
+            (Vector3f *)std::aligned_alloc(16, sizeof(Vector3f) * mesh->nVert));
+        // mesh->n = std::make_unique<Vector3f[]>(mesh->nVert);
         reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
                                   mesh->n.get());
         SLog("normal found in ply file");
+      } else {
+        SLog("normal not found in ply file");
       }
 
       // extract UV
       if (reader.find_texcoord(indexes)) {
-        mesh->uv = std::make_unique<Vector2f[]>(mesh->nVert);
+        mesh->uv = std::unique_ptr<Vector2f[]>(
+            (Vector2f *)std::aligned_alloc(16, sizeof(Vector2f) * mesh->nVert));
+        // mesh->uv = std::make_unique<Vector2f[]>(mesh->nVert);
         reader.extract_properties(indexes, 2, miniply::PLYPropertyType::Float,
                                   mesh->uv.get());
       }
@@ -61,7 +70,9 @@ std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path) {
     } else if (!got_faces && reader.element_is(miniply::kPLYFaceElement) &&
                reader.load_element()) {
       mesh->nInd = reader.num_rows() * 3;
-      mesh->ind  = std::make_unique<int[]>(mesh->nInd);
+      mesh->ind  = std::unique_ptr<int[]>(
+          (int *)std::aligned_alloc(16, sizeof(int) * mesh->nInd));
+      // mesh->ind = std::make_unique<int[]>(mesh->nInd);
       reader.extract_properties(face_idxs, 3, miniply::PLYPropertyType::Int,
                                 mesh->ind.get());
       got_faces = true;
