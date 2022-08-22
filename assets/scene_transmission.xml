@@ -12,7 +12,7 @@
       <lookat up="0, 1, 0" origin="0.0, 0.6, -0.8" target="0.0, 0.2, 0.0" />
     </transform> -->
     <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0, 180, -240" target="50, 50, 0" />
+      <lookat up="0, 1, 0" origin="0, 0.6, -0.8" target="0, 0, 0" />
     </transform>
 
     <sampler type="independent">
@@ -29,23 +29,23 @@
     </film>
   </sensor>
 
-  <!-- <shape type="sphere">
-    <point name="center" x="0" y="0.2" z="0" />
+  <shape type="sphere">
+    <point name="center" x="0" y="0.0" z="0" />
     <float name="radius" value="0.1" />
     <bsdf type="dielectric">
       <float name="intIOR" value="1.5"/>
       <float name="extIOR" value="1.0"/>
     </bsdf>
-  </shape> -->
-  <shape type="ply">
-  <string name="filename" value="dambreak0.ply"/> 
+  </shape>
+  <!-- <shape type="ply">
+  <string name="filename" value="assets/dambreak0.ply"/> 
     <bsdf type="dielectric">
       <float name="intIOR" value="1.5"/>
       <float name="extIOR" value="1.0"/>
     </bsdf>
-  </shape>
+  </shape> -->
 
   <emitter type="envmap">
-    <string name="filename" value="venice_sunset_4k.exr" />
+    <string name="filename" value="assets/venice_sunset_4k.exr" />
   </emitter>
 </scene>

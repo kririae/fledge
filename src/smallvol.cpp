@@ -25,7 +25,10 @@ int main() {
   // 4. invoke render()
   // 5. save the last rendered frame to file
   // Render render(std::make_shared<Scene>("assets/scene_basic.xml"));
-  Render render(std::make_shared<Scene>());
+  std::shared_ptr<Scene> scene =
+      std::make_shared<Scene>("assets/scene_transmission.xml");
+  scene->init();
+  Render render(scene);
   SLog("render is created");
 
   render.init();

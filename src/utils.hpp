@@ -140,7 +140,6 @@ inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
   return true;
 }
 
-
 SV_NAMESPACE_END
 
 #endif

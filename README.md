@@ -7,7 +7,7 @@ Currently, a platform to implement seemingly non-trivial or non-conventional but
 
 The ultimate and _not yet achieved goal_ for this render is to integrate as diverse techniques
 within a consistent, fast, aggressive, yet elegant structure as possible ;)
-In a word, stepping away from conventional PBRT practice!
+In a word, stepping a step further from conventional PBRT practice!
 
 Anyway, this is solely a personal project aiming to have fun and simultaneously practice my coding skills.
 
