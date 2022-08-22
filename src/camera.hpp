@@ -17,8 +17,9 @@ public:
         m_up(up),
         m_right((m_up.cross(m_forward)).stableNormalized()),
         m_fov(fov) {
-    assert(m_up.norm() == 1);
-    assert(m_right.norm() == 1);
+    // assert(m_up.norm() == 1);
+    // assert(m_right.norm() == 1);
+    C(m_up, m_right);
   }
 
   Ray generateRay(Float x, Float y, int width, int height) {

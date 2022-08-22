@@ -47,6 +47,8 @@ public:
   Float    m_r;
 };
 
+// class Rectangle : public Shape {};
+
 // Following the design of PBRT
 // https://pbr-book.org/3ed-2018/Shapes/Triangle_Meshes
 struct TriangleMesh {

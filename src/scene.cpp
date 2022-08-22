@@ -169,26 +169,35 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
   auto bsdf      = tree.get_child("bsdf");
   auto bsdf_type = bsdf.get<std::string>("<xmlattr>.type");
   SLog("scene.shape%s.bsdf.type = %s", shape_id.c_str(), bsdf_type.c_str());
-  if (bsdf_type == "dielectric") {
-    Float intIOR = 1.0, extIOR = 1.0;
-    for (auto &v : bsdf) {
-      if (v.first != "float") continue;
-      auto name = v.second.get<std::string>("<xmlattr>.name");
-      switch (hash(name.c_str())) {
-        case hash("intIOR"): {
-          intIOR = v.second.get<Float>("<xmlattr>.value");
-          SLog("scene.shape%s.bsdf.intIOR = %f", shape_id.c_str(), intIOR);
-          break;
-        };  // "intIOR"
-        case hash("extIOR"): {
-          extIOR = v.second.get<Float>("<xmlattr>.value");
-          SLog("scene.shape%s.bsdf.extIOR = %f", shape_id.c_str(), extIOR);
-          break;
-        };  // "extIOR"
+  switch (hash(bsdf_type.c_str())) {
+    case hash("dielectric"): {
+      Float intIOR = 1.0, extIOR = 1.0;
+      for (auto &v : bsdf) {
+        if (v.first != "float") continue;
+        auto name = v.second.get<std::string>("<xmlattr>.name");
+        switch (hash(name.c_str())) {
+          case hash("intIOR"): {
+            intIOR = v.second.get<Float>("<xmlattr>.value");
+            SLog("scene.shape%s.bsdf.intIOR = %f", shape_id.c_str(), intIOR);
+            break;
+          };  // "intIOR"
+          case hash("extIOR"): {
+            extIOR = v.second.get<Float>("<xmlattr>.value");
+            SLog("scene.shape%s.bsdf.extIOR = %f", shape_id.c_str(), extIOR);
+            break;
+          };  // "extIOR"
+        }
       }
-    }
 
-    mat = std::make_shared<Transmission>(extIOR, intIOR);
+      mat = std::make_shared<Transmission>(extIOR, intIOR);
+      break;
+    }  // "dielectric"
+    case hash("diffuse"): {
+      mat = std::make_shared<DiffuseMaterial>(Vector3f(1.0));
+      break;
+    }  // "diffuse"
+    default:
+      TODO();
   }
   assert(mat != nullptr);
 
