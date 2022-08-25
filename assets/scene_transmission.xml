@@ -46,6 +46,6 @@
   </shape>
 
   <emitter type="envmap">
-    <string name="filename" value="sunset_jhbcentral_2k.exr" />
+    <string name="filename" value="venice_sunset_4k.exr" />
   </emitter>
 </scene>

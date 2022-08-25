@@ -176,7 +176,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
-          scene.m_film->saveBuffer("fledge_out.exr", EFilmBufferType::EColor);
+          scene.m_film->saveBuffer("tmp.exr", EFilmBufferType::EColor);
           start = std::chrono::system_clock::now();
         }
       }  // omp critical
@@ -206,13 +206,17 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
   int      bounces{0};
   bool     specular{false};
 
-  Vector3f p(0.0);
-  Float    rate = 0.0;
+  Vector3f p    = r.m_o;
+  Float    rate = 1.0;
   // \sum P(p_n) as a *vector*
   for (bounces = 0;; ++bounces) {
     SInteraction isect;
 
     bool find_isect = scene.intersect(ray, isect);
+    if (find_isect) {
+      rate += (isect.m_p - p).norm();
+      p = isect.m_p;
+    }
 
     // Handle albedo and normal
     if (bounces == 0) {
@@ -267,6 +271,13 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);
+  }
+
+  if (bounces == 0) {
+    return Vector3f(0.05);
+  } else {
+    rate /= bounces;
+    return Vector3f(1 / (rate / 20));
   }
 
   return L;

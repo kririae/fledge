@@ -25,6 +25,9 @@ enum class EFilmBufferType {
   ENormal = (1 << 2),
   EOutput = (1 << 3),
   EAll    = (1 << 4) - 1,
+  EExtra1 = (1 << 4),
+  EExtra2 = (1 << 5),
+  EExtra3 = (1 << 6),
 };
 
 // TODO: implement interface for `tev`
@@ -34,8 +37,8 @@ public:
   // Those copy manipulations are implemented for denoiser
   Film(int resX, int resY, EFilmBufferType buffer_type = EFilmBufferType::EAll)
       : m_resX(resX), m_resY(resY) {
-    m_buffers.resize(4);
-    for (int t = 0; t < 4; ++t)
+    m_buffers.resize(7);
+    for (int t = 0; t < 7; ++t)
       if (int(buffer_type) & (1 << t))
         m_buffers[t] = std::vector<Vector3f>(m_resX * m_resY, Vector3f(0.0));
   }
