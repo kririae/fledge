@@ -2,7 +2,7 @@
 
 #include <mutex>
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 Film::Film(int resX, int resY) : m_resX(resX), m_resY(resY) {
   m_pixels.resize(m_resX * m_resY);
@@ -55,4 +55,4 @@ bool Film::saveImage(const std::string &name) {
   return true;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

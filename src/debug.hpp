@@ -78,7 +78,7 @@ template <typename>
 struct is_vector : std::false_type {};
 
 template <typename T, int N>
-struct is_vector<SmallVolNS::Vector<T, N>> : std::true_type {};
+struct is_vector<fledge::Vector<T, N>> : std::true_type {};
 
 // template <typename T>
 // using is_vector = typename std::is_base_of<Eigen::MatrixBase<T>, T>;

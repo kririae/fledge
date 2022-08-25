@@ -7,7 +7,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // After any transition, (0, 0, 1) is the local normal
 CoordinateTransition::CoordinateTransition(const Vector3f &normal)
@@ -156,4 +156,4 @@ Vector3f Transmission::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
   }
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

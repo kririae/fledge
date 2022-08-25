@@ -9,7 +9,7 @@
 #include "primitive.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Accel : public Primitive {
 public:
@@ -56,6 +56,6 @@ protected:
   size_t m_memory_usage, m_depth;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

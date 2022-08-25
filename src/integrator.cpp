@@ -19,7 +19,7 @@
 #include "vector.hpp"
 #include "volume.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
   // only consider the result to be 0 or 1 currently
@@ -168,7 +168,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
-          scene.m_film->saveImage("smallvol_out.exr");
+          scene.m_film->saveImage("fledge_out.exr");
           start = std::chrono::system_clock::now();
         }
       }  // omp critical
@@ -319,4 +319,4 @@ sample_environment:  // do not count this case
   return L;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

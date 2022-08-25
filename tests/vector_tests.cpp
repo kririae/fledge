@@ -12,7 +12,7 @@
 #include "shape.hpp"
 #include "vector.hpp"
 
-using namespace SmallVolNS;
+using namespace fledge;
 inline Vector<Float, 3> MakeVector3f(Float x, Float y, Float z) {
   return {x, y, z};
 }

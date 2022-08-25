@@ -30,7 +30,7 @@
     <string name="method" value="woodcock" />
 
     <volume name="density" type="nanovdbvolume">
-      <string name="filename" value="/home/kr2/Laboratory/SmallVol/assets/wdas_cloud/wdas_cloud_eighth.vdb" />
+      <string name="filename" value="/home/kr2/Laboratory/fledge/assets/wdas_cloud/wdas_cloud_eighth.vdb" />
     </volume>
 
     <phase type="hg">

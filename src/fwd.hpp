@@ -6,18 +6,18 @@
 #include <memory>
 #include <vector>
 
-#if !defined(SV_NAMESPACE_BEGIN)
-#define SV_NAMESPACE_BEGIN namespace SmallVolNS {
+#if !defined(FLG_NAMESPACE_BEGIN)
+#define FLG_NAMESPACE_BEGIN namespace fledge {
 #endif
 
-#if !defined(SV_NAMESPACE_END)
-#define SV_NAMESPACE_END }  // namespace SmallVolNS
+#if !defined(FLG_NAMESPACE_END)
+#define FLG_NAMESPACE_END }  // namespace fledge
 #endif
 
 #if defined(__CUDACC__)
-#define S_CPU_GPU __host__ __device__
+#define F_CPU_GPU __host__ __device__
 #else
-#define S_CPU_GPU
+#define F_CPU_GPU
 #endif
 
 using namespace std::string_literals;
@@ -35,7 +35,7 @@ constexpr Float NORMAL_EPS = 1e-5;
 
 #include "debug.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class AABB;
 class Accel;
@@ -72,6 +72,6 @@ class OpenVDBVolume;
 class VInteraction;
 class Volume;
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

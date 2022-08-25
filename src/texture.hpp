@@ -8,7 +8,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Texture {
 public:
@@ -42,6 +42,6 @@ private:
   Vector3f m_color;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

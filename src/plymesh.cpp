@@ -10,7 +10,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // Code modified from https://github.com/vilya/miniply
 // anyway, it works
@@ -158,4 +158,4 @@ std::shared_ptr<TriangleMesh> MakeMeshedSphere() {
   return mesh;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

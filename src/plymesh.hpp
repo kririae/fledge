@@ -9,10 +9,10 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path);
 std::shared_ptr<TriangleMesh> MakeMeshedSphere();
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 #endif

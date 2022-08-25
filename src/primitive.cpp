@@ -11,7 +11,7 @@
 #include "ray.hpp"
 #include "shape.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,
                                const std::shared_ptr<Material>  &material,
@@ -84,4 +84,4 @@ Material *MeshPrimitive::getMaterial() const {
   return m_material.get();
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

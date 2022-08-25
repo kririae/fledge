@@ -12,7 +12,7 @@
 #include "vector.hpp"
 #include "volume.hpp"
 
-using namespace SmallVolNS;
+using namespace fledge;
 
 // LHS coordinate system
 int main() {
@@ -34,6 +34,6 @@ int main() {
   render.init();
   render.preprocess();
   render.render();
-  render.saveImage("smallvol_out.exr");
+  render.saveImage("fledge_out.exr");
   return 0;
 }

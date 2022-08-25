@@ -16,7 +16,7 @@
 #include "rng.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 AABB Volume::getBound() const {
   return *m_aabb;
@@ -204,4 +204,4 @@ Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
   }
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

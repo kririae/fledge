@@ -7,7 +7,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // scene description
 // all resources needed in the process of rendering
@@ -44,6 +44,6 @@ public:
 private:
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

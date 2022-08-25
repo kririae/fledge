@@ -11,7 +11,7 @@
 #include "primitive.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class EmbreeMeshPrimitive : public Primitive {
 public:
@@ -46,6 +46,6 @@ private:
   unsigned int m_geomID;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

@@ -13,7 +13,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 Vector3f Texture::eval(Float u, Float v) const {
   return eval(Vector2f{u, v});
@@ -56,4 +56,4 @@ Vector3f ConstTexture::eval(const Vector2f &) const {
   return m_color;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

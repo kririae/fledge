@@ -7,7 +7,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // Derived from PBRT
 class Dist1D {
@@ -92,6 +92,6 @@ private:
   std::unique_ptr<Dist1D>              m_marg;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

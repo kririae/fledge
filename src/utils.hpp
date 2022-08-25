@@ -7,7 +7,7 @@
 #include "interaction.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 inline Vector3f SphericalDirection(Float sin_theta, Float cos_theta,
                                    Float phi) {
@@ -140,6 +140,6 @@ inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
   return true;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

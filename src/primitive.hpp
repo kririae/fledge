@@ -7,7 +7,7 @@
 #include "material.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class AreaLight;
 
@@ -90,6 +90,6 @@ private:
 
 // The Accel is derived from Primitive
 // see accel.hpp
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

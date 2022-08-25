@@ -6,7 +6,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Random {
 public:
@@ -23,6 +23,6 @@ private:
   uint32_t m_seed;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

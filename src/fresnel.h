@@ -4,7 +4,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 /* For the following three functions,
  * **Assume** that etaI is in the side of n, etaT is in the side of -n,
@@ -81,5 +81,5 @@ inline Vector3f FresnelConductor(Float cosThetaI, const Vector3f &etaI,
   return 0.5 * (rp + rs);
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 #endif

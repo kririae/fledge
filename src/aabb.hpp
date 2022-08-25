@@ -5,7 +5,7 @@
 #include "ray.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class AABB {
 public:
@@ -79,6 +79,6 @@ public:
   Vector3f m_min{Vector3f(0.0)}, m_max{Vector3f(0.0)};
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

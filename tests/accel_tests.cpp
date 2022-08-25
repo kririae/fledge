@@ -12,7 +12,7 @@
 #include "vector.hpp"
 
 TEST(Accel, NaiveBVHAccel) {
-  using namespace SmallVolNS;
+  using namespace fledge;
   Random rng;
 
   auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f(1.0));

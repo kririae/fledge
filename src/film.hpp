@@ -15,7 +15,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // TODO: implement interface for `tev`
 class Film {
@@ -32,6 +32,6 @@ private:
   std::mutex            m_mutex;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

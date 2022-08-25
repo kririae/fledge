@@ -7,7 +7,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class CoordinateTransition {
 public:
@@ -153,6 +153,6 @@ private:
   Float m_etaI, m_etaT;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

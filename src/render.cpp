@@ -10,7 +10,7 @@
 #include "light.hpp"
 #include "scene.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 Render::Render(const std::shared_ptr<Scene> &scene) : m_scene(scene) {
   SLog("render is created with scene");
@@ -51,4 +51,4 @@ bool Render::render() {
   return true;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

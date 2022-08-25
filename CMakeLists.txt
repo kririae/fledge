@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(smallvol LANGUAGES CXX C ISPC)
+project(fledge LANGUAGES CXX C ISPC)
 
 # project options
 option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)

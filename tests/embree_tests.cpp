@@ -4,5 +4,5 @@
 #include "vector.hpp"
 
 TEST(Accel, EmbreeSingleGeometry) {
-  using namespace SmallVolNS;
+  using namespace fledge;
 }

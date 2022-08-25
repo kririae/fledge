@@ -7,7 +7,7 @@
 #include "plymesh.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Shape {
 public:
@@ -88,6 +88,6 @@ public:
   int                          *m_v;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

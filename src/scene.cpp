@@ -25,7 +25,7 @@
 #include "vector.hpp"
 #include "volume.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 namespace pt = boost::property_tree;
 
 Scene::Scene() {}
@@ -282,4 +282,4 @@ Scene Scene::parseXML(const std::string &filename) {
   return res;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

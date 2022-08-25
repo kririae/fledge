@@ -14,7 +14,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 static Float SphericalPhi(const Vector3f &v) {
   Float p = atan2(v[1], v[0]);
@@ -139,4 +139,4 @@ Vector3f InfiniteAreaLight::Le(const Ray &ray) const {
   return m_tex->eval(C(phi) * INV_2PI, C(theta) * INV_PI);
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

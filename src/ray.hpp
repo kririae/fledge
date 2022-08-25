@@ -6,9 +6,9 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
-S_CPU_GPU
+F_CPU_GPU
 inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
                                 const Vector3f &dir) {
   // This function is intended to be called when spawning rays.
@@ -24,12 +24,12 @@ inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
 class Volume;
 class Ray {
 public:
-  S_CPU_GPU Ray() : m_tMax(INF) {}
-  S_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
+  F_CPU_GPU Ray() : m_tMax(INF) {}
+  F_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
                 const Volume *volume = nullptr)
       : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
-  S_CPU_GPU Vector3f at(Float t) const { return m_o + m_d * t; }
-  S_CPU_GPU Vector3f operator()(Float t) const { return at(t); }
+  F_CPU_GPU Vector3f at(Float t) const { return m_o + m_d * t; }
+  F_CPU_GPU Vector3f operator()(Float t) const { return at(t); }
   std::string        toString() const {
            std::ostringstream oss;
            oss << "[o=" << m_o << ", d=" << m_d << ", tMax=" << m_tMax << "]";
@@ -48,6 +48,6 @@ public:
 private:
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

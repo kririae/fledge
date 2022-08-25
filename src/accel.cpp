@@ -9,7 +9,7 @@
 #include "interaction.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 bool NaiveAccel::intersect(const Ray &ray, SInteraction &isect) const {
   // Intersect function will consider and modify ray.m_tMax
@@ -134,4 +134,4 @@ bool NaiveBVHAccel::intersect(const Ray &ray, SInteraction &isect) const {
   return res_left || res_right;
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

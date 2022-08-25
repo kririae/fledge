@@ -12,7 +12,7 @@
 #include "texture.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Light {
 public:
@@ -72,6 +72,6 @@ private:
   static constexpr int     NU = 512, NV = 512;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

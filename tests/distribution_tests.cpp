@@ -5,7 +5,7 @@
 #include "rng.hpp"
 #include "vector.hpp"
 
-using namespace SmallVolNS;
+using namespace fledge;
 
 TEST(Distribution, Distribution1DNaiveSampleDiscrete) {
   Dist1D d({0, 1, 2, 3});

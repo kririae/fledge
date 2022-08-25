@@ -5,7 +5,7 @@
 #include "ray.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Primitive;
 
@@ -62,6 +62,6 @@ public:
   Float m_g;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

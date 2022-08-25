@@ -50,26 +50,26 @@ file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
 file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
 
 # clang-format
-clang_format(format_smallvol "${all_source}")
+clang_format(format_fledge "${all_source}")
 cmake_format(format_cmake "${cmake_files}")
 
-add_library(smallvol_lib "${source}")
-add_executable(smallvol "${source}")
+add_library(fledge_lib "${source}")
+add_executable(fledge "${source}")
 
 if (USE_ISPC)
   add_subdirectory(ispc/)
-  target_link_libraries(smallvol_lib PUBLIC smallvol_lib_ispc)
-  target_compile_definitions(smallvol_lib PUBLIC -DUSE_ISPC)
+  target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
+  target_compile_definitions(fledge_lib PUBLIC -DUSE_ISPC)
 endif()
 
-target_link_libraries(smallvol_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
-                                      OpenImageIO::OpenImageIO TBB::tbb miniply smallvol_embree)
-target_link_libraries(smallvol PUBLIC smallvol_lib)
-set_target_properties(smallvol PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
+                                      OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree)
+target_link_libraries(fledge PUBLIC fledge_lib)
+set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)
 if(USE_TBB)
-  target_compile_definitions(smallvol PUBLIC -DUSE_TBB)
+  target_compile_definitions(fledge PUBLIC -DUSE_TBB)
 endif()
 # if (USE_EMBREE)
-  target_compile_definitions(smallvol PUBLIC -DUSE_EMBREE)
+  target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)
 # endif()

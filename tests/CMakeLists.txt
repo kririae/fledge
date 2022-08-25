@@ -11,7 +11,7 @@ macro(sv_add_test name)
   target_include_directories(${name}_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
   target_link_libraries(${name}_exe
     gtest gtest_main
-    smallvol_lib
+    fledge_lib
   )
   add_test(${name} ${name}_exe)
 endmacro()

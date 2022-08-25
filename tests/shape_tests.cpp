@@ -15,12 +15,12 @@
 #include "vector.hpp"
 
 TEST(Triangle, ComprehensiveTestWithEmbree) {
-  using namespace SmallVolNS;
+  using namespace fledge;
 }
 
 TEST(Triangle, Watertight) {
   // Copied from PBRT-v3
-  using namespace SmallVolNS;
+  using namespace fledge;
 
   Random rng(114514);
   int    n_theta = 32, n_phi = 32;

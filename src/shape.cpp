@@ -6,7 +6,7 @@
 #include "utils.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 Float Shape::pdf(const Interaction &) const {
   return 1 / area();
@@ -167,4 +167,4 @@ AABB Triangle::getBound() const {
   return a.merge(b);
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

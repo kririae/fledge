@@ -18,7 +18,7 @@
 #include "plymesh.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(
     const std::shared_ptr<TriangleMesh> &mesh,
@@ -133,4 +133,4 @@ Material *EmbreeMeshPrimitive::getMaterial() const {
   return m_material.get();
 }
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END

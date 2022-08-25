@@ -16,7 +16,7 @@
 #include "ispc/vector_ispc.h"
 #endif
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 inline void Deprecated() {
   static_assert("This function is deprecated");
@@ -50,43 +50,43 @@ struct Vector {
   T m_vec[N];
 
   // To support multi platforms, those ctors are trivially implemented
-  S_CPU_GPU Vector() {
+  F_CPU_GPU Vector() {
     for (int i = 0; i < N; ++i) m_vec[i] = 0;
   };
-  S_CPU_GPU Vector(T x) {
+  F_CPU_GPU Vector(T x) {
     for (int i = 0; i < N; ++i) m_vec[i] = x;
   }
   template <int N_>
-  S_CPU_GPU Vector(T const (&x)[N_]) {
+  F_CPU_GPU Vector(T const (&x)[N_]) {
     static_assert(
         N_ == N,
         "# of elements in initializer list should match the vector size");
     for (int i = 0; i < N; ++i) m_vec[i] = x[i];
   }
   // Copy constructor
-  S_CPU_GPU Vector(const Vector &x) {
+  F_CPU_GPU Vector(const Vector &x) {
     for (int i = 0; i < x.size; ++i) m_vec[i] = x.m_vec[i];
   }
 
-  S_CPU_GPU bool operator==(const Vector &rhs) const {
+  F_CPU_GPU bool operator==(const Vector &rhs) const {
     for (int i = 0; i < size; ++i)
       if (m_vec[i] != rhs.m_vec[i]) return false;
     return true;
   }
-  S_CPU_GPU bool operator!=(const Vector &rhs) const {
+  F_CPU_GPU bool operator!=(const Vector &rhs) const {
     return !((*this) == rhs);
   }
-  S_CPU_GPU Vector &operator=(const Vector &rhs) {
+  F_CPU_GPU Vector &operator=(const Vector &rhs) {
     for (int i = 0; i < rhs.size; ++i) m_vec[i] = rhs.m_vec[i];
     return *this;
   }
   template <int N_>
-  S_CPU_GPU Vector &operator=(T const (&x)[N_]) {
+  F_CPU_GPU Vector &operator=(T const (&x)[N_]) {
     for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
     return *this;
   }
-  S_CPU_GPU const T &operator[](int i) const { return m_vec[i]; }
-  S_CPU_GPU T       &operator[](int i) { return m_vec[i]; }
+  F_CPU_GPU const T &operator[](int i) const { return m_vec[i]; }
+  F_CPU_GPU T       &operator[](int i) { return m_vec[i]; }
 
   // Notice that type T will not be promoted currently
   // TODO: specification using SSE
@@ -149,86 +149,86 @@ struct Vector {
   }
 #endif
 
-  S_CPU_GPU Vector &operator+=(const Vector &rhs) {
+  F_CPU_GPU Vector &operator+=(const Vector &rhs) {
     return (*this) = (*this) + rhs;
   }
-  S_CPU_GPU Vector &operator-=(const Vector &rhs) {
+  F_CPU_GPU Vector &operator-=(const Vector &rhs) {
     return (*this) = (*this) - rhs;
   }
-  S_CPU_GPU Vector &operator*=(const T &rhs) {
+  F_CPU_GPU Vector &operator*=(const T &rhs) {
     return (*this) = (*this) * rhs;
   }
-  S_CPU_GPU Vector &operator/=(const T &rhs) {
+  F_CPU_GPU Vector &operator/=(const T &rhs) {
     assert(rhs != 0);
     return (*this) = (*this) / rhs;
   }
 
   // Depreciated Functions from Eigen
-  S_CPU_GPU EIGEN_FUNC T norm() const {
+  F_CPU_GPU EIGEN_FUNC T norm() const {
     return Norm(*this);
   }
-  S_CPU_GPU EIGEN_FUNC T squaredNorm() const {
+  F_CPU_GPU EIGEN_FUNC T squaredNorm() const {
     return SquaredNorm(*this);
   }
-  S_CPU_GPU EIGEN_FUNC Vector normalized() const {
+  F_CPU_GPU EIGEN_FUNC Vector normalized() const {
     return Normalize(*this);
   }
-  S_CPU_GPU EIGEN_FUNC Vector stableNormalized() const {
+  F_CPU_GPU EIGEN_FUNC Vector stableNormalized() const {
     return Normalize(*this);
   }
-  S_CPU_GPU EIGEN_FUNC Vector cwiseInverse() const {
+  F_CPU_GPU EIGEN_FUNC Vector cwiseInverse() const {
     return 1.0 / (*this);
   }
-  S_CPU_GPU EIGEN_FUNC T dot(const Vector &rhs) const {
+  F_CPU_GPU EIGEN_FUNC T dot(const Vector &rhs) const {
     return Dot(*this, rhs);
   }
-  S_CPU_GPU EIGEN_FUNC Vector cross(const Vector &rhs) const {
+  F_CPU_GPU EIGEN_FUNC Vector cross(const Vector &rhs) const {
     return Cross(*this, rhs);
   }
-  S_CPU_GPU EIGEN_FUNC Vector cwiseProduct(const Vector &rhs) const {
+  F_CPU_GPU EIGEN_FUNC Vector cwiseProduct(const Vector &rhs) const {
     return (*this) * rhs;
   }
-  S_CPU_GPU EIGEN_FUNC T maxCoeff() const {
+  F_CPU_GPU EIGEN_FUNC T maxCoeff() const {
     return MaxElement(*this);
   }
-  S_CPU_GPU EIGEN_FUNC T minCoeff() const {
+  F_CPU_GPU EIGEN_FUNC T minCoeff() const {
     return MinElement(*this);
   }
-  S_CPU_GPU EIGEN_FUNC bool isZero() const {
+  F_CPU_GPU EIGEN_FUNC bool isZero() const {
     return SquaredNorm(*this) == 0;
   }
-  S_CPU_GPU EIGEN_FUNC void normalize() {
+  F_CPU_GPU EIGEN_FUNC void normalize() {
     (*this) = normalized();
   }
-  S_CPU_GPU EIGEN_FUNC void stableNormalize() {
+  F_CPU_GPU EIGEN_FUNC void stableNormalize() {
     (*this) = normalized();
   }
-  S_CPU_GPU EIGEN_FUNC Vector cwiseMax(const Vector &rhs) const {
+  F_CPU_GPU EIGEN_FUNC Vector cwiseMax(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::max(x, y); });
   }
-  S_CPU_GPU EIGEN_FUNC Vector cwiseMin(const Vector &rhs) const {
+  F_CPU_GPU EIGEN_FUNC Vector cwiseMin(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return std::min(x, y); });
   }
 
   // The function implemented as helper
-  S_CPU_GPU Vector forEach(std::function<T(T)> func) const {
+  F_CPU_GPU Vector forEach(std::function<T(T)> func) const {
     Vector res;
     for (int i = 0; i < N; ++i) res[i] = func(m_vec[i]);
     return res;
   }
-  S_CPU_GPU Vector forEach(const Vector          &rhs,
+  F_CPU_GPU Vector forEach(const Vector          &rhs,
                            std::function<T(T, T)> func) const {
     Vector res;
     for (int i = 0; i < N; ++i) res[i] = func(m_vec[i], rhs[i]);
     return res;
   }
-  S_CPU_GPU T reduce(std::function<T(T, T)> func) const {
+  F_CPU_GPU T reduce(std::function<T(T, T)> func) const {
     T res = m_vec[0];
     for (int i = 1; i < N; ++i) res = func(res, m_vec[i]);
     return res;
   }
   template <typename T_, int N_>
-  S_CPU_GPU Vector<T_, N_> cast() const {
+  F_CPU_GPU Vector<T_, N_> cast() const {
     using std::min;
     // The lower N is selected
     Vector<T_, N_> res;
@@ -254,34 +254,34 @@ struct Vector {
 
 // Type will not be promoted here yet
 template <typename T, typename T_, int N>
-S_CPU_GPU Vector<T, N> operator*(T_ const &s, const Vector<T, N> &rhs) {
+F_CPU_GPU Vector<T, N> operator*(T_ const &s, const Vector<T, N> &rhs) {
   return rhs * s;
 }
 
 template <typename T, typename T_, int N>
-S_CPU_GPU Vector<T, N> operator/(T_ const &s, const Vector<T, N> &rhs) {
+F_CPU_GPU Vector<T, N> operator/(T_ const &s, const Vector<T, N> &rhs) {
   return rhs.forEach([s](T x) -> T { return s / x; });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T Sum(const Vector<T, N> &x) {
+F_CPU_GPU inline T Sum(const Vector<T, N> &x) {
   return x.reduce([](T x, T y) -> T { return x + y; });
 }
 
 template <typename T>
-S_CPU_GPU inline T Sum(const Vector<T, 3> &x) {
+F_CPU_GPU inline T Sum(const Vector<T, 3> &x) {
   return x.m_vec[0] + x.m_vec[1] + x.m_vec[2];
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T SquaredNorm(const Vector<T, N> &x) {
+F_CPU_GPU inline T SquaredNorm(const Vector<T, N> &x) {
   return x.forEach([](T x) -> T { return x * x; }).reduce([](T x, T y) -> T {
     return x + y;
   });
 }
 
 template <typename T>
-S_CPU_GPU inline T SquaredNorm(const Vector<T, 3> &x) {
+F_CPU_GPU inline T SquaredNorm(const Vector<T, 3> &x) {
   const T a = x.m_vec[0];
   const T b = x.m_vec[1];
   const T c = x.m_vec[2];
@@ -289,27 +289,27 @@ S_CPU_GPU inline T SquaredNorm(const Vector<T, 3> &x) {
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T Norm(const Vector<T, N> &x) {
+F_CPU_GPU inline T Norm(const Vector<T, N> &x) {
   return std::sqrt(SquaredNorm(x));
 }
 
 template <typename T, int N>
-S_CPU_GPU inline Vector<T, N> Normalize(const Vector<T, N> &x) {
+F_CPU_GPU inline Vector<T, N> Normalize(const Vector<T, N> &x) {
   return x / Norm(x);
 }
 
 template <typename T, int N>
-S_CPU_GPU inline void NormalizeInplace(Vector<T, N> &x) {
+F_CPU_GPU inline void NormalizeInplace(Vector<T, N> &x) {
   x /= Norm(x);
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T Dot(const Vector<T, N> &x, const Vector<T, N> &y) {
+F_CPU_GPU inline T Dot(const Vector<T, N> &x, const Vector<T, N> &y) {
   return Sum(x * y);
 }
 
 template <typename T>
-S_CPU_GPU inline Vector<T, 3> Cross(const Vector<T, 3> &x,
+F_CPU_GPU inline Vector<T, 3> Cross(const Vector<T, 3> &x,
                                     const Vector<T, 3> &y) {
   return {x.m_vec[1] * y.m_vec[2] - x.m_vec[2] * y.m_vec[1],
           x.m_vec[2] * y.m_vec[0] - x.m_vec[0] * y.m_vec[2],
@@ -317,39 +317,39 @@ S_CPU_GPU inline Vector<T, 3> Cross(const Vector<T, 3> &x,
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T MaxElement(const Vector<T, N> &x) {
+F_CPU_GPU inline T MaxElement(const Vector<T, N> &x) {
   return x.reduce([](T x, T y) -> T { return std::max<T>(x, y); });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline T MinElement(const Vector<T, N> &x) {
+F_CPU_GPU inline T MinElement(const Vector<T, N> &x) {
   return x.reduce([](T x, T y) -> T { return std::min<T>(x, y); });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline Vector<T, N> Max(const Vector<T, N> &x,
+F_CPU_GPU inline Vector<T, N> Max(const Vector<T, N> &x,
                                   const Vector<T, N> &y) {
   return x.forEach(y, [](T x, T y) -> T { return std::max(x, y); });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline Vector<T, N> Min(const Vector<T, N> &x,
+F_CPU_GPU inline Vector<T, N> Min(const Vector<T, N> &x,
                                   const Vector<T, N> &y) {
   return x.forEach(y, [](T x, T y) -> T { return std::min(x, y); });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline Vector<T, N> Abs(const Vector<T, N> &x) {
+F_CPU_GPU inline Vector<T, N> Abs(const Vector<T, N> &x) {
   return x.forEach([](T x) -> T { return std::abs(x); });
 }
 
 template <typename T, int N>
-S_CPU_GPU inline Vector<T, N> RandVec() requires(std::is_arithmetic<T>::value) {
+F_CPU_GPU inline Vector<T, N> RandVec() requires(std::is_arithmetic<T>::value) {
   TODO();
 }
 
 template <typename T, int N>
-S_CPU_GPU inline bool Same(const Vector<T, N> &x, const Vector<T, N> &y,
+F_CPU_GPU inline bool Same(const Vector<T, N> &x, const Vector<T, N> &y,
                            Float eps = 1e-5) {
   return Norm(x - y) < eps;
 }
@@ -365,6 +365,6 @@ using Normal3f = Vector3f;
 using Point3f  = Vector3f;
 using Spectrum = Vector3f;
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

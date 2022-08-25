@@ -7,7 +7,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 // serves as *coordinator* between integrator and scene
 class Render {
@@ -24,6 +24,6 @@ private:
   bool                        m_init{false};
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

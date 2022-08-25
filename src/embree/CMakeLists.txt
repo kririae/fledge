@@ -12,6 +12,6 @@
 find_package(embree REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-add_library(smallvol_embree eprimitive.cpp)
-target_include_directories(smallvol_embree PUBLIC ../)
-target_link_libraries(smallvol_embree PUBLIC embree Eigen3::Eigen miniply)
+add_library(fledge_embree eprimitive.cpp)
+target_include_directories(fledge_embree PUBLIC ../)
+target_link_libraries(fledge_embree PUBLIC embree Eigen3::Eigen miniply)

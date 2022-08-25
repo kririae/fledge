@@ -3,12 +3,12 @@ BUILD_DIR := ./build
 SRC_DIR := ./src
 BUILD_COMMAND := cmake
 BUILD_TYPE := Release
-TARGET_EXEC := $(BUILD_DIR)/bin/smallvol
+TARGET_EXEC := $(BUILD_DIR)/bin/fledge
 CC_FORMAT_EXEC := clang-format
 PY_FORMAT_EXEC := autopep8
 
 define HELP_TEXT
-SmallVol WIP
+Fledge Renderer
 
 Targets:   
 	- build:  Build all
@@ -42,7 +42,7 @@ run:
 
 .PHONY: format
 format: .FORCE
-	@$(CC_FORMAT_EXEC) -i $(shell find -type f -regextype posix-extended -regex '$(SRC_DIR).*\.([c|h]p*|(ispc))')
+	@$(CC_FORMAT_EXEC) -i $(shell find -type f -regextype posix-extended -regex '$(SRC_DIR).*\.([c|h]p*|(ispc)|(inc))')
 	@$(PY_FORMAT_EXEC) --in-place --recursive "$(SRC_DIR)"
 
 .PHONY: test

@@ -10,7 +10,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Volume {
 public:
@@ -88,6 +88,6 @@ private:
   std::shared_ptr<openvdb::FloatGrid> m_grid;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif

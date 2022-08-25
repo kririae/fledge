@@ -4,7 +4,7 @@
 #include "fwd.hpp"
 #include "vector.hpp"
 
-SV_NAMESPACE_BEGIN
+FLG_NAMESPACE_BEGIN
 
 class Scene;
 class Integrator {
@@ -55,6 +55,6 @@ private:
   const Float m_rrThreshold = 0.01;
 };
 
-SV_NAMESPACE_END
+FLG_NAMESPACE_END
 
 #endif
