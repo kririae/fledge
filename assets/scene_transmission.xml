@@ -16,12 +16,12 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="4096" />
+      <integer name="sampleCount" value="32" />
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="width" value="2560" />
-      <integer name="height" value="1440" />
+      <integer name="width" value="1280" />
+      <integer name="height" value="720" />
 
       <rfilter type="gaussian">
         <float name="size" value="0.5" />
@@ -30,7 +30,7 @@
   </sensor>
 
   <!-- <shape type="ply">
-    <string name="filename" value="assets/plane.ply"/> 
+    <string name="filename" value="plane.ply"/> 
     <bsdf type="dielectric">
       <float name="intIOR" value="1.5"/>
       <float name="extIOR" value="1.0"/>
@@ -38,7 +38,7 @@
   </shape> -->
 
   <shape type="ply">
-    <string name="filename" value="assets/dambreak0.ply"/> 
+    <string name="filename" value="dambreak0.ply"/> 
     <bsdf type="dielectric">
       <float name="intIOR" value="1.5"/>
       <float name="extIOR" value="1.0"/>
@@ -46,6 +46,6 @@
   </shape>
 
   <emitter type="envmap">
-    <string name="filename" value="assets/sunset_jhbcentral_2k.exr" />
+    <string name="filename" value="sunset_jhbcentral_2k.exr" />
   </emitter>
 </scene>

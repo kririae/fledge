@@ -15,7 +15,7 @@ public:
   Render(const std::shared_ptr<Scene> &scene);
   void init();
   bool preprocess();
-  bool saveImage(const std::string &name);
+  bool saveImage(const std::string &name, bool denoise = false);
   bool render();
 
 private:

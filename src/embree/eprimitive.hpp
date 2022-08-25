@@ -1,5 +1,5 @@
-#ifndef __EMBREE_HPP__
-#define __EMBREE_HPP__
+#ifndef __EPRIMITIVE_HPP__
+#define __EPRIMITIVE_HPP__
 
 #include <embree3/rtcore.h>
 #include <embree3/rtcore_geometry.h>

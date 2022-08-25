@@ -5,6 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,21 +39,14 @@ bool Scene::init() {
   // AreaLight and Shape are initialized
   // auto mat = std::make_shared<MicrofacetMaterial>(Vector3f(1.0), 0.007,
   //                                                 Vector3f(2.0, 2.0, 2.0));
+
   m_camera = std::make_shared<Camera>(m_origin, m_target, m_up);
-  m_film   = std::make_shared<Film>(m_resX, m_resY);
-  // Initialize m_accel from m_primitives
-  // m_accel = std::make_shared<EmbreeMeshPrimitive>(
-  //     MakeTriangleMesh("assets/dambreak0.ply"), mat);
-  // m_accel    = std::make_shared<ShapePrimitive>(sphere_1, mat);
+  m_film   = std::make_shared<Film>(m_resX, m_resY, EFilmBufferType::EAll);
+  m_accel  = std::make_shared<NaiveBVHAccel>(m_primitives);
 
-  m_accel = std::make_shared<NaiveBVHAccel>(m_primitives);
-
-  // volume
-  // m_volume =
-  // std::make_shared<OpenVDBVolume>(
+  // m_volume = std::make_shared<OpenVDBVolume>(
   // "assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  // m_volume =
-  // std::make_shared<HVolume>();
+  // m_volume = std::make_shared<HVolume>();
 
   SLog("scene init finished");
   return true;
@@ -208,6 +202,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
         auto name = v.second.get<std::string>("<xmlattr>.name");
         if (name == "filename") {
           auto filename = v.second.get<std::string>("<xmlattr>.value");
+          filename      = scene.getPath(filename);
           SLog("scene.shape%s.filename = %s", shape_id.c_str(),
                filename.c_str());
           scene.m_primitives.push_back(
@@ -244,7 +239,7 @@ static bool addLight(const pt::ptree &tree, Scene &scene) {
     auto name = v.second.get<std::string>("<xmlattr>.name");
     if (name == "filename") {
       auto env_texture = std::make_shared<ImageTexture>(
-          v.second.get<std::string>("<xmlattr>.value"));
+          scene.getPath(v.second.get<std::string>("<xmlattr>.value")));
       scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
       scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
     }
@@ -254,7 +249,12 @@ static bool addLight(const pt::ptree &tree, Scene &scene) {
 }
 
 Scene Scene::parseXML(const std::string &filename) {
-  Scene     res;
+  Scene res;
+
+  auto xml_path = std::filesystem::path(filename);
+  assert(xml_path.has_parent_path());
+  res.m_base_dir = xml_path.parent_path();
+
   pt::ptree tree;
   pt::read_xml(filename, tree);
   SLog("xml load from %s", filename.c_str());
@@ -280,6 +280,20 @@ Scene Scene::parseXML(const std::string &filename) {
   }
 
   return res;
+}
+
+path Scene::getPath(const path &asset_path) {
+  if (asset_path.is_absolute()) {
+    // handle absolute asset path
+    return asset_path;
+  } else {
+    // handle relative path
+    return m_base_dir / asset_path;
+  }
+}
+
+std::string Scene::getPath(const std::string &asset_path) {
+  return getPath(path(asset_path)).string();
 }
 
 FLG_NAMESPACE_END

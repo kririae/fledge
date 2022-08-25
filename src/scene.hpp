@@ -1,7 +1,9 @@
 #ifndef __SCENE_HPP__
 #define __SCENE_HPP__
 
+#include <filesystem>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "fwd.hpp"
@@ -9,6 +11,7 @@
 
 FLG_NAMESPACE_BEGIN
 
+using std::filesystem::path;
 // scene description
 // all resources needed in the process of rendering
 // can be loaded from json file or initialized by API
@@ -24,6 +27,8 @@ public:
   AABB getBound() const;
 
   static Scene parseXML(const std::string &filename);
+  path         getPath(const path &asset_path);
+  std::string  getPath(const std::string &asset_path);
 
   // Before init()
   int      m_resX, m_resY, m_SPP, m_maxDepth;
@@ -42,6 +47,7 @@ public:
   std::vector<std::shared_ptr<Light>> m_infLight;
 
 private:
+  path m_base_dir;
 };
 
 FLG_NAMESPACE_END

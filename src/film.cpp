@@ -1,28 +1,16 @@
 #include "film.hpp"
 
+#include <cstdint>
 #include <mutex>
 
 FLG_NAMESPACE_BEGIN
 
-Film::Film(int resX, int resY) : m_resX(resX), m_resY(resY) {
-  m_pixels.resize(m_resX * m_resY);
-  m_pixels.assign(m_pixels.size(), Vector3f(0));
-}
-
-int Film::getPixelIdx(int x, int y) const {
-  return y * m_resX + x;
-}
-
-Vector3f &Film::getPixel(int x, int y) {
-  std::lock_guard<std::mutex> lock(m_mutex);
-  return m_pixels[getPixelIdx(x, y)];
-}
-
-bool Film::saveImage(const std::string &name) {
+bool Film::saveBuffer(const std::string &name, EFilmBufferType buffer_type) {
   std::lock_guard<std::mutex> lock(m_mutex);
   std::filesystem::path       path(name);
   auto                        extension = path.extension().string();
-  auto                        l_pixels  = m_pixels;
+  int  buffer_id = bufferTypeToIdx(buffer_type);
+  auto l_pixels  = m_buffers[buffer_id];
 
   // The transition from vector<Vector3f> to span<Float> must be valid
   assert(sizeof(Vector3f) == 12);

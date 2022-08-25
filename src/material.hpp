@@ -32,6 +32,9 @@ public:
                            const Vector2f &u, const Vector2f &uv,
                            const CoordinateTransition &trans) const = 0;
   virtual bool     isDelta() const { return false; }
+
+  // TODO: add uv to handle texture
+  virtual Vector3f getAlbedo() const { return Vector3f(1.0); }
   EMaterialType    m_matType;
 };
 
@@ -45,6 +48,7 @@ public:
   Vector3f sampleF(const Vector3f &wo, Vector3f &wi, Float &pdf,
                    const Vector2f &u, const Vector2f &uv,
                    const CoordinateTransition &trans) const override;
+  Vector3f getAlbedo() const override { return m_albedo; }
 
 private:
   Vector3f m_albedo;

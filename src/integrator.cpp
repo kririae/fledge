@@ -106,11 +106,15 @@ void SampleIntegrator::render(const Scene &scene) {
        blockX, blockY);
 
   // define to lambdas here for further evaluation
-  auto evalPixel = [&](int x, int y, int SPP, Random &rng) -> Vector3f {
+  auto evalPixel = [&](int x, int y, int SPP, Random &rng,
+                       Vector3f *albedo = nullptr,
+                       Vector3f *normal = nullptr) -> Vector3f {
     Vector3f color = Vector3f(0.0);
 
+    auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
+    color += Li(ray, scene, rng, albedo, normal);
     // temporary implementation
-    for (int s = 0; s < SPP; ++s) {
+    for (int s = 1; s < SPP; ++s) {
       auto uv = rng.get2D();
       auto ray =
           scene.m_camera->generateRay(x + uv.x(), y + uv.y(), resX, resY);
@@ -128,7 +132,11 @@ void SampleIntegrator::render(const Scene &scene) {
     int    y_max = std::min(y + height, scene.m_resY);
     for (int i = x; i < x_max; ++i) {
       for (int j = y; j < y_max; ++j) {
-        scene.m_film->getPixel(i, j) = evalPixel(i, j, SPP, rng);
+        Vector3f albedo, normal;
+        scene.m_film->getBuffer(i, j, EFilmBufferType::EColor) =
+            evalPixel(i, j, SPP, rng, &albedo, &normal);
+        scene.m_film->getBuffer(i, j, EFilmBufferType::EAlbedo) = albedo;
+        scene.m_film->getBuffer(i, j, EFilmBufferType::ENormal) = normal;
       }
     }
   };
@@ -168,7 +176,7 @@ void SampleIntegrator::render(const Scene &scene) {
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
-          scene.m_film->saveImage("fledge_out.exr");
+          scene.m_film->saveBuffer("fledge_out.exr", EFilmBufferType::EColor);
           start = std::chrono::system_clock::now();
         }
       }  // omp critical
@@ -177,9 +185,12 @@ void SampleIntegrator::render(const Scene &scene) {
 #endif
 }
 
-Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng) {
+Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng,
+                              Vector3f *albedo, Vector3f *normal) {
   Vector3f     L = Vector3f(0.0);
   SInteraction isect;
+  if (albedo != nullptr) *albedo = Vector3f(0.0);
+  if (normal != nullptr) *normal = Vector3f(0.0);
   if (scene.m_accel->intersect(ray, isect))
     L = (isect.m_ns + Vector3f(1.0)) / 2;
   else
@@ -187,7 +198,8 @@ Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng) {
   return L;
 }
 
-Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
+Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
+                            Vector3f *albedo, Vector3f *normal) {
   Vector3f L    = Vector3f(0.0);
   Vector3f beta = Vector3f(1.0);
   auto     ray  = r;
@@ -201,8 +213,24 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
     SInteraction isect;
 
     bool find_isect = scene.intersect(ray, isect);
-    if (find_isect) {
+
+    // Handle albedo and normal
+    if (bounces == 0) {
+      if (find_isect) {
+        if (normal != nullptr) *normal = isect.m_ns;
+        if (albedo != nullptr)
+          *albedo = isect.m_primitive->getMaterial()->getAlbedo();
+      } else {
+        // no intersection
+        if (normal != nullptr) *normal = -ray.m_d;
+        if (albedo != nullptr) {
+          *albedo = Vector3f(0.0);
+          for (const auto &light : scene.m_infLight)
+            *albedo += beta * light->Le(ray);
+        }
+      }
     }
+
     if (bounces == 0 || specular) {
       if (find_isect) {
         L += beta * isect.Le(-ray.m_d);
@@ -244,12 +272,16 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
   return L;
 }
 
-Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng) {
+Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
+                            Vector3f *albedo, Vector3f *normal) {
   Vector3f L    = Vector3f(0.0);
   Vector3f beta = Vector3f(1.0);
   auto     ray  = r;
   bool     in_volume{false};
   int      bounces{0};
+
+  if (albedo != nullptr) *albedo = Vector3f(0.0);
+  if (normal != nullptr) *normal = Vector3f(0.0);
 
   // only use the "scene.m_volume" for integrating
   for (bounces = 0;; bounces++) {

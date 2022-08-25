@@ -8,6 +8,7 @@
 #include "film.hpp"
 #include "integrator.hpp"
 #include "light.hpp"
+#include "oidn/oidn.hpp"
 #include "scene.hpp"
 
 FLG_NAMESPACE_BEGIN
@@ -31,10 +32,17 @@ bool Render::preprocess() {
   return true;
 }
 
-bool Render::saveImage(const std::string &name) {
+bool Render::saveImage(const std::string &name, bool denoise) {
   if (!m_init) return false;
-  SLog("saveImage(%s)", name.c_str());
-  m_scene->m_film->saveImage(name);
+  auto name_ = m_scene->getPath(name);
+  SLog("saveImage(%s)", name_.c_str());
+  if (denoise) {
+    Film post_filtered = Denoise(*(m_scene->m_film));
+    post_filtered.saveBuffer(name_, EFilmBufferType::EOutput);
+  } else {
+    m_scene->m_film->saveBuffer(name_, EFilmBufferType::ENormal);
+  }
+
   return true;
 }
 

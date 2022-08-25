@@ -24,7 +24,8 @@ public:
   virtual void preprocess() { TODO(); }
   // call by the class Render
   void             render(const Scene &scene) override;
-  virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng);
+  virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng,
+                      Vector3f *albedo = nullptr, Vector3f *normal = nullptr);
 
 private:
 };
@@ -35,7 +36,8 @@ public:
   ~PathIntegrator() override = default;
 
   void     preprocess() override { TODO(); }
-  Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
+  Vector3f Li(const Ray &r, const Scene &scene, Random &rng,
+              Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:
   const int m_maxDepth = 16;
@@ -48,7 +50,8 @@ public:
   SVolIntegrator()           = default;
   ~SVolIntegrator() override = default;
 
-  Vector3f Li(const Ray &r, const Scene &scene, Random &rng) override;
+  Vector3f Li(const Ray &r, const Scene &scene, Random &rng,
+              Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:
   const int   m_maxDepth    = 512;

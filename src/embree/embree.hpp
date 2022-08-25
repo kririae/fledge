@@ -1,3 +1,6 @@
+#ifndef __EMBREE_HPP__
+#define __EMBREE_HPP__
+
 #include <embree3/rtcore.h>
 #include <embree3/rtcore_device.h>
 
@@ -23,3 +26,5 @@ inline RTCDevice embreeInitializeDevice() {
 }
 
 FLG_NAMESPACE_END
+
+#endif

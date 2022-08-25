@@ -34,6 +34,6 @@ int main() {
   render.init();
   render.preprocess();
   render.render();
-  render.saveImage("fledge_out.exr");
+  render.saveImage("fledge_out.exr", true);
   return 0;
 }

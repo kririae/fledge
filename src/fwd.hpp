@@ -44,7 +44,7 @@ class Camera;
 class ConstTexture;
 class CoordinateTransition;
 class DiffuseMaterial;
-class Film;
+struct Film;
 class HVolume;
 class ImageTexture;
 class InfiniteAreaLight;

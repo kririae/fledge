@@ -19,6 +19,9 @@ find_package(TBB REQUIRED)
 find_package(OpenMP)
 find_package(OpenVDB REQUIRED COMPONENTS openvdb)
 
+# add it before the compiler specifications
+add_subdirectory(oidn/)
+
 # add OpenMP
 if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -56,6 +59,8 @@ cmake_format(format_cmake "${cmake_files}")
 add_library(fledge_lib "${source}")
 add_executable(fledge "${source}")
 
+# add_subdirectory(oidn/)
+
 if (USE_ISPC)
   add_subdirectory(ispc/)
   target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
@@ -63,7 +68,7 @@ if (USE_ISPC)
 endif()
 
 target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
-                                      OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree)
+                                      OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                                           ${CMAKE_BINARY_DIR}/bin)
