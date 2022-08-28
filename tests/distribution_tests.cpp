@@ -3,7 +3,7 @@
 #include "distribution.hpp"
 #include "fwd.hpp"
 #include "rng.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 using namespace fledge;
 

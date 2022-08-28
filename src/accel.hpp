@@ -4,10 +4,10 @@
 #include <memory>
 #include <vector>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "fwd.hpp"
 #include "primitive.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

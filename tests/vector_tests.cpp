@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "accel.hpp"
 #include "fwd.hpp"
 #include "gtest/gtest.h"
@@ -10,7 +10,7 @@
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 using namespace fledge;
 inline Vector<Float, 3> MakeVector3f(Float x, Float y, Float z) {

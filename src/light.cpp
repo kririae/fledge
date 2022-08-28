@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "debug.hpp"
 #include "distribution.hpp"
 #include "fwd.hpp"
@@ -11,8 +11,8 @@
 #include "ray.hpp"
 #include "scene.hpp"
 #include "texture.hpp"
-#include "utils.hpp"
-#include "vector.hpp"
+#include "common/math_utils.h"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

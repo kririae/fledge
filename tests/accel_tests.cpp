@@ -2,14 +2,14 @@
 
 #include <memory>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "accel.hpp"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 TEST(Accel, NaiveBVHAccel) {
   using namespace fledge;

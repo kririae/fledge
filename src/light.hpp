@@ -10,7 +10,7 @@
 #include "scene.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

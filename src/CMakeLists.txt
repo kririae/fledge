@@ -6,7 +6,7 @@ include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
 
 CPMAddPackage("gh:vilya/miniply#master")
 
-if (miniply_ADDED)
+if(miniply_ADDED)
   set(miniplySources ${miniply_SOURCE_DIR}/miniply.cpp)
   add_library(miniply ${miniplySources})
   set_property(TARGET miniply PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -27,13 +27,13 @@ if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
 # compilers' specification
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
+    "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
         -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable \
         -Wno-unused-function -Wno-error=deprecated-declarations -Wno-gnu-zero-variadic-macro-arguments \
         -march=native -mtune=native")
@@ -41,9 +41,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
         -Wpedantic -Werror -Wno-unused -Wno-error=deprecated-declarations -march=native -mtune=native")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-
 endif()
 
 add_subdirectory(embree/)
@@ -60,21 +58,23 @@ add_library(fledge_lib "${source}")
 add_executable(fledge "${source}")
 
 # add_subdirectory(oidn/)
-
-if (USE_ISPC)
+if(USE_ISPC)
   add_subdirectory(ispc/)
   target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
   target_compile_definitions(fledge_lib PUBLIC -DUSE_ISPC)
 endif()
 
 target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
-                                      OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
+  OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-                                          ${CMAKE_BINARY_DIR}/bin)
+  ${CMAKE_BINARY_DIR}/bin)
+
 if(USE_TBB)
   target_compile_definitions(fledge PUBLIC -DUSE_TBB)
 endif()
+
 # if (USE_EMBREE)
-  target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)
+target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)
+
 # endif()

@@ -5,7 +5,7 @@
 
 #include "fwd.hpp"
 #include "plymesh.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

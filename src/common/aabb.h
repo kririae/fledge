@@ -1,9 +1,9 @@
-#ifndef __AABB_HPP__
-#define __AABB_HPP__
+#ifndef __AABB_H__
+#define __AABB_H__
 
 #include "fwd.hpp"
 #include "ray.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

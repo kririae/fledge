@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "accel.hpp"
 #include "embree/eprimitive.hpp"
 #include "fwd.hpp"
@@ -11,8 +11,8 @@
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "utils.hpp"
-#include "vector.hpp"
+#include "common/math_utils.h"
+#include "common/vector.h"
 
 TEST(Triangle, ComprehensiveTestWithEmbree) {
   using namespace fledge;

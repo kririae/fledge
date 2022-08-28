@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include "fresnel.h"
+#include "common/fresnel.h"
 #include "fwd.hpp"
-#include "utils.hpp"
-#include "vector.hpp"
+#include "common/math_utils.h"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <thread>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "camera.hpp"
 #include "debug.hpp"
 #include "film.hpp"
@@ -14,9 +14,10 @@
 #include "material.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
+#include "common/sampler.h"
 #include "scene.hpp"
-#include "utils.hpp"
-#include "vector.hpp"
+#include "common/math_utils.h"
+#include "common/vector.h"
 #include "volume.hpp"
 
 FLG_NAMESPACE_BEGIN
@@ -103,19 +104,21 @@ void SampleIntegrator::render(const Scene &scene) {
        blockX, blockY);
 
   // define to lambdas here for further evaluation
-  auto evalPixel = [&](int x, int y, int SPP, Random &rng,
-                       Vector3f *albedo = nullptr,
+  auto evalPixel = [&](int x, int y, int SPP, Vector3f *albedo = nullptr,
                        Vector3f *normal = nullptr) -> Vector3f {
+    Sampler sampler(SPP);
+    Random  rng;
+    sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
     Vector3f color = Vector3f(0.0);
 
     auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
     color += Li(ray, scene, rng, albedo, normal);
     // temporary implementation
     for (int s = 1; s < SPP; ++s) {
-      auto uv = rng.get2D();
-      auto ray =
-          scene.m_camera->generateRay(x + uv.x(), y + uv.y(), resX, resY);
+      auto uv  = sampler.get2D();
+      auto ray = scene.m_camera->generateRay(uv.x(), uv.y(), resX, resY);
       color += Li(ray, scene, rng);
+      sampler.reset();
     }
 
     return color / SPP;
@@ -124,14 +127,13 @@ void SampleIntegrator::render(const Scene &scene) {
   // to be paralleled
   // starting from (x, y)
   auto evalBlock = [&](int x, int y, int width, int height, int SPP) {
-    Random rng(y * resX + x);
-    int    x_max = std::min(x + width, scene.m_resX);
-    int    y_max = std::min(y + height, scene.m_resY);
+    int x_max = std::min(x + width, scene.m_resX);
+    int y_max = std::min(y + height, scene.m_resY);
     for (int i = x; i < x_max; ++i) {
       for (int j = y; j < y_max; ++j) {
         Vector3f albedo, normal;
         scene.m_film->getBuffer(i, j, EFilmBufferType::EColor) =
-            evalPixel(i, j, SPP, rng, &albedo, &normal);
+            evalPixel(i, j, SPP, &albedo, &normal);
         scene.m_film->getBuffer(i, j, EFilmBufferType::EAlbedo) = albedo;
         scene.m_film->getBuffer(i, j, EFilmBufferType::ENormal) = normal;
       }

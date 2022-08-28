@@ -9,7 +9,7 @@
 #include "fwd.hpp"
 #include "light.hpp"
 #include "primitive.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

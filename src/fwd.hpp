@@ -58,6 +58,7 @@ class Primitive;
 class Random;
 class Ray;
 class Render;
+class Sampler;
 class SampleIntegrator;
 class ShapePrimitive;
 class Shape;

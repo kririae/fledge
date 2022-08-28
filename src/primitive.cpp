@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <memory>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "accel.hpp"
 #include "interaction.hpp"
 #include "light.hpp"

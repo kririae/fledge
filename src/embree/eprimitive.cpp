@@ -11,12 +11,12 @@
 #include <memory>
 #include <type_traits>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "debug.hpp"
 #include "embree.hpp"
 #include "fwd.hpp"
 #include "plymesh.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

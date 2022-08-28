@@ -8,7 +8,7 @@
 
 #include "debug.hpp"
 #include "fwd.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

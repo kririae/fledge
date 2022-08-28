@@ -2,7 +2,7 @@
 #define __FRESNEL_HPP__
 
 #include "fwd.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

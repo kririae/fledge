@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "accel.hpp"
 #include "camera.hpp"
 #include "debug.hpp"
@@ -23,7 +23,7 @@
 #include "primitive.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 #include "volume.hpp"
 
 FLG_NAMESPACE_BEGIN

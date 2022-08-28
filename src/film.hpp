@@ -14,8 +14,9 @@
 #include <string>
 #include <vector>
 
+#include "debug.hpp"
 #include "fwd.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 
@@ -30,13 +31,22 @@ enum class EFilmBufferType {
   EExtra3 = (1 << 6),
 };
 
-// TODO: implement interface for `tev`
+static void checkFilmBufferType(EFilmBufferType buffer_type) {
+  using enum EFilmBufferType;
+  if ((int(buffer_type) & int(EColor)) == 0)
+    SErr("In buffer_type, EColor must always be selected");
+  if ((int(buffer_type) & int(EOutput)) == 0)
+    SErr("In buffer_type, EOutput must always be selected");
+}
+
+// template<int FilmBufferType>
 struct Film {
 public:
   // Film class should be implemented comprehensively
   // Those copy manipulations are implemented for denoiser
   Film(int resX, int resY, EFilmBufferType buffer_type = EFilmBufferType::EAll)
-      : m_resX(resX), m_resY(resY) {
+      : m_resX(resX), m_resY(resY), m_buffer_type(buffer_type) {
+    checkFilmBufferType(buffer_type);
     m_buffers.resize(7);
     for (int t = 0; t < 7; ++t)
       if (int(buffer_type) & (1 << t))
@@ -74,6 +84,7 @@ public:
 
   int m_resX, m_resY;
 
+  EFilmBufferType                    m_buffer_type;
   std::vector<std::vector<Vector3f>> m_buffers;
   mutable std::mutex                 m_mutex;
 };

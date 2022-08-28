@@ -1,11 +1,11 @@
-#ifndef __UTILS_HPP__
-#define __UTILS_HPP__
+#ifndef __MATH_UTILS_H__
+#define __MATH_UTILS_H__
 
 #include <memory>
 
 #include "fwd.hpp"
 #include "interaction.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

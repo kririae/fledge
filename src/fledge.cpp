@@ -9,7 +9,7 @@
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 #include "volume.hpp"
 
 using namespace fledge;

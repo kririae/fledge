@@ -9,12 +9,12 @@
 
 #include <memory>
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "fwd.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
 #include "rng.hpp"
-#include "vector.hpp"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

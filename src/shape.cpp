@@ -1,10 +1,10 @@
 #include "shape.hpp"
 
-#include "aabb.hpp"
+#include "common/aabb.h"
 #include "fwd.hpp"
 #include "interaction.hpp"
-#include "utils.hpp"
-#include "vector.hpp"
+#include "common/math_utils.h"
+#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 
