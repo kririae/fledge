@@ -95,38 +95,35 @@ struct is_unique_ptr : std::false_type {};
 template <typename T>
 struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
 
+#if 1
 // naive pointer check
 template <typename T,
           std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
                                is_unique_ptr<T>::value,
                            bool> = true>
-inline T C(T v, const std::source_location location =
-                    std::source_location::current()) {
+inline void C(T v, const std::source_location location =
+                       std::source_location::current()) {
   if (v == nullptr)
     SErr("check pointer failed in %s:%d; nullptr found", location.file_name(),
          location.line());
-  return v;
 }
 
 // naive value check
 template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-inline T C(T v, const std::source_location location =
-                    std::source_location::current()) {
+inline void C(T v, const std::source_location location =
+                       std::source_location::current()) {
   if (isnan(v) || isinf(v))
     SErr("check value failed in %s:%d; nan or inf found", location.file_name(),
          location.line());
-  return v;
 }
 
 template <typename T, std::enable_if_t<is_vector<T>::value, bool> = true>
-inline T C(T v, const std::source_location location =
-                    std::source_location::current()) {
+inline void C(T v, const std::source_location location =
+                       std::source_location::current()) {
   for (int i = 0; i < v.size; ++i) C(v[i], location);
   C(v.norm(), location);
-  return v;
 }
 
-// FIXME: better solution?
 template <typename T1, typename T2>
 inline void C(
     T1 v1, T2 v2,
@@ -164,5 +161,55 @@ inline void C(
   C(v4, location);
   C(v5, location);
 }
+#elif 0
+// OMG.. WTF is this... ;(
+
+struct Checker {
+  template <typename T>
+  inline std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
+                              is_unique_ptr<T>::value,
+                          Checker &>
+  operator<<(const std::pair<T, std::source_location> &v) {
+    if (v.first == nullptr)
+      SErr("check pointer failed in %s:%d; nullptr found", v.second.file_name(),
+           v.second.line());
+    return *this;
+  }
+
+  template <typename T>
+  inline std::enable_if_t<std::is_arithmetic_v<T>, Checker &> operator<<(
+      const std::pair<T, std::source_location> &v) {
+    if (isnan(v.first) || isinf(v.first))
+      SErr("check value failed in %s:%d; nan or inf found",
+           v.second.file_name(), v.second.line());
+    return *this;
+  }
+
+  template <typename T>
+  inline std::enable_if_t<is_vector<T>::value, Checker &> operator<<(
+      const std::pair<T, std::source_location> &v) {
+    Checker checker;
+    for (int i = 0; i < v.first.size; ++i)
+      checker << std::make_pair(v.first[i], v.second);
+    checker << std::make_pair(v.first.norm(), v.second);
+    return *this;
+  }
+};
+
+template <typename... Ts>
+struct C_ {
+  explicit C_(Ts &&...ts, const std::source_location &source =
+                              std::source_location::current()) {
+    Checker checker;
+    ((checker << std::make_pair(std::forward<Ts>(ts), source)), ...);
+  }
+};
+
+template <typename... Ts>
+C_(Ts &&...args) -> C_<Ts...>;
+
+// To avoid "error: conflicting declaration ‘C<...auto...> a’"
+#define C(...) C_(1, ##__VA_ARGS__)
+#endif
 
 #endif

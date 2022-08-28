@@ -32,7 +32,7 @@ private:
 
 class PathIntegrator : public SampleIntegrator {
 public:
-  PathIntegrator()           = default;
+  PathIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~PathIntegrator() override = default;
 
   void     preprocess() override { TODO(); }
@@ -40,22 +40,22 @@ public:
               Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:
-  const int m_maxDepth = 16;
+  int m_maxDepth = 16;
 };
 
 // Simple Volume Path Integrator
 // only volume in the scene is considered
 class SVolIntegrator : public SampleIntegrator {
 public:
-  SVolIntegrator()           = default;
+  SVolIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~SVolIntegrator() override = default;
 
   Vector3f Li(const Ray &r, const Scene &scene, Random &rng,
               Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:
-  const int   m_maxDepth    = 512;
-  const Float m_rrThreshold = 0.01;
+  int   m_maxDepth    = 512;
+  Float m_rrThreshold = 0.01;
 };
 
 FLG_NAMESPACE_END

@@ -32,8 +32,7 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
 }
 
 Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
-  C(scene.m_volume);
-  C(ray.m_d);
+  C(scene.m_volume, ray.m_d);
   return scene.m_volume->tr(ray, rng);
 }
 
@@ -59,9 +58,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
 
-    C(vit.m_g);
-    C(vit.m_wo);
-    C(wi);
+    C(vit.m_g, vit.m_wo, wi);
     // likely the BRDF to be applied
     f = Vector3f(HGP(wi, vit.m_wo, vit.m_g));
     C(f);
@@ -273,12 +270,12 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
     ray  = isect.SpawnRay(wi);
   }
 
-  if (bounces == 0) {
-    return Vector3f(0.05);
-  } else {
-    rate /= bounces;
-    return Vector3f(1 / (rate / 20));
-  }
+  // if (bounces == 0) {
+  //   return Vector3f(0.05);
+  // } else {
+  //   rate /= bounces;
+  //   return Vector3f(1 / (rate / 20));
+  // }
 
   return L;
 }

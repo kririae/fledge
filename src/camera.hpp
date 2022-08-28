@@ -13,12 +13,10 @@ public:
   Camera(const Vector3f &pos, const Vector3f &lookAt,
          const Vector3f &up = Vector3f{0, 1, 0}, Float fov = 30)
       : m_pos(pos),
-        m_forward((lookAt - pos).stableNormalized()),
+        m_forward(Normalize(lookAt - pos)),
         m_up(up),
-        m_right((m_up.cross(m_forward)).stableNormalized()),
+        m_right(Normalize(m_up.cross(m_forward))),
         m_fov(fov) {
-    // assert(m_up.norm() == 1);
-    // assert(m_right.norm() == 1);
     C(m_up, m_right);
   }
 

@@ -20,8 +20,8 @@
     </sampler>
 
     <film type="hdrfilm">
-      <integer name="width" value="1280" />
-      <integer name="height" value="720" />
+      <integer name="width" value="1920" />
+      <integer name="height" value="1080" />
 
       <rfilter type="gaussian">
         <float name="size" value="0.5" />

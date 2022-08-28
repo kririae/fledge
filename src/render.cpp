@@ -22,7 +22,7 @@ void Render::init() {
   openvdb::initialize();
   SLog("render is ready");
   // m_integrator = std::make_shared<SampleIntegrator>();
-  m_integrator = std::make_shared<PathIntegrator>();
+  m_integrator = std::make_shared<PathIntegrator>(m_scene->m_maxDepth);
   // m_integrator = std::make_shared<SVolIntegrator>();
   m_init = true;
 }

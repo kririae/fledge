@@ -136,7 +136,8 @@ Vector3f InfiniteAreaLight::Le(const Ray &ray) const {
   C(dir);
   Float phi   = SphericalPhi(dir);
   Float theta = SphericalTheta(dir);
-  return m_tex->eval(C(phi) * INV_2PI, C(theta) * INV_PI);
+  C(phi, theta);
+  return m_tex->eval(phi * INV_2PI, theta * INV_PI);
 }
 
 FLG_NAMESPACE_END

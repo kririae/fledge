@@ -26,23 +26,29 @@ inline void Deprecated() {
 #define EIGEN_FUNC
 // #define EIGEN_FUNC __attribute__((deprecated))
 
+using std::abs;
+using std::max;
+using std::min;
+using std::sqrt;
+
 template <typename T, int N,
           std::enable_if_t<std::is_arithmetic<T>::value, bool> = true>
 struct Vector {
-  // Vector class
-  //   implemented only for cpu currently
-  // Usage:
-  //   Vector(): initialize to zero
-  //   Vector({...}): initialize through initializer list
-  //   forEach(function): return a new Vector<T, N> with function<T(T)>, i.e.,
-  //     accepting one parameters and return the modified element, applied for
-  //     each element
-  //   forEach(Vector, function): accept another Vector<T, N> as parameter and a
-  //     function<T(T, T)>, i.e., accepting two parameters and return x op y,
-  //     and return a new Vector
-  // Notice that all normal operators are implemented in a piecewise(linear) way
-  // Note: All the operations except cast<T_, N_>() will preserve
-  // T, i.e., not promote int to float like standard operator
+  /** Vector class
+   *   implemented only for cpu currently
+   * Usage:
+   *   Vector(): initialize to zero
+   *   Vector({...}): initialize through initializer list
+   *   forEach(function): return a new Vector<T, N> with function<T(T)>, i.e.,
+   *     accepting one parameters and return the modified element, applied for
+   *     each element
+   *   forEach(Vector, function): accept another Vector<T, N> as parameter and a
+   *     function<T(T, T)>, i.e., accepting two parameters and return x op y,
+   *     and return a new Vector
+   * Notice that all normal operators are implemented in a piecewise(linear) way
+   * Note: All the operations except cast<T_, N_>() will preserve
+   * T, i.e., not promote int to float like standard operator
+   **/
   using type                = T;
   constexpr static int size = N;
 
@@ -66,6 +72,9 @@ struct Vector {
   // Copy constructor
   F_CPU_GPU Vector(const Vector &x) {
     for (int i = 0; i < x.size; ++i) m_vec[i] = x.m_vec[i];
+  }
+  F_CPU_GPU Vector(Vector &&x) {
+    std::move(std::begin(x.m_vec), std::end(x.m_vec), m_vec);
   }
 
   F_CPU_GPU bool operator==(const Vector &rhs) const {
@@ -204,10 +213,10 @@ struct Vector {
     (*this) = normalized();
   }
   F_CPU_GPU EIGEN_FUNC Vector cwiseMax(const Vector &rhs) const {
-    return forEach(rhs, [](T x, T y) -> T { return std::max(x, y); });
+    return forEach(rhs, [](T x, T y) -> T { return max(x, y); });
   }
   F_CPU_GPU EIGEN_FUNC Vector cwiseMin(const Vector &rhs) const {
-    return forEach(rhs, [](T x, T y) -> T { return std::min(x, y); });
+    return forEach(rhs, [](T x, T y) -> T { return min(x, y); });
   }
 
   // The function implemented as helper
@@ -229,7 +238,6 @@ struct Vector {
   }
   template <typename T_, int N_>
   F_CPU_GPU Vector<T_, N_> cast() const {
-    using std::min;
     // The lower N is selected
     Vector<T_, N_> res;
     for (int i = 0; i < min(N, N_); ++i) res[i] = m_vec[i];
@@ -248,7 +256,8 @@ struct Vector {
     return os;
   }
 
-  // Template specification C++ 20
+// Following the hints from
+// https://stackoverflow.com/questions/23757876/sfinae-not-working-although-template-methods-are-used
 #include "vector_spec.inc"
 };
 
@@ -318,29 +327,29 @@ F_CPU_GPU inline Vector<T, 3> Cross(const Vector<T, 3> &x,
 
 template <typename T, int N>
 F_CPU_GPU inline T MaxElement(const Vector<T, N> &x) {
-  return x.reduce([](T x, T y) -> T { return std::max<T>(x, y); });
+  return x.reduce([](T x, T y) -> T { return max<T>(x, y); });
 }
 
 template <typename T, int N>
 F_CPU_GPU inline T MinElement(const Vector<T, N> &x) {
-  return x.reduce([](T x, T y) -> T { return std::min<T>(x, y); });
+  return x.reduce([](T x, T y) -> T { return min<T>(x, y); });
 }
 
 template <typename T, int N>
 F_CPU_GPU inline Vector<T, N> Max(const Vector<T, N> &x,
                                   const Vector<T, N> &y) {
-  return x.forEach(y, [](T x, T y) -> T { return std::max(x, y); });
+  return x.forEach(y, [](T x, T y) -> T { return max(x, y); });
 }
 
 template <typename T, int N>
 F_CPU_GPU inline Vector<T, N> Min(const Vector<T, N> &x,
                                   const Vector<T, N> &y) {
-  return x.forEach(y, [](T x, T y) -> T { return std::min(x, y); });
+  return x.forEach(y, [](T x, T y) -> T { return min(x, y); });
 }
 
 template <typename T, int N>
 F_CPU_GPU inline Vector<T, N> Abs(const Vector<T, N> &x) {
-  return x.forEach([](T x) -> T { return std::abs(x); });
+  return x.forEach([](T x) -> T { return abs(x); });
 }
 
 template <typename T, int N>

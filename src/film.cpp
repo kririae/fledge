@@ -9,8 +9,8 @@ bool Film::saveBuffer(const std::string &name, EFilmBufferType buffer_type) {
   std::lock_guard<std::mutex> lock(m_mutex);
   std::filesystem::path       path(name);
   auto                        extension = path.extension().string();
-  int  buffer_id = bufferTypeToIdx(buffer_type);
-  auto l_pixels  = m_buffers[buffer_id];
+  int                         buffer_id = bufferTypeToIdx(buffer_type);
+  auto                        l_pixels  = m_buffers[buffer_id];
 
   // The transition from vector<Vector3f> to span<Float> must be valid
   assert(sizeof(Vector3f) == 12);
