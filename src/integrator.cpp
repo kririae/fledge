@@ -115,7 +115,7 @@ void SampleIntegrator::render(const Scene &scene) {
     color += Li(ray, scene, rng, albedo, normal);
     // temporary implementation
     for (int s = 1; s < SPP; ++s) {
-      auto uv  = sampler.get2D();
+      auto uv  = sampler.getPixelSample();
       auto ray = scene.m_camera->generateRay(uv.x(), uv.y(), resX, resY);
       color += Li(ray, scene, rng);
       sampler.reset();
