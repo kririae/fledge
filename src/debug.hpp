@@ -13,16 +13,16 @@
 #undef NDEBUG
 #include <assert.h>
 
-#define SV_FG_BLACK        "\33[1;30m"
-#define SV_FG_RED          "\33[1;31m"
-#define SV_FG_GREEN        "\33[1;32m"
-#define SV_FG_YELLOW       "\33[1;33m"
-#define SV_FG_BLUE         "\33[1;34m"
-#define SV_FG_MAGENTA      "\33[1;35m"
-#define SV_FG_CYAN         "\33[1;36m"
-#define SV_FG_WHITE        "\33[1;37m"
-#define SV_NONE            "\33[0m"
-#define SV_COLOR(str, col) col str SV_NONE
+#define FLG_FG_BLACK        "\33[1;30m"
+#define FLG_FG_RED          "\33[1;31m"
+#define FLG_FG_GREEN        "\33[1;32m"
+#define FLG_FG_YELLOW       "\33[1;33m"
+#define FLG_FG_BLUE         "\33[1;34m"
+#define FLG_FG_MAGENTA      "\33[1;35m"
+#define FLG_FG_CYAN         "\33[1;36m"
+#define FLG_FG_WHITE        "\33[1;37m"
+#define FLG_NONE            "\33[0m"
+#define FLG_COLOR(str, col) col str FLG_NONE
 #define __FILENAME__                                                       \
   (__builtin_strrchr(__FILE__, '/') ? __builtin_strrchr(__FILE__, '/') + 1 \
                                     : __FILE__)
@@ -46,12 +46,12 @@ inline void backtrace() {
 
 #define SLog(format, ...)                                                  \
   do {                                                                     \
-    fprintf(stdout, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_GREEN) "\n", \
+    fprintf(stdout, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_GREEN) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
   } while (false)
 #define SErr(format, ...)                                                \
   do {                                                                   \
-    fprintf(stderr, SV_COLOR("[%16s:%3d %14s] " format, SV_FG_RED) "\n", \
+    fprintf(stderr, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_RED) "\n", \
             __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);            \
     backtrace();                                                         \
     assert(false);                                                       \

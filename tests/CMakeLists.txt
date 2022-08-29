@@ -6,7 +6,7 @@ CPMAddPackage(
   OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
-macro(sv_add_test name)
+macro(flg_add_test name)
   add_executable(${name}_exe ${name}.cpp)
   target_include_directories(${name}_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
   target_link_libraries(${name}_exe
@@ -16,8 +16,8 @@ macro(sv_add_test name)
   add_test(${name} ${name}_exe)
 endmacro()
 
-sv_add_test(vector_tests)
-sv_add_test(accel_tests)
-sv_add_test(shape_tests)
-sv_add_test(embree_tests)
-sv_add_test(distribution_tests)
+flg_add_test(vector_tests)
+flg_add_test(accel_tests)
+flg_add_test(shape_tests)
+flg_add_test(embree_tests)
+flg_add_test(distribution_tests)

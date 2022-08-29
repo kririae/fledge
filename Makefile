@@ -22,17 +22,17 @@ Targets:
 endef
 
 # Prerequisites
-OS = $(shell uname -s)
-SHELL = /usr/bin/bash
+OS := $(shell uname -s)
+SHELL := /usr/bin/bash
 ifeq ($(OS),Windows_NT)
 	@echo "Currently this makefile cannot operate on windows"
 endif
 
 .PHONY: build
 build: .FORCE
-	@$(BUILD_COMMAND) -B $(BUILD_DIR) -DCMAKE_EXPORT_COMPILE_COMMANDS=True -GNinja -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-	@$(BUILD_COMMAND) --build $(BUILD_DIR)
-	@ln -sf $(BUILD_DIR)/compile_commands.json ./  
+	@test -d $(BUILD_DIR) || $(BUILD_COMMAND) -B $(BUILD_DIR) -DCMAKE_EXPORT_COMPILE_COMMANDS=True -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j
+	@test -f compile_commands.json || ln -sf $(BUILD_DIR)/compile_commands.json ./  
 
 .PHONY: clean
 clean: .FORCE
