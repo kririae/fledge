@@ -63,7 +63,6 @@ inline void backtrace() {
 #define LClass(cls) SLog(#cls "=%s", cls.toString().c_str())
 
 #include <memory>
-#include <source_location>
 #include <type_traits>
 
 #include "common/vector.h"
@@ -95,14 +94,22 @@ struct is_unique_ptr : std::false_type {};
 template <typename T>
 struct is_unique_ptr<std::unique_ptr<T>> : std::true_type {};
 
+#if defined(__clang__)
+#include <experimental/source_location>
+using source_location = std::experimental::source_location;
+#elif defined(__GNUC__)
+#include <source_location>
+using source_location = std::source_location;
+#endif
+
 #if 1
 // naive pointer check
 template <typename T,
           std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
                                is_unique_ptr<T>::value,
                            bool> = true>
-inline void C(T v, const std::source_location location =
-                       std::source_location::current()) {
+inline void C(T                      v,
+              const source_location &location = source_location::current()) {
   if (v == nullptr)
     SErr("check pointer failed in %s:%d; nullptr found", location.file_name(),
          location.line());
@@ -110,41 +117,38 @@ inline void C(T v, const std::source_location location =
 
 // naive value check
 template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-inline void C(T v, const std::source_location location =
-                       std::source_location::current()) {
+inline void C(T                      v,
+              const source_location &location = source_location::current()) {
   if (isnan(v) || isinf(v))
     SErr("check value failed in %s:%d; nan or inf found", location.file_name(),
          location.line());
 }
 
 template <typename T, std::enable_if_t<is_vector<T>::value, bool> = true>
-inline void C(T v, const std::source_location location =
-                       std::source_location::current()) {
+inline void C(T                      v,
+              const source_location &location = source_location::current()) {
   for (int i = 0; i < v.size; ++i) C(v[i], location);
   C(v.norm(), location);
 }
 
 template <typename T1, typename T2>
-inline void C(
-    T1 v1, T2 v2,
-    const std::source_location location = std::source_location::current()) {
+inline void C(T1 v1, T2 v2,
+              const source_location &location = source_location::current()) {
   C(v1, location);
   C(v2, location);
 }
 
 template <typename T1, typename T2, typename T3>
-inline void C(
-    T1 v1, T2 v2, T3 v3,
-    const std::source_location location = std::source_location::current()) {
+inline void C(T1 v1, T2 v2, T3 v3,
+              const source_location &location = source_location::current()) {
   C(v1, location);
   C(v2, location);
   C(v3, location);
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-inline void C(
-    T1 v1, T2 v2, T3 v3, T4 v4,
-    const std::source_location location = std::source_location::current()) {
+inline void C(T1 v1, T2 v2, T3 v3, T4 v4,
+              const source_location &location = source_location::current()) {
   C(v1, location);
   C(v2, location);
   C(v3, location);
@@ -152,9 +156,8 @@ inline void C(
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-inline void C(
-    T1 v1, T2 v2, T3 v3, T4 v4, T5 v5,
-    const std::source_location location = std::source_location::current()) {
+inline void C(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5,
+              const source_location &location = source_location::current()) {
   C(v1, location);
   C(v2, location);
   C(v3, location);
@@ -169,7 +172,7 @@ struct Checker {
   inline std::enable_if_t<std::is_pointer_v<T> || is_shared_ptr<T>::value ||
                               is_unique_ptr<T>::value,
                           Checker &>
-  operator<<(const std::pair<T, std::source_location> &v) {
+  operator<<(const std::pair<T, source_location> &v) {
     if (v.first == nullptr)
       SErr("check pointer failed in %s:%d; nullptr found", v.second.file_name(),
            v.second.line());
@@ -178,7 +181,7 @@ struct Checker {
 
   template <typename T>
   inline std::enable_if_t<std::is_arithmetic_v<T>, Checker &> operator<<(
-      const std::pair<T, std::source_location> &v) {
+      const std::pair<T, source_location> &v) {
     if (isnan(v.first) || isinf(v.first))
       SErr("check value failed in %s:%d; nan or inf found",
            v.second.file_name(), v.second.line());
@@ -187,7 +190,7 @@ struct Checker {
 
   template <typename T>
   inline std::enable_if_t<is_vector<T>::value, Checker &> operator<<(
-      const std::pair<T, std::source_location> &v) {
+      const std::pair<T, source_location> &v) {
     Checker checker;
     for (int i = 0; i < v.first.size; ++i)
       checker << std::make_pair(v.first[i], v.second);
@@ -198,8 +201,8 @@ struct Checker {
 
 template <typename... Ts>
 struct C_ {
-  explicit C_(Ts &&...ts, const std::source_location &source =
-                              std::source_location::current()) {
+  explicit C_(Ts &&...ts,
+              const source_location &source = source_location::current()) {
     Checker checker;
     ((checker << std::make_pair(std::forward<Ts>(ts), source)), ...);
   }

@@ -1,4 +1,6 @@
 # Build settings
+export CC := $(shell which clang)
+export CXX := $(shell which clang++)
 BUILD_DIR := ./build
 SRC_DIR := ./src
 BUILD_COMMAND := cmake

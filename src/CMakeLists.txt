@@ -34,9 +34,8 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
-        -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable \
-        -Wno-unused-function -Wno-error=deprecated-declarations -Wno-gnu-zero-variadic-macro-arguments \
-        -march=native -mtune=native")
+        -Wpedantic -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable \
+        -Wno-unused-function -Wno-unused-private-field -Wno-error=deprecated-declarations -Wno-gnu-zero-variadic-macro-arguments -march=native -mtune=native")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
         -Wpedantic -Werror -Wno-unused -Wno-error=deprecated-declarations -march=native -mtune=native")
