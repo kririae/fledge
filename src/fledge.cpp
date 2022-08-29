@@ -5,7 +5,8 @@
 #include <iostream>
 #include <memory>
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"

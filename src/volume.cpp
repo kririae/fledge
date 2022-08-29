@@ -10,11 +10,13 @@
 #include <memory>
 
 #include "common/aabb.h"
-#include "fwd.hpp"
+#include "common/sampler.h"
+#include "common/vector.h"
+#include "fledge.h"
+#include "debug.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
 #include "rng.hpp"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 
@@ -65,7 +67,7 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   file.close();
 }
 
-Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
+Vector3f OpenVDBVolume::tr(const Ray &ray, Sampler &rng) const {
   auto accessor      = m_grid->getConstAccessor();
   using sampler_type = openvdb::tools::Sampler<1>;
   // Extra effort is needed to use openvdb to interpolate
@@ -99,7 +101,7 @@ Vector3f OpenVDBVolume::tr(const Ray &ray, Random &rng) const {
   return Vector3f(tr);
 }
 
-Vector3f OpenVDBVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
+Vector3f OpenVDBVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                                bool &success) const {
   // Delta-Tracking
   auto accessor      = m_grid->getConstAccessor();
@@ -156,7 +158,7 @@ HVolume::HVolume() {
   //                            Vector3f(0.5) + Vector3f{0, 0.5, 0});
 }
 
-Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
+Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
   // calculate the tr from ray.o to ray.m_tMax
   Float t_min, t_max;
 
@@ -169,7 +171,7 @@ Vector3f HVolume::tr(const Ray &ray, Random &rng) const {
   return Vector3f(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
 }
 
-Vector3f HVolume::sample(const Ray &ray, Random &rng, VInteraction &vi,
+Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                          bool &success) const {
   // sample a point inside the volume
   Float t_min, t_max;

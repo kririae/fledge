@@ -1,5 +1,7 @@
 #include "oidn.hpp"
 
+#include "../film.hpp"
+
 FLG_NAMESPACE_BEGIN
 
 Film Denoise(const Film &pre_filtered) {

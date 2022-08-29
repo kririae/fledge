@@ -5,9 +5,7 @@
 #include <vector>
 
 #include "common/aabb.h"
-#include "fwd.hpp"
 #include "primitive.hpp"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

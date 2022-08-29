@@ -1,15 +1,15 @@
-#ifndef __VECTOR_HPP__
-#define __VECTOR_HPP__
+#ifndef __VECTOR_H__
+#define __VECTOR_H__
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <functional>
 #include <initializer_list>
 #include <sstream>
 #include <type_traits>
 
-#include "debug.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
 
 // ispc optimization
 #ifdef USE_ISPC
@@ -354,7 +354,7 @@ F_CPU_GPU inline Vector<T, N> Abs(const Vector<T, N> &x) {
 
 template <typename T, int N>
 F_CPU_GPU inline Vector<T, N> RandVec() requires(std::is_arithmetic<T>::value) {
-  TODO();
+  Deprecated();
 }
 
 template <typename T, int N>

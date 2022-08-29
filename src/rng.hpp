@@ -3,7 +3,8 @@
 
 #include <random>
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN

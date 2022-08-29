@@ -7,8 +7,8 @@
 #include <memory>
 #include <string>
 
-#include "fwd.hpp"
 #include "common/vector.h"
+#include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 
@@ -18,9 +18,9 @@ public:
 
   // the method should return the Transmittance, i.t. T(t) between
   // the ray's origin to ray(tMax). The result might be just estimation
-  virtual Vector3f tr(const Ray &ray, Random &rng) const = 0;
+  virtual Vector3f tr(const Ray &ray, Sampler &rng) const = 0;
   // sample a volume interaction inside the volume
-  virtual Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
+  virtual Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                           bool &success) const = 0;
   virtual AABB     getBound() const;
 
@@ -34,8 +34,8 @@ public:
   ~HVolume() override = default;
 
   // function same as above
-  Vector3f tr(const Ray &ray, Random &rng) const override;
-  Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
+  Vector3f tr(const Ray &ray, Sampler &rng) const override;
+  Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                   bool &success) const override;
 
 private:
@@ -51,9 +51,9 @@ public:
 
   // the method should return the Transmittance, i.t. T(t) between
   // the ray's origin to ray(tMax). The result is just estimation
-  Vector3f tr(const Ray &ray, Random &rng) const override;
+  Vector3f tr(const Ray &ray, Sampler &rng) const override;
   // sample a volume interaction inside the volume
-  Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
+  Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                   bool &success) const override;
 
 private:
@@ -73,9 +73,9 @@ public:
 
   // the method should return the Transmittance, i.t. T(t) between
   // the ray's origin to ray(tMax). The result is just estimation
-  Vector3f tr(const Ray &ray, Random &rng) const override;
+  Vector3f tr(const Ray &ray, Sampler &rng) const override;
   // sample a volume interaction inside the volume
-  Vector3f sample(const Ray &ray, Random &rng, VInteraction &vi,
+  Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                   bool &success) const override;
 
 private:

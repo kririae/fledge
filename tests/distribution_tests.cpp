@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "distribution.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "rng.hpp"
 #include "common/vector.h"
 

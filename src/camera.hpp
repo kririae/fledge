@@ -1,10 +1,7 @@
 #ifndef __CAMERA_HPP__
 #define __CAMERA_HPP__
 
-#include "debug.hpp"
-#include "fwd.hpp"
 #include "ray.hpp"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

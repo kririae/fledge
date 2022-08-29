@@ -4,7 +4,8 @@
 #include <memory>
 
 #include "debug.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
 #include "common/math_utils.h"

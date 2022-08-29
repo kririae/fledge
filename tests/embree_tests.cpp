@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "common/vector.h"
 
 TEST(Accel, EmbreeSingleGeometry) {

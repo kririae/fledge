@@ -6,7 +6,8 @@
 
 #include <memory>
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "light.hpp"
 #include "primitive.hpp"
 #include "common/vector.h"

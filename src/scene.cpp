@@ -10,20 +10,20 @@
 #include <string>
 #include <vector>
 
-#include "common/aabb.h"
 #include "accel.hpp"
 #include "camera.hpp"
+#include "common/aabb.h"
+#include "common/vector.h"
 #include "debug.hpp"
 #include "embree/eprimitive.hpp"
 #include "film.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
 #include "light.hpp"
 #include "material.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
-#include "common/vector.h"
 #include "volume.hpp"
 
 FLG_NAMESPACE_BEGIN

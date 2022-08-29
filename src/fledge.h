@@ -1,10 +1,8 @@
-#ifndef __FWD_HPP__
-#define __FWD_HPP__
+#ifndef __FLEDGE_H__
+#define __FLEDGE_H__
 
-#include <iostream>
 #include <limits>
-#include <memory>
-#include <vector>
+#include <string>
 
 #if !defined(FLG_NAMESPACE_BEGIN)
 #define FLG_NAMESPACE_BEGIN namespace fledge {
@@ -32,8 +30,6 @@ constexpr Float INV_2PI    = static_cast<Float>(0.15915494309189533577);
 constexpr Float INV_4PI    = static_cast<Float>(0.07957747154594766788);
 constexpr Float SHADOW_EPS = 1e-5;
 constexpr Float NORMAL_EPS = 1e-5;
-
-#include "debug.hpp"
 
 FLG_NAMESPACE_BEGIN
 

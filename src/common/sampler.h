@@ -1,7 +1,8 @@
 #ifndef __SAMPLER_H__
 #define __SAMPLER_H__
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "rng.hpp"
 
 FLG_NAMESPACE_BEGIN

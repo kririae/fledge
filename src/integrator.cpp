@@ -4,25 +4,25 @@
 #include <cstddef>
 #include <thread>
 
-#include "common/aabb.h"
 #include "camera.hpp"
+#include "common/aabb.h"
+#include "common/math_utils.h"
+#include "common/sampler.h"
+#include "common/vector.h"
 #include "debug.hpp"
 #include "film.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
 #include "interaction.hpp"
 #include "light.hpp"
 #include "material.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
-#include "common/sampler.h"
 #include "scene.hpp"
-#include "common/math_utils.h"
-#include "common/vector.h"
 #include "volume.hpp"
 
 FLG_NAMESPACE_BEGIN
 
-Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
+Vector3f EstimateTr(const Ray &ray, const Scene &scene, Sampler &sampler) {
   // only consider the result to be 0 or 1 currently
   SInteraction isect;
   if (scene.intersect(ray, isect)) {
@@ -32,16 +32,16 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
   }
 }
 
-Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Random &rng) {
+Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Sampler &rng) {
   C(scene.m_volume, ray.m_d);
   return scene.m_volume->tr(ray, rng);
 }
 
 Vector3f EstimateDirect(const Interaction &it, const Light &light,
-                        const Scene &scene, Random &rng) {
+                        const Scene &scene, Sampler &sampler) {
   Float       pdf;
   Vector3f    wi, L = Vector3f(0.0);
-  Vector2f    u_light = rng.get2D();
+  Vector2f    u_light = sampler.get2D();
   Interaction light_sample;
   Vector3f    Li = light.sampleLi(it, u_light, wi, pdf, light_sample);
   if (pdf == 0 || Li == Vector3f(0.0)) return Vector3f(0.0);
@@ -69,7 +69,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // Notice that *SpawnRayTo* is responsible for initializing the
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
-    Vector3f tr         = EstimateTr(shadow_ray, scene, rng);
+    Vector3f tr         = EstimateTr(shadow_ray, scene, sampler);
     C(tr);
     Li = Li * tr;
     L += f * Li / pdf;
@@ -79,14 +79,14 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
 }
 
 Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
-                               Random &rng) {
+                               Sampler &sampler) {
   int n_lights = scene.m_light.size();
   if (n_lights == 0) return Vector3f(0.0);
   int light_num =
-      std::min(static_cast<int>(rng.get1D() * static_cast<Float>(n_lights)),
+      std::min(static_cast<int>(sampler.get1D() * static_cast<Float>(n_lights)),
                n_lights - 1);
   Float light_pdf = 1.0 / n_lights;
-  return EstimateDirect(it, *(scene.m_light[light_num]), scene, rng) /
+  return EstimateDirect(it, *(scene.m_light[light_num]), scene, sampler) /
          light_pdf;
 }
 
@@ -107,17 +107,16 @@ void SampleIntegrator::render(const Scene &scene) {
   auto evalPixel = [&](int x, int y, int SPP, Vector3f *albedo = nullptr,
                        Vector3f *normal = nullptr) -> Vector3f {
     Sampler sampler(SPP);
-    Random  rng;
     sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
     Vector3f color = Vector3f(0.0);
 
     auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
-    color += Li(ray, scene, rng, albedo, normal);
+    color += Li(ray, scene, sampler, albedo, normal);
     // temporary implementation
     for (int s = 1; s < SPP; ++s) {
       auto uv  = sampler.getPixelSample();
       auto ray = scene.m_camera->generateRay(uv.x(), uv.y(), resX, resY);
-      color += Li(ray, scene, rng);
+      color += Li(ray, scene, sampler);
       sampler.reset();
     }
 
@@ -184,8 +183,9 @@ void SampleIntegrator::render(const Scene &scene) {
 #endif
 }
 
-Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng,
-                              Vector3f *albedo, Vector3f *normal) {
+Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene,
+                              Sampler &sampler, Vector3f *albedo,
+                              Vector3f *normal) {
   Vector3f     L = Vector3f(0.0);
   SInteraction isect;
   if (albedo != nullptr) *albedo = Vector3f(0.0);
@@ -197,7 +197,7 @@ Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene, Random &rng,
   return L;
 }
 
-Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
+Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
                             Vector3f *albedo, Vector3f *normal) {
   Vector3f L    = Vector3f(0.0);
   Vector3f beta = Vector3f(1.0);
@@ -252,7 +252,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
     // Handling intersection with specular material
     if (!isect.m_primitive->getMaterial()->isDelta()) {
       // consider the *direct lighting*, i.e. L_e terms in LTE
-      L += beta * UniformSampleOneLight(isect, scene, rng);
+      L += beta * UniformSampleOneLight(isect, scene, sampler);
     } else {
       specular = true;
     }
@@ -265,7 +265,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
     Float    pdf;
     C(isect.m_primitive);
     Vector3f f = isect.m_primitive->getMaterial()->sampleF(
-        wo, wi, pdf, rng.get2D(), Vector2f(0.0), trans);
+        wo, wi, pdf, sampler.get2D(), Vector2f(0.0), trans);
     if (pdf == 0.0 || f.isZero()) break;
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
@@ -282,7 +282,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
   return L;
 }
 
-Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
+Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
                             Vector3f *albedo, Vector3f *normal) {
   Vector3f L    = Vector3f(0.0);
   Vector3f beta = Vector3f(1.0);
@@ -302,7 +302,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
     if (bounces == 0) {
       if (find_isect) {
         // consider T(p, p_e) L_o(p_e, -w), i.e. P(p_0)
-        auto tr = scene.m_volume->tr(ray, rng);
+        auto tr = scene.m_volume->tr(ray, sampler);
         for (const auto &light : scene.m_infLight) L += tr * light->Le(ray);
         in_volume = true;
 
@@ -322,7 +322,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
       bool success{false};
 
       C(scene.m_volume);
-      auto f = scene.m_volume->sample(ray, rng, vit, success);
+      auto f = scene.m_volume->sample(ray, sampler, vit, success);
       C(f);
 
       if (success) {
@@ -332,9 +332,9 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
         C(beta);
 
         Vector3f wi;
-        HGSampleP(vit.m_wo, wi, rng.get1D(), rng.get1D(), vit.m_g);
+        HGSampleP(vit.m_wo, wi, sampler.get1D(), sampler.get1D(), vit.m_g);
 
-        L += beta * UniformSampleOneLight(vit, scene, rng);
+        L += beta * UniformSampleOneLight(vit, scene, sampler);
         C(L);
 
         if (bounces >= m_maxDepth || beta.isZero()) break;
@@ -347,7 +347,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Random &rng,
     }
 
     if (bounces > 10) {
-      if (rng.get1D() < m_rrThreshold) {
+      if (sampler.get1D() < m_rrThreshold) {
         break;
       }
 

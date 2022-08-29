@@ -4,8 +4,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "fwd.hpp"
-#include "common/vector.h"
+#include "debug.hpp"
 
 FLG_NAMESPACE_BEGIN
 

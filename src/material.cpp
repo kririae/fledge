@@ -3,7 +3,8 @@
 #include <memory>
 
 #include "common/fresnel.h"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "common/math_utils.h"
 #include "common/vector.h"
 

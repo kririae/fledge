@@ -14,7 +14,7 @@
 #include "common/aabb.h"
 #include "debug.hpp"
 #include "embree.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
 #include "plymesh.hpp"
 #include "common/vector.h"
 

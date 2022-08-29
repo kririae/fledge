@@ -15,7 +15,6 @@
 #include <vector>
 
 #include "debug.hpp"
-#include "fwd.hpp"
 #include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN

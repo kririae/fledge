@@ -1,7 +1,8 @@
 #include "shape.hpp"
 
 #include "common/aabb.h"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "interaction.hpp"
 #include "common/math_utils.h"
 #include "common/vector.h"

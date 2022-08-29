@@ -1,7 +1,8 @@
 #ifndef __INTERACTION_HPP__
 #define __INTERACTION_HPP__
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "ray.hpp"
 #include "common/vector.h"
 

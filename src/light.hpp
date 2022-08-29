@@ -5,7 +5,8 @@
 #include <memory>
 
 #include "distribution.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "interaction.hpp"
 #include "scene.hpp"
 #include "shape.hpp"

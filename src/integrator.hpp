@@ -1,8 +1,8 @@
 #ifndef __INTEGRATOR_HPP__
 #define __INTEGRATOR_HPP__
 
-#include "fwd.hpp"
-#include "common/vector.h"
+#include "fledge.h"
+#include "debug.hpp"
 
 FLG_NAMESPACE_BEGIN
 
@@ -24,7 +24,7 @@ public:
   virtual void preprocess() { TODO(); }
   // call by the class Render
   void             render(const Scene &scene) override;
-  virtual Vector3f Li(const Ray &ray, const Scene &scene, Random &rng,
+  virtual Vector3f Li(const Ray &ray, const Scene &scene, Sampler &sampler,
                       Vector3f *albedo = nullptr, Vector3f *normal = nullptr);
 
 private:
@@ -36,7 +36,7 @@ public:
   ~PathIntegrator() override = default;
 
   void     preprocess() override { TODO(); }
-  Vector3f Li(const Ray &r, const Scene &scene, Random &rng,
+  Vector3f Li(const Ray &r, const Scene &scene, Sampler &Sampler,
               Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:
@@ -50,7 +50,7 @@ public:
   SVolIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~SVolIntegrator() override = default;
 
-  Vector3f Li(const Ray &r, const Scene &scene, Random &rng,
+  Vector3f Li(const Ray &r, const Scene &scene, Sampler &Sampler,
               Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
 
 private:

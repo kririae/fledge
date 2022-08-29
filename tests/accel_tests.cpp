@@ -4,7 +4,8 @@
 
 #include "common/aabb.h"
 #include "accel.hpp"
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "interaction.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"

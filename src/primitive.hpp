@@ -3,7 +3,8 @@
 
 #include <memory>
 
-#include "fwd.hpp"
+#include "fledge.h"
+#include "debug.hpp"
 #include "material.hpp"
 #include "common/vector.h"
 
