@@ -65,7 +65,6 @@ public:
     return *this;
   }
   ~Film() = default;
-
   static size_t bufferTypeToIdx(EFilmBufferType buffer_type) {
     Float index_ = std::log2(int(buffer_type));
     assert(abs(index_ - std::floor(index_)) < 1e-5);

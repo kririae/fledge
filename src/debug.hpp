@@ -44,17 +44,17 @@ inline void backtrace() {
 #endif
 }
 
-#define SLog(format, ...)                                                  \
-  do {                                                                     \
+#define SLog(format, ...)                                                    \
+  do {                                                                       \
     fprintf(stdout, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_GREEN) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);                \
   } while (false)
-#define SErr(format, ...)                                                \
-  do {                                                                   \
+#define SErr(format, ...)                                                  \
+  do {                                                                     \
     fprintf(stderr, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_RED) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);            \
-    backtrace();                                                         \
-    assert(false);                                                       \
+            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
+    backtrace();                                                           \
+    assert(false);                                                         \
   } while (false)
 #define TODO() SErr("please implement me")
 
