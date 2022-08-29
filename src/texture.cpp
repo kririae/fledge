@@ -42,8 +42,6 @@ Vector3f ImageTexture::eval(const Vector2f &uv) const {
   auto  opt     = OIIO::TextureOpt();
   bool  success = m_texture->texture(m_handle, nullptr, opt, uv.x(), uv.y(), 0,
                                      0, 0, 0, 3, result);
-  // bool  success = m_texture->texture(OIIO::ustring(m_filename), opt, uv.x(),
-  //                                    uv.y(), 0, 0, 0, 0, 3, result);
   C(result[0]);
   C(result[1]);
   C(result[2]);

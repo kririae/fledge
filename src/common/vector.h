@@ -55,6 +55,10 @@ struct Vector {
   // data
   T m_vec[N];
 
+// Following the hints from
+// https://stackoverflow.com/questions/23757876/sfinae-not-working-although-template-methods-are-used
+#include "vector_spec.inc"
+
   // To support multi platforms, those ctors are trivially implemented
   F_CPU_GPU Vector() {
     for (int i = 0; i < N; ++i) m_vec[i] = 0;
@@ -94,8 +98,12 @@ struct Vector {
     for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
     return *this;
   }
-  F_CPU_GPU const T &operator[](int i) const { return m_vec[i]; }
-  F_CPU_GPU T       &operator[](int i) { return m_vec[i]; }
+  F_CPU_GPU const T &operator[](int i) const {
+    return m_vec[i];
+  }
+  F_CPU_GPU T &operator[](int i) {
+    return m_vec[i];
+  }
 
   // Notice that type T will not be promoted currently
   // TODO: specification using SSE
@@ -255,10 +263,6 @@ struct Vector {
     os << x.toString();
     return os;
   }
-
-// Following the hints from
-// https://stackoverflow.com/questions/23757876/sfinae-not-working-although-template-methods-are-used
-#include "vector_spec.inc"
 };
 
 // Type will not be promoted here yet
@@ -363,6 +367,8 @@ F_CPU_GPU inline bool Same(const Vector<T, N> &x, const Vector<T, N> &y,
   return Norm(x - y) < eps;
 }
 
+using Vector4f = Vector<Float, 4>;
+using Vector4d = Vector<int, 4>;
 using Vector3f = Vector<Float, 3>;
 using Vector3d = Vector<int, 3>;
 using Vector2f = Vector<Float, 2>;

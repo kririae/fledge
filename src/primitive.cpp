@@ -15,19 +15,27 @@ FLG_NAMESPACE_BEGIN
 
 ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,
                                const std::shared_ptr<Material>  &material,
-                               const std::shared_ptr<AreaLight> &areaLight)
-    : m_shape(shape), m_material(material), m_areaLight(areaLight) {
+                               const std::shared_ptr<AreaLight> &areaLight,
+                               const Transform                  &transform)
+    : Primitive(transform),
+      m_shape(shape),
+      m_material(material),
+      m_areaLight(areaLight) {
   // assert(m_areaLight->m_shape.get() == m_shape.get());
 }
 
 AABB ShapePrimitive::getBound() const {
-  return m_shape->getBound();
+  return m_transform.applyAABB(m_shape->getBound());
 }
 
 bool ShapePrimitive::intersect(const Ray &ray, SInteraction &isect) const {
+  Ray t_ray = m_transform.invRay(ray);
+
   Float tHit;
-  if (!m_shape->intersect(ray, tHit, isect)) return false;
-  ray.m_tMax        = tHit;
+  if (!m_shape->intersect(t_ray, tHit, isect)) return false;
+  ray.m_tMax = tHit;
+
+  isect             = m_transform.applyInteraction(isect);
   isect.m_primitive = this;
   return true;
 }
@@ -43,8 +51,12 @@ Material *ShapePrimitive::getMaterial() const {
 
 MeshPrimitive::MeshPrimitive(const std::shared_ptr<TriangleMesh> &mesh,
                              const std::shared_ptr<Material>     &material,
-                             const std::shared_ptr<AreaLight>    &areaLight)
-    : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
+                             const std::shared_ptr<AreaLight>    &areaLight,
+                             const Transform                     &transform)
+    : Primitive(transform),
+      m_mesh(mesh),
+      m_material(material),
+      m_areaLight(areaLight) {
   assert(m_mesh->nInd % 3 == 0);
   for (int i = 0; i < m_mesh->nInd / 3; ++i)
     m_triangles.push_back(std::make_shared<Triangle>(m_mesh, i));
@@ -60,18 +72,21 @@ MeshPrimitive::MeshPrimitive(const std::shared_ptr<TriangleMesh> &mesh,
 
 MeshPrimitive::MeshPrimitive(const std::string                &path,
                              const std::shared_ptr<Material>  &material,
-                             const std::shared_ptr<AreaLight> &areaLight)
-    : MeshPrimitive(MakeTriangleMesh(path), material, areaLight) {}
+                             const std::shared_ptr<AreaLight> &areaLight,
+                             const Transform                  &transform)
+    : MeshPrimitive(MakeTriangleMesh(path), material, areaLight, transform) {}
 
 AABB MeshPrimitive::getBound() const {
-  return m_accel->getBound();
+  return m_transform.applyAABB(m_accel->getBound());
 }
 
 bool MeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
+  Ray t_ray = m_transform.invRay(ray);
   // Accel implements the interface exactly the same as primitive, so no more
   // operation is needed
-  if (!m_accel->intersect(ray, isect)) return false;
-  // except this
+  if (!m_accel->intersect(t_ray, isect)) return false;
+
+  isect             = m_transform.applyInteraction(isect);
   isect.m_primitive = this;
   return true;
 }

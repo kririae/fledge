@@ -20,12 +20,14 @@ public:
       const std::shared_ptr<TriangleMesh> &mesh,
       const std::shared_ptr<Material>     &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+      const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const Transform                  &transform = Transform());
   EmbreeMeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+      const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const Transform                  &transform = Transform());
   ~EmbreeMeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive

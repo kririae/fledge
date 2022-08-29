@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "common/transform.h"
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
@@ -15,8 +16,11 @@ class AreaLight;
 // > The abstract Primitive base class is the bridge between the geometry
 // processing and shading subsystems of pbrt.
 // > However, not exactly the same in our render
+// Note: accel do not implements transform
 class Primitive {
 public:
+  Primitive(const Transform &transform = Transform())
+      : m_transform(transform) {}
   virtual ~Primitive() = default;
 
   // will modify the mutable ray.tMax
@@ -28,6 +32,8 @@ public:
   // getter
   virtual AreaLight *getAreaLight() const = 0;
   virtual Material  *getMaterial() const  = 0;
+
+  Transform m_transform;
 };
 
 class ShapePrimitive : public Primitive {
@@ -38,7 +44,8 @@ public:
       const std::shared_ptr<Shape>    &shape,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+      const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const Transform                  &transform = Transform());
   ~ShapePrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -64,12 +71,14 @@ public:
       const std::shared_ptr<TriangleMesh> &mesh,
       const std::shared_ptr<Material>     &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+      const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const Transform                  &transform = Transform());
   MeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+      const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const Transform                  &transform = Transform());
   ~MeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
