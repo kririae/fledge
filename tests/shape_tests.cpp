@@ -2,18 +2,18 @@
 
 #include <memory>
 
-#include "common/aabb.h"
 #include "accel.hpp"
-#include "embree/eprimitive.hpp"
-#include "fledge.h"
+#include "common/aabb.h"
+#include "common/math_utils.h"
+#include "common/vector.h"
 #include "debug.hpp"
+#include "fledge.h"
 #include "interaction.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "common/math_utils.h"
-#include "common/vector.h"
+#include "spec/embree/eprimitive.hpp"
 
 TEST(Triangle, ComprehensiveTestWithEmbree) {
   using namespace fledge;

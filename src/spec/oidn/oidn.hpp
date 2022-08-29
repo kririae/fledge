@@ -3,7 +3,7 @@
 
 #include <OpenImageDenoise/oidn.h>
 
-#include "../fledge.h"
+#include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 

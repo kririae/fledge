@@ -1,6 +1,6 @@
 #include "oidn.hpp"
 
-#include "../film.hpp"
+#include "film.hpp"
 
 FLG_NAMESPACE_BEGIN
 

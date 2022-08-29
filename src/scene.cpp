@@ -15,7 +15,7 @@
 #include "common/aabb.h"
 #include "common/vector.h"
 #include "debug.hpp"
-#include "embree/eprimitive.hpp"
+#include "spec/embree/eprimitive.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"

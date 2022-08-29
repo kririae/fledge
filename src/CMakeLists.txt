@@ -20,7 +20,7 @@ find_package(OpenMP)
 find_package(OpenVDB REQUIRED COMPONENTS openvdb)
 
 # add it before the compiler specifications
-add_subdirectory(oidn/)
+add_subdirectory(spec/oidn/)
 
 # add OpenMP
 if(OPENMP_FOUND)
@@ -44,7 +44,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
-add_subdirectory(embree/)
+add_subdirectory(spec/embree/)
 
 file(GLOB source "${PROJECT_SOURCE_DIR}/src/*.c*")
 file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
@@ -57,9 +57,8 @@ cmake_format(format_cmake "${cmake_files}")
 add_library(fledge_lib "${source}")
 add_executable(fledge "${source}")
 
-# add_subdirectory(oidn/)
 if(USE_ISPC)
-  add_subdirectory(ispc/)
+  add_subdirectory(spec/ispc/)
   target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
   target_compile_definitions(fledge_lib PUBLIC -DUSE_ISPC)
 endif()

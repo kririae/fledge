@@ -13,7 +13,7 @@
 
 // ispc optimization
 #ifdef USE_ISPC
-#include "ispc/vector_ispc.h"
+#include "spec/ispc/vector_ispc.h"
 #endif
 
 FLG_NAMESPACE_BEGIN

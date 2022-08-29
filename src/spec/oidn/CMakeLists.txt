@@ -8,5 +8,5 @@ CPMAddPackage(
 )
 
 add_library(fledge_lib_oidn oidn.cpp)
-target_include_directories(fledge_lib_oidn PUBLIC ../)
+target_include_directories(fledge_lib_oidn PUBLIC ../../)
 target_link_libraries(fledge_lib_oidn PUBLIC OpenImageDenoise)

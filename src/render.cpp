@@ -8,8 +8,8 @@
 #include "film.hpp"
 #include "integrator.hpp"
 #include "light.hpp"
-#include "oidn/oidn.hpp"
 #include "scene.hpp"
+#include "spec/oidn/oidn.hpp"
 
 FLG_NAMESPACE_BEGIN
 
