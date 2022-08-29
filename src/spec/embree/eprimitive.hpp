@@ -6,11 +6,11 @@
 
 #include <memory>
 
-#include "fledge.h"
+#include "common/vector.h"
 #include "debug.hpp"
+#include "fledge.h"
 #include "light.hpp"
 #include "primitive.hpp"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

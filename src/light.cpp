@@ -4,16 +4,15 @@
 #include <vector>
 
 #include "common/aabb.h"
+#include "common/math_utils.h"
+#include "common/vector.h"
 #include "debug.hpp"
 #include "distribution.hpp"
 #include "fledge.h"
-#include "debug.hpp"
 #include "interaction.hpp"
 #include "ray.hpp"
 #include "scene.hpp"
 #include "texture.hpp"
-#include "common/math_utils.h"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

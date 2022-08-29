@@ -1,10 +1,10 @@
 #ifndef __AABB_H__
 #define __AABB_H__
 
-#include "fledge.h"
-#include "debug.hpp"
-#include "ray.hpp"
 #include "common/vector.h"
+#include "debug.hpp"
+#include "fledge.h"
+#include "ray.hpp"
 
 FLG_NAMESPACE_BEGIN
 

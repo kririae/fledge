@@ -4,9 +4,9 @@
 #include <chrono>
 #include <memory>
 
-#include "fledge.h"
-#include "debug.hpp"
 #include "common/vector.h"
+#include "debug.hpp"
+#include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 

@@ -15,7 +15,6 @@
 #include "common/aabb.h"
 #include "common/vector.h"
 #include "debug.hpp"
-#include "spec/embree/eprimitive.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"
@@ -23,6 +22,7 @@
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "shape.hpp"
+#include "spec/embree/eprimitive.hpp"
 #include "texture.hpp"
 #include "volume.hpp"
 

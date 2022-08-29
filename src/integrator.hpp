@@ -1,8 +1,8 @@
 #ifndef __INTEGRATOR_HPP__
 #define __INTEGRATOR_HPP__
 
-#include "fledge.h"
 #include "debug.hpp"
+#include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 

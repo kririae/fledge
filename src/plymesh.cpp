@@ -3,13 +3,12 @@
 #include <cstdlib>
 #include <memory>
 
-#include "debug.hpp"
-#include "fledge.h"
-#include "debug.hpp"
-#include "rng.hpp"
-#include "shape.hpp"
 #include "common/math_utils.h"
 #include "common/vector.h"
+#include "debug.hpp"
+#include "fledge.h"
+#include "rng.hpp"
+#include "shape.hpp"
 
 FLG_NAMESPACE_BEGIN
 

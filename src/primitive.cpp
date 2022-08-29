@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <memory>
 
-#include "common/aabb.h"
 #include "accel.hpp"
+#include "common/aabb.h"
 #include "interaction.hpp"
 #include "light.hpp"
 #include "plymesh.hpp"

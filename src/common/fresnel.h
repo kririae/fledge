@@ -1,9 +1,9 @@
 #ifndef __FRESNEL_HPP__
 #define __FRESNEL_HPP__
 
-#include "fledge.h"
-#include "debug.hpp"
 #include "common/vector.h"
+#include "debug.hpp"
+#include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 

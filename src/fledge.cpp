@@ -1,3 +1,5 @@
+#include "fledge.h"
+
 #include <openvdb/Grid.h>
 #include <openvdb/Types.h>
 #include <openvdb/openvdb.h>
@@ -5,12 +7,11 @@
 #include <iostream>
 #include <memory>
 
-#include "fledge.h"
+#include "common/vector.h"
 #include "debug.hpp"
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
-#include "common/vector.h"
 #include "volume.hpp"
 
 using namespace fledge;

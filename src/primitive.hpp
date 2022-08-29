@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "fledge.h"
-#include "debug.hpp"
-#include "material.hpp"
 #include "common/vector.h"
+#include "debug.hpp"
+#include "fledge.h"
+#include "material.hpp"
 
 FLG_NAMESPACE_BEGIN
 

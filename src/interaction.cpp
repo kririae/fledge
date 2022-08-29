@@ -1,10 +1,10 @@
-#include "fledge.h"
+#include "common/math_utils.h"
+#include "common/vector.h"
 #include "debug.hpp"
+#include "fledge.h"
 #include "integrator.hpp"
 #include "light.hpp"
 #include "primitive.hpp"
-#include "common/math_utils.h"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 

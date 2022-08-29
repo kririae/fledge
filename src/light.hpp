@@ -4,14 +4,14 @@
 #include <future>
 #include <memory>
 
+#include "common/vector.h"
+#include "debug.hpp"
 #include "distribution.hpp"
 #include "fledge.h"
-#include "debug.hpp"
 #include "interaction.hpp"
 #include "scene.hpp"
 #include "shape.hpp"
 #include "texture.hpp"
-#include "common/vector.h"
 
 FLG_NAMESPACE_BEGIN
 
