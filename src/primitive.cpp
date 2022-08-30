@@ -10,18 +10,21 @@
 #include "plymesh.hpp"
 #include "ray.hpp"
 #include "shape.hpp"
+#include "volume.hpp"
 
 FLG_NAMESPACE_BEGIN
 
 ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,
                                const std::shared_ptr<Material>  &material,
                                const std::shared_ptr<AreaLight> &areaLight,
+                               const std::shared_ptr<Volume>    &volume,
                                const Transform                  &transform)
     : Primitive(transform),
       m_shape(shape),
       m_material(material),
-      m_areaLight(areaLight) {
-  // assert(m_areaLight->m_shape.get() == m_shape.get());
+      m_areaLight(areaLight),
+      m_volume(volume) {
+  if (volume != nullptr) m_volume->setBound(getBound());
 }
 
 AABB ShapePrimitive::getBound() const {
@@ -47,6 +50,11 @@ AreaLight *ShapePrimitive::getAreaLight() const {
 
 Material *ShapePrimitive::getMaterial() const {
   return m_material.get();
+}
+
+Volume *ShapePrimitive::getVolume() const {
+  // if the volume exists, the result is not nullptr
+  return m_volume.get();
 }
 
 MeshPrimitive::MeshPrimitive(const std::shared_ptr<TriangleMesh> &mesh,

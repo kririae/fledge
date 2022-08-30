@@ -87,7 +87,7 @@ F_CPU_GPU Vector &operator=(T const (&x)[N_]) requires(N == 3 && N_ >= 3) {
   return *this;
 }
 
-#else // C++ 17
+#else  // C++ 17
 
 // Template specification C++ 17
 template <bool B_ = true, std::enable_if_t<N == 2 && B_, bool> = false>

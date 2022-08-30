@@ -44,9 +44,9 @@ bool Scene::init() {
   m_film   = std::make_shared<Film>(m_resX, m_resY, EFilmBufferType::EAll);
   m_accel  = std::make_shared<NaiveBVHAccel>(m_primitives);
 
-  // m_volume = std::make_shared<OpenVDBVolume>(
-  // "assets/wdas_cloud/wdas_cloud_eighth.vdb");
-  // m_volume = std::make_shared<HVolume>();
+#if 0
+  m_volume = std::make_shared<OpenVDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
+#endif
 
   SLog("scene init finished");
   return true;
@@ -222,7 +222,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
            center.toString().c_str());
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
       scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(
-          std::make_shared<Sphere>(center, radius), mat));
+          std::make_shared<Sphere>(center, radius), mat, nullptr, nullptr));
     }  // "sphere"
   }
 

@@ -27,7 +27,7 @@ class Ray {
 public:
   F_CPU_GPU Ray() : m_tMax(INF) {}
   F_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
-                const Volume *volume = nullptr)
+                Volume const *volume = nullptr)
       : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
   F_CPU_GPU Vector3f at(Float t) const { return m_o + m_d * t; }
   F_CPU_GPU Vector3f operator()(Float t) const { return at(t); }
@@ -41,9 +41,9 @@ public:
     return os;
   }
 
-  Vector3f      m_o, m_d;
-  mutable Float m_tMax;
-  const Volume *m_volume;
+  Vector3f              m_o, m_d;
+  mutable Float         m_tMax;
+  mutable Volume const *m_volume;
   // medium
 
 private:

@@ -23,6 +23,7 @@ public:
   virtual Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                           bool &success) const = 0;
   virtual AABB     getBound() const;
+  virtual void     setBound(const AABB &aabb) const;
 
   std::shared_ptr<AABB> m_aabb;
 };

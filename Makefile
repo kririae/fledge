@@ -31,7 +31,7 @@ endif
 .PHONY: build
 build: .FORCE
 	@test -d $(BUILD_DIR) || $(BUILD_COMMAND) -B $(BUILD_DIR) -DCMAKE_EXPORT_COMPILE_COMMANDS=True -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j --config $(BUILD_TYPE) --target fledge
 	@test -f compile_commands.json || ln -sf $(BUILD_DIR)/compile_commands.json ./  
 
 .PHONY: clean

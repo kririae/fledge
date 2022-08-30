@@ -1,6 +1,7 @@
 #ifndef __INTERACTION_HPP__
 #define __INTERACTION_HPP__
 
+#include "common/math_utils.h"
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
@@ -10,6 +11,10 @@ FLG_NAMESPACE_BEGIN
 
 class Primitive;
 
+/**
+  Interaction is responsible for handling volume interaction, since it holds
+  sufficient information to sling volume onto the spawned ray
+ */
 class Interaction {
 public:
   Interaction() = default;
@@ -48,6 +53,9 @@ public:
   virtual ~SInteraction() = default;
   virtual Vector3f Le(const Vector3f &w) const;
   bool             isSInteraction() const override { return true; }
+  Ray              SpawnRay(const Vector3f &d) const override;
+  Ray              SpawnRayTo(const Vector3f &p) const override;
+  Ray              SpawnRayTo(const Interaction &it) const override;
 
   const Primitive *m_primitive{nullptr};
 };
@@ -57,7 +65,7 @@ public:
   VInteraction() = default;
   VInteraction(const Vector3f &p, const Vector3f &wo, Float g)
       : Interaction(p, Vector3f(0.0), Vector3f(0.0), wo), m_g(g) {}
-  virtual ~VInteraction() = default;
+  ~VInteraction() override = default;
   bool isSInteraction() const override { return false; }
 
   Float m_g;

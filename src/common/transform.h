@@ -30,15 +30,15 @@ struct Transform {
     return res / x.w();  // yet definition of homogeneous
   }
 #endif
-  Transform() : m_dx{0.0} {}
-  Transform(const Vector3f &dx) : m_dx(dx) {}
-  Vector3f applyPoint(const Vector3f &p) const {
+  F_CPU_GPU          Transform() : m_dx{0.0} {}
+  F_CPU_GPU          Transform(const Vector3f &dx) : m_dx(dx) {}
+  F_CPU_GPU Vector3f applyPoint(const Vector3f &p) const {
     return p + m_dx;
   }  // apply
-  Vector3f applyNormal(const Vector3f &n) const {
+  F_CPU_GPU Vector3f applyNormal(const Vector3f &n) const {
     return n;
   }  // apply
-  SInteraction applyInteraction(const Interaction &inter) const {
+  F_CPU_GPU SInteraction applyInteraction(const Interaction &inter) const {
     SInteraction post_inter;
     post_inter.m_p  = applyPoint(inter.m_p);
     post_inter.m_ng = applyNormal(inter.m_ng);
@@ -46,13 +46,13 @@ struct Transform {
     post_inter.m_wo = applyNormal(inter.m_wo);
     return post_inter;
   }
-  AABB applyAABB(const AABB &aabb) const {
+  F_CPU_GPU AABB applyAABB(const AABB &aabb) const {
     AABB post_aabb;
     post_aabb.m_min = applyPoint(aabb.m_min);
     post_aabb.m_max = applyPoint(aabb.m_max);
     return post_aabb;
   }
-  Ray invRay(const Ray &r) const {
+  F_CPU_GPU Ray invRay(const Ray &r) const {
     // Consider one rigid body after transformation, intersect with ray r,
     // resulting a point p with normal n. It is *equivelent* to one rigid body
     // before transformation, intersect with t.invRay(r), resulting in a point

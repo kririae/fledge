@@ -58,6 +58,18 @@ private:
   Float m_rrThreshold = 0.01;
 };
 
+class VolPathIntegrator : public SampleIntegrator {
+public:
+  VolPathIntegrator(int max_depth) : m_maxDepth(max_depth) {}
+  ~VolPathIntegrator() override = default;
+
+  Vector3f Li(const Ray &r, const Scene &scene, Sampler &sampler,
+              Vector3f *albedo = nullptr, Vector3f *normal = nullptr) override;
+
+private:
+  int m_maxDepth = 512;
+};
+
 FLG_NAMESPACE_END
 
 #endif

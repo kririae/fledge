@@ -24,6 +24,12 @@ AABB Volume::getBound() const {
   return *m_aabb;
 }
 
+// This method is intended to be invoked by primitive
+// mostly for Homogeneous Volume
+void Volume::setBound(const AABB &aabb) const {
+  *m_aabb = aabb;
+}
+
 OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
   // m_sigma_s and m_sigma_a are decided in advance
   m_sigma_s = 10.0;
@@ -153,9 +159,6 @@ HVolume::HVolume() {
 
   m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
                                   Vector3f{218.33, 213.33, 298.33});
-  // m_aabb =
-  //     std::make_shared<AABB>(Vector3f(-0.5) + Vector3f{0, 0.5, 0},
-  //                            Vector3f(0.5) + Vector3f{0, 0.5, 0});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {

@@ -361,4 +361,87 @@ sample_environment:  // do not count this case
   return L;
 }
 
+Vector3f VolPathIntegrator::Li(const Ray &r, const Scene &scene,
+                               Sampler &sampler, Vector3f *albedo,
+                               Vector3f *normal) {
+  Vector3f L    = Vector3f(0.0);
+  Vector3f beta = Vector3f(1.0);
+  auto     ray  = r;
+  int      bounces{0};
+  bool     specular{false};
+
+  Vector3f p    = r.m_o;
+  Float    rate = 1.0;
+  // \sum P(p_n) as a *vector*
+  for (bounces = 0;; ++bounces) {
+    SInteraction isect;
+
+    bool find_isect = scene.intersect(ray, isect);
+    if (find_isect) {
+      rate += (isect.m_p - p).norm();
+      p = isect.m_p;
+    }
+
+    if (ray.m_volume != nullptr) {
+      beta *= 1.0;  // TODO
+    }
+
+    // Handle albedo and normal
+    if (bounces == 0) {
+      if (find_isect) {
+        if (normal != nullptr) *normal = isect.m_ns;
+        if (albedo != nullptr)
+          *albedo = isect.m_primitive->getMaterial()->getAlbedo();
+      } else {
+        // no intersection
+        if (normal != nullptr) *normal = -ray.m_d;
+        if (albedo != nullptr) {
+          *albedo = Vector3f(0.0);
+          for (const auto &light : scene.m_infLight)
+            *albedo += beta * light->Le(ray);
+        }
+      }
+    }
+
+    if (bounces == 0 || specular) {
+      if (find_isect) {
+        L += beta * isect.Le(-ray.m_d);
+      } else {
+        // environment light
+        for (const auto &light : scene.m_infLight) {
+          L += beta * light->Le(ray);
+        }
+      }
+    }
+
+    if (!find_isect || bounces >= m_maxDepth) {
+      break;
+    }
+
+    // Handling intersection with specular material
+    if (!isect.m_primitive->getMaterial()->isDelta()) {
+      // consider the *direct lighting*, i.e. L_e terms in LTE
+      L += beta * UniformSampleOneLight(isect, scene, sampler);
+    } else {
+      specular = true;
+    }
+
+    // use the shading normal
+    CoordinateTransition trans(isect.m_ns);
+
+    // spawn ray to new direction
+    Vector3f wi, wo = -ray.m_d;
+    Float    pdf;
+    C(isect.m_primitive);
+    Vector3f f = isect.m_primitive->getMaterial()->sampleF(
+        wo, wi, pdf, sampler.get2D(), Vector2f(0.0), trans);
+    if (pdf == 0.0 || f.isZero()) break;
+
+    beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
+    ray  = isect.SpawnRay(wi);
+  }
+
+  return L;
+}
+
 FLG_NAMESPACE_END

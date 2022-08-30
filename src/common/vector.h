@@ -179,6 +179,13 @@ struct Vector {
     assert(rhs != 0);
     return (*this) = (*this) / rhs;
   }
+  F_CPU_GPU Vector &operator*=(const Vector &rhs) {
+    return (*this) = (*this) * rhs;
+  }
+  F_CPU_GPU Vector &operator/=(const Vector &rhs) {
+    assert(rhs != 0);
+    return (*this) = (*this) / rhs;
+  }
 
   // Depreciated Functions from Eigen
   F_CPU_GPU EIGEN_FUNC T norm() const {

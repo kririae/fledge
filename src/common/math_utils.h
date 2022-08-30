@@ -141,6 +141,11 @@ inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
   return true;
 }
 
+// wi is the leaving ray, wi -> primitive -> wo
+inline bool Entering(const Vector3f &wi, const Vector3f &n) {
+  return wi.dot(n) < 0;
+}
+
 FLG_NAMESPACE_END
 
 #endif

@@ -30,8 +30,9 @@ public:
   virtual AABB getBound() const = 0;
 
   // getter
-  virtual AreaLight *getAreaLight() const = 0;
-  virtual Material  *getMaterial() const  = 0;
+  virtual Material  *getMaterial() const = 0;
+  virtual AreaLight *getAreaLight() const { return nullptr; }
+  virtual Volume    *getVolume() const { return nullptr; }
 
   Transform m_transform;
 };
@@ -45,6 +46,7 @@ public:
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
       const std::shared_ptr<AreaLight> &areaLight = nullptr,
+      const std::shared_ptr<Volume>    &volume    = nullptr,
       const Transform                  &transform = Transform());
   ~ShapePrimitive() override = default;
 
@@ -54,11 +56,14 @@ public:
   // if the areaLight actually exists
   AreaLight *getAreaLight() const override;
   Material  *getMaterial() const override;
+  // if the volume actually exists, the result will not be nullptr
+  Volume *getVolume() const override;
 
 private:
   std::shared_ptr<Shape>     m_shape;
   std::shared_ptr<Material>  m_material;
   std::shared_ptr<AreaLight> m_areaLight;
+  std::shared_ptr<Volume>    m_volume;
 };
 
 class MeshPrimitive : public Primitive {
@@ -97,6 +102,8 @@ private:
   std::shared_ptr<Material>  m_material;
   std::shared_ptr<AreaLight> m_areaLight;
 };
+
+// class VolumePremitive: public
 
 // The Accel is derived from Primitive
 // see accel.hpp
