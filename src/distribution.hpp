@@ -1,5 +1,5 @@
-#ifndef __SAMPLER_HPP__
-#define __SAMPLER_HPP__
+#ifndef __DISTRIBUTION_HPP__
+#define __DISTRIBUTION_HPP__
 
 #include <algorithm>
 #include <memory>

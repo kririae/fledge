@@ -57,6 +57,8 @@ struct Transform {
     // resulting a point p with normal n. It is *equivelent* to one rigid body
     // before transformation, intersect with t.invRay(r), resulting in a point
     // t.applyPoint(p), t.applyNormal(n)
+    // One can prove that if we apply inverse transformation on ray, we could
+    // get the same result. However t needs to be normalized.
     return {r.m_o - m_dx, r.m_d, r.m_tMax};
   }
 

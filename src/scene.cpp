@@ -206,7 +206,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
           SLog("scene.shape%s.filename = %s", shape_id.c_str(),
                filename.c_str());
           scene.m_primitives.push_back(std::make_shared<EmbreeMeshPrimitive>(
-              filename, mat, nullptr, Transform(Vector3f{0, 30, 0})));
+              filename, mat, nullptr, Transform()));
         }
       }
 
