@@ -173,23 +173,12 @@ Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
 // @INIT_INTERACTION
 Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                          bool &success) const {
-  // sample a point inside the volume
-  Float t_min, t_max;
-  if (!m_aabb.intersect(ray, t_min, t_max)) {
-    success = false;
-    return Vector3f(1.0);
-  }
-
-  if (t_min > 1e-4) {
-    LFloat(t_min);
-  }
-
   // sample the distance by $p(t) = \sigma_t e^{-\sigma_t t}$
   Float t = -std::log(1 - rng.get1D()) / (m_density * m_sigma_t);
   // Float tr = std::exp(-t * m_density * m_sigma_t); // tr is elimated
   C(t);
 
-  if (t < t_max) {
+  if (t < ray.m_tMax) {
     // sampling the volume
     success = true;
     // since we are sampling the volume, and the PDF is exactly p(t)

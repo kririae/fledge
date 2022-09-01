@@ -16,17 +16,23 @@ Vector3f SInteraction::Le(const Vector3f &w) const {
 Ray SInteraction::SpawnRay(const Vector3f &d) const {
   auto res     = Interaction::SpawnRay(d);
   res.m_volume = m_ray.m_volume;  // copy the previous volume
-  if (Entering(d, m_ng) && m_primitive != nullptr)
-    res.m_volume = m_primitive->getVolume();
-  if (!Entering(res.m_d, m_ng)) res.m_volume = nullptr;
+  if (Entering(d, m_ng)) {
+    if (m_primitive != nullptr) res.m_volume = m_primitive->getVolume();
+  } else {
+    res.m_volume = nullptr;
+  }
+
   return res;
 }
 Ray SInteraction::SpawnRayTo(const Vector3f &p) const {
   auto res     = Interaction::SpawnRayTo(p);
   res.m_volume = m_ray.m_volume;  // copy the previous volume
-  if (Entering(res.m_d, m_ng) && m_primitive != nullptr)
-    res.m_volume = m_primitive->getVolume();
-  if (!Entering(res.m_d, m_ng)) res.m_volume = nullptr;
+  if (Entering(res.m_d, m_ng)) {
+    if (m_primitive != nullptr) res.m_volume = m_primitive->getVolume();
+  } else {
+    res.m_volume = nullptr;
+  }
+
   return res;
 }
 Ray SInteraction::SpawnRayTo(const Interaction &it) const {

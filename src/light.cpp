@@ -115,7 +115,7 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   Float    theta = uv[1] * PI;
   auto     dir   = SphericalDirection(std::sin(theta), std::cos(theta), phi);
   pdf /= (2 * PI * PI * std::sin(theta));
-#if 1
+#if 0
   dir = UniformSampleSphere(u);
   pdf = 0.5 * INV_2PI;
 #endif
