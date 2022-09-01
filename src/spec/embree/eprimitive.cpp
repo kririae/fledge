@@ -126,6 +126,7 @@ bool EmbreeMeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
 
     isect             = m_transform.applyInteraction(isect);
     isect.m_primitive = this;
+    isect.m_ray       = ray;
     return true;
   } else {
     return false;

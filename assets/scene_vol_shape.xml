@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene version="0.6.0">
-  <integrator type="path">
+  <integrator type="volpath">
     <integer name="maxDepth" value="64" />
   </integrator>
 
   <sensor type="perspective">
     <float name="fov" value="30" />
-    <string name="fovAxis" value="x" />
+    <string name="fovAxis" value="y" />
     <!-- <transform name="toWorld">
       <lookat up="0, 1, 0" origin="0.0, 0.6, -0.8" target="0.0, 0.0, 0.0" />
     </transform> -->
@@ -15,7 +15,7 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="32" />
+      <integer name="sampleCount" value="512" />
     </sampler>
 
     <film type="hdrfilm">
@@ -28,13 +28,25 @@
     </film>
   </sensor>
 
+  <medium id="cloud_homo" type="homogeneous">
+    <spectrum name="sigmaS" value="10.0" />
+    <spectrum name="sigmaA" value="1.0" />
+    <phase type="hg">
+      <float name="g" value="-0.877" />
+    </phase>
+  </medium>
+
   <shape type="sphere">
     <point name="center" x="0" y="0" z="0" />
     <float name="radius" value="3" />
-    <bsdf type="dielectric">
-      <float name="intIOR" value="1.5"/>
-      <float name="extIOR" value="1.0"/>
+    <bsdf type="diffuse">
+      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
     </bsdf>
+    <!-- <bsdf type="dielectric">
+      <float name="intIOR" value="1.5" />
+      <float name="extIOR" value="1.0" />
+    </bsdf>
+    <ref name="interior" id="cloud_homo" /> -->
   </shape>
 
   <emitter type="envmap">

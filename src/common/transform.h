@@ -2,10 +2,10 @@
 #define __TRANSFORM_H__
 
 #include "common/aabb.h"
+#include "common/ray.h"
 #include "common/vector.h"
 #include "fledge.h"
 #include "interaction.hpp"
-#include "ray.hpp"
 
 FLG_NAMESPACE_BEGIN
 
@@ -40,10 +40,11 @@ struct Transform {
   }  // apply
   F_CPU_GPU SInteraction applyInteraction(const Interaction &inter) const {
     SInteraction post_inter;
-    post_inter.m_p  = applyPoint(inter.m_p);
-    post_inter.m_ng = applyNormal(inter.m_ng);
-    post_inter.m_ns = applyNormal(inter.m_ns);
-    post_inter.m_wo = applyNormal(inter.m_wo);
+    post_inter.m_p   = applyPoint(inter.m_p);
+    post_inter.m_ng  = applyNormal(inter.m_ng);
+    post_inter.m_ns  = applyNormal(inter.m_ns);
+    post_inter.m_wo  = applyNormal(inter.m_wo);
+    post_inter.m_ray = inter.m_ray;
     return post_inter;
   }
   F_CPU_GPU AABB applyAABB(const AABB &aabb) const {
@@ -59,7 +60,7 @@ struct Transform {
     // t.applyPoint(p), t.applyNormal(n)
     // One can prove that if we apply inverse transformation on ray, we could
     // get the same result. However t needs to be normalized.
-    return {r.m_o - m_dx, r.m_d, r.m_tMax};
+    return {r.m_o - m_dx, r.m_d, r.m_tMax, r.m_volume};
   }
 
   Vector3f m_dx;

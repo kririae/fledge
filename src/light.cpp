@@ -5,12 +5,12 @@
 
 #include "common/aabb.h"
 #include "common/math_utils.h"
+#include "common/ray.h"
 #include "common/vector.h"
 #include "debug.hpp"
 #include "distribution.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
-#include "ray.hpp"
 #include "scene.hpp"
 #include "texture.hpp"
 
@@ -97,7 +97,6 @@ InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
     for (int u = 0; u < NU; ++u)
       f[v * NU + u] = m_tex->eval(Float(u) / NU, Float(v) / NV).norm();
   m_dist = std::make_shared<Dist2D>(f.data(), NU, NV);
-  // m_dist = std::make_shared<Dist2D>(std::vector<Float>(1, 1).data(), 1, 1);
 }
 
 void InfiniteAreaLight::preprocess(const Scene &scene) {

@@ -22,7 +22,7 @@ void Render::init() {
   openvdb::initialize();
   SLog("render is ready");
   // m_integrator = std::make_shared<SampleIntegrator>();
-  m_integrator = std::make_shared<VolPathIntegrator>(m_scene->m_maxDepth);
+  m_integrator = std::make_shared<PathIntegrator>(m_scene->m_maxDepth);
   // m_integrator = std::make_shared<SVolIntegrator>();
   m_init = true;
 }
@@ -40,7 +40,7 @@ bool Render::saveImage(const std::string &name, bool denoise) {
     Film post_filtered = Denoise(*(m_scene->m_film));
     post_filtered.saveBuffer(name_, EFilmBufferType::EOutput);
   } else {
-    m_scene->m_film->saveBuffer(name_, EFilmBufferType::ENormal);
+    m_scene->m_film->saveBuffer(name_, EFilmBufferType::EColor);
   }
 
   return true;

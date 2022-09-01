@@ -52,6 +52,7 @@ bool Scene::init() {
   return true;
 }
 
+// @INIT_INTERACTION
 bool Scene::intersect(const Ray &ray, SInteraction &isect) const {
   return m_accel->intersect(ray, isect);
 }
@@ -84,7 +85,8 @@ static Vector3f parseVector3f(const std::string &s) {
 static bool setIntegrator(const pt::ptree &tree, Scene &scene) {
   auto type = tree.get<std::string>("<xmlattr>.type");
   SLog("scene.integrator.type = %s", type.c_str());
-  assert(type == "path");
+  // TODO: add volpath as an option
+  assert(type == "path" || type == "volpath");
   for (auto &v : tree) {
     switch (hash(v.first.c_str())) {
       case hash("integer"): {
@@ -222,7 +224,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
            center.toString().c_str());
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
       scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(
-          std::make_shared<Sphere>(center, radius), mat, nullptr, nullptr));
+          std::make_shared<Sphere>(center, radius), mat, nullptr,
+          std::make_shared<HVolume>(), Transform()));
     }  // "sphere"
   }
 
@@ -230,7 +233,13 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
 }
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
+  auto env_texture = std::make_shared<ConstTexture>(1.0);
+  scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
+  scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
+  return true;
+
   auto type = tree.get<std::string>("<xmlattr>.type");
+
   assert(type == "envmap");
 
   for (auto &v : tree) {

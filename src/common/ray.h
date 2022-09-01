@@ -1,5 +1,5 @@
-#ifndef __RAY_HPP__
-#define __RAY_HPP__
+#ifndef __RAY_H__
+#define __RAY_H__
 
 #include <sstream>
 
@@ -29,12 +29,22 @@ public:
   F_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
                 Volume const *volume = nullptr)
       : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
+  F_CPU_GPU Ray(const Ray &ray) {
+    // explicitly copy all the data
+    m_o = ray.m_o, m_d = ray.m_d;
+    m_tMax = ray.m_tMax, m_volume = ray.m_volume;
+  }
   F_CPU_GPU Vector3f at(Float t) const { return m_o + m_d * t; }
   F_CPU_GPU Vector3f operator()(Float t) const { return at(t); }
-  std::string        toString() const {
-           std::ostringstream oss;
-           oss << "[o=" << m_o << ", d=" << m_d << ", tMax=" << m_tMax << "]";
-           return oss.str();
+  F_CPU_GPU Ray     &operator=(const Ray &rhs) {
+        m_o = rhs.m_o, m_d = rhs.m_d;
+        m_tMax = rhs.m_tMax, m_volume = rhs.m_volume;
+        return *this;
+  }
+  std::string toString() const {
+    std::ostringstream oss;
+    oss << "[o=" << m_o << ", d=" << m_d << ", tMax=" << m_tMax << "]";
+    return oss.str();
   }
   friend std::ostream &operator<<(std::ostream &os, const Ray &r) {
     os << r.toString();
@@ -43,7 +53,7 @@ public:
 
   Vector3f              m_o, m_d;
   mutable Float         m_tMax;
-  mutable Volume const *m_volume;
+  mutable Volume const *m_volume{nullptr};
   // medium
 
 private:

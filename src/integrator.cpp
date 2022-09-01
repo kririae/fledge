@@ -1,7 +1,9 @@
 #include "integrator.hpp"
 
+#include <cassert>
 #include <chrono>
 #include <cstddef>
+#include <cstdio>
 #include <thread>
 
 #include "camera.hpp"
@@ -32,9 +34,32 @@ Vector3f EstimateTr(const Ray &ray, const Scene &scene, Sampler &sampler) {
   }
 }
 
-Vector3f VolEstimateTr(const Ray &ray, const Scene &scene, Sampler &rng) {
-  C(scene.m_volume, ray.m_d);
-  return scene.m_volume->tr(ray, rng);
+/**
+ * Starting from ray's origin, estimate Tr until ray(m_tMax) */
+Vector3f VolEstimateTr(Ray ray, const Scene &scene, Sampler &sampler) {
+  Float    t_max = ray.m_tMax;
+  Vector3f tr(1.0);
+
+  while (true) {
+    SInteraction isect;
+    // recursively evaluate tr
+    bool find_isect = scene.intersect(ray, isect);
+    if (ray.m_volume != nullptr) tr *= ray.m_volume->tr(ray, sampler);
+    if (find_isect) {
+      assert(isect.isSInteraction());
+      // else, ray is traveling in vacuum, so tr is not needed to be reduced
+      t_max -= ray.m_tMax;
+      if (t_max <= 0) return tr;
+      if (isect.m_primitive == nullptr) return 0.0;
+      if (isect.m_primitive->getVolume() == nullptr) return 0.0;
+      ray        = isect.SpawnRay(ray.m_d);
+      ray.m_tMax = t_max;
+    } else {
+      return tr;
+    }
+  }
+
+  return tr;
 }
 
 Vector3f EstimateDirect(const Interaction &it, const Light &light,
@@ -54,7 +79,6 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     assert(t_it.m_primitive->getMaterial() != nullptr);
     f = t_it.m_primitive->getMaterial()->f(it.m_wo, wi, Vector2f(0.0), trans) *
         abs(Dot(wi, t_it.m_ns));
-    // SErr("do not support SInteraction yet");
   } else {
     // Volume Interaction
     VInteraction vit = reinterpret_cast<const VInteraction &>(it);
@@ -71,7 +95,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = EstimateTr(shadow_ray, scene, sampler);
     C(tr);
-    Li = Li * tr;
+    Li *= tr;
     L += f * Li / pdf;
   }
 
@@ -109,6 +133,7 @@ void SampleIntegrator::render(const Scene &scene) {
     Sampler sampler(SPP);
     sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
     Vector3f color = Vector3f(0.0);
+    sampler.reset();  // start generating
 
     auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
     color += Li(ray, scene, sampler, albedo, normal);
@@ -272,13 +297,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
     ray  = isect.SpawnRay(wi);
   }
 
-  // if (bounces == 0) {
-  //   return Vector3f(0.05);
-  // } else {
-  //   rate /= bounces;
-  //   return Vector3f(1 / (rate / 20));
-  // }
-
+  if (L.x() != 1) printf("%s\n", L.toString().c_str());
   return L;
 }
 
@@ -298,7 +317,7 @@ Vector3f SVolIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
     VInteraction vit;
 
     Float t_min, t_max;
-    bool  find_isect = scene.m_volume->m_aabb->intersect(ray, t_min, t_max);
+    bool  find_isect = scene.m_volume->m_aabb.intersect(ray, t_min, t_max);
     if (bounces == 0) {
       if (find_isect) {
         // consider T(p, p_e) L_o(p_e, -w), i.e. P(p_0)
@@ -382,10 +401,6 @@ Vector3f VolPathIntegrator::Li(const Ray &r, const Scene &scene,
       p = isect.m_p;
     }
 
-    if (ray.m_volume != nullptr) {
-      beta *= 1.0;  // TODO
-    }
-
     // Handle albedo and normal
     if (bounces == 0) {
       if (find_isect) {
@@ -417,6 +432,32 @@ Vector3f VolPathIntegrator::Li(const Ray &r, const Scene &scene,
     if (!find_isect || bounces >= m_maxDepth) {
       break;
     }
+
+    // The behavior is quite a bit non-trivial here. I'm not considering ray
+    // spawning from image plane for now. Those rays spawned from interaction
+    // will carry *m_volume if currently the ray is traveling inside any volume.
+    // To be precise, scene.intersect() will inherit primitive's implementation,
+    // that is, it will set the correct ray.tMax. ray(ray.tMax) will either
+    // reside on the boundary of the volume or any boundary of any object inside
+    // the volume(iff the volume exists). To behave correct with multiple
+    // volumes, volumes' surfaces will be meshed and own their spaces in BVH. So
+    // the property is retained.
+    bool         success = false;
+    VInteraction vit;
+    if (ray.m_volume != nullptr)
+      beta *= ray.m_volume->sample(ray, sampler, vit, success);  // TODO
+    // if we are sampling the volume
+    if (success) {
+      L += beta * UniformSampleOneLight(vit, scene, sampler);
+
+      Vector3f wi;
+      HGSampleP(vit.m_wo, wi, sampler.get1D(), sampler.get1D(), vit.m_g);
+
+      if (bounces >= m_maxDepth || beta.isZero()) break;
+      ray = vit.SpawnRay(wi);
+
+      continue;
+    }  // else, we're sampling the surface
 
     // Handling intersection with specular material
     if (!isect.m_primitive->getMaterial()->isDelta()) {

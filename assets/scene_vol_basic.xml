@@ -7,7 +7,7 @@
 
   <sensor type="perspective">
     <float name="fov" value="30" />
-    <string name="fovAxis" value="y" />
+    <string name="fovAxis" value="x" />
     <transform name="toWorld">
       <lookat up="0, 1, 0" origin="0, 0, 1200" target="0, 100, 0" />
     </transform>

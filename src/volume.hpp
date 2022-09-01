@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 
+#include "common/aabb.h"
 #include "common/vector.h"
 #include "fledge.h"
 
@@ -23,9 +24,9 @@ public:
   virtual Vector3f sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                           bool &success) const = 0;
   virtual AABB     getBound() const;
-  virtual void     setBound(const AABB &aabb) const;
+  virtual void     setBound(const AABB &aabb);
 
-  std::shared_ptr<AABB> m_aabb;
+  AABB m_aabb;
 };
 
 // homogeneous volume

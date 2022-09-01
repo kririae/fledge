@@ -10,24 +10,24 @@
 #include <memory>
 
 #include "common/aabb.h"
+#include "common/ray.h"
 #include "common/sampler.h"
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
-#include "ray.hpp"
 #include "rng.hpp"
 
 FLG_NAMESPACE_BEGIN
 
 AABB Volume::getBound() const {
-  return *m_aabb;
+  return m_aabb;
 }
 
 // This method is intended to be invoked by primitive
 // mostly for Homogeneous Volume
-void Volume::setBound(const AABB &aabb) const {
-  *m_aabb = aabb;
+void Volume::setBound(const AABB &aabb) {
+  m_aabb = aabb;
 }
 
 OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
@@ -66,9 +66,8 @@ OpenVDBVolume::OpenVDBVolume(const std::string &filename) {
        w_max.x(), w_max.y(), w_max.z());
 
   // initialize here
-  m_aabb = std::make_shared<AABB>(
-      Vector3f{Float(w_min[0]), Float(w_min[1]), Float(w_min[2])},
-      Vector3f{Float(w_max[0]), Float(w_max[1]), Float(w_max[2])});
+  m_aabb = AABB(Vector3f{Float(w_min[0]), Float(w_min[1]), Float(w_min[2])},
+                Vector3f{Float(w_max[0]), Float(w_max[1]), Float(w_max[2])});
 
   file.close();
 }
@@ -81,7 +80,7 @@ Vector3f OpenVDBVolume::tr(const Ray &ray, Sampler &rng) const {
   auto sampler = openvdb::tools::GridSampler<decltype(accessor), sampler_type>(
       accessor, m_grid->transform());
   Float t_min, t_max;
-  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) return Vector3f(1.0);
+  if (!m_aabb.intersect_pbrt(ray, t_min, t_max)) return Vector3f(1.0);
 
   // ratio-tracking (I cannot understand it correctness currently)
   Float tr = 1, t = std::max(t_min, static_cast<Float>(0.0));
@@ -117,7 +116,7 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
   auto sampler = openvdb::tools::GridSampler<decltype(accessor), sampler_type>(
       accessor, m_grid->transform());
   Float t_min, t_max;
-  if (!m_aabb->intersect_pbrt(ray, t_min, t_max)) {
+  if (!m_aabb.intersect_pbrt(ray, t_min, t_max)) {
     success = false;
     return Vector3f(1.0);
   }
@@ -156,16 +155,13 @@ HVolume::HVolume() {
   m_g       = -0.877;
   m_sigma_t = m_sigma_a + m_sigma_s;
   m_density = 1.0;
-
-  m_aabb = std::make_shared<AABB>(Vector3f{-196.66, -68.33, -211.66},
-                                  Vector3f{218.33, 213.33, 298.33});
 }
 
 Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
   // calculate the tr from ray.o to ray.m_tMax
   Float t_min, t_max;
 
-  if (!m_aabb->intersect(ray, t_min, t_max)) {
+  if (!m_aabb.intersect(ray, t_min, t_max)) {
     return Vector3f(1.0);
   }
 
@@ -174,11 +170,12 @@ Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
   return Vector3f(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
 }
 
+// @INIT_INTERACTION
 Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
                          bool &success) const {
   // sample a point inside the volume
   Float t_min, t_max;
-  if (!m_aabb->intersect(ray, t_min, t_max)) {
+  if (!m_aabb.intersect(ray, t_min, t_max)) {
     success = false;
     return Vector3f(1.0);
   }
@@ -196,9 +193,10 @@ Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
     // sampling the volume
     success = true;
     // since we are sampling the volume, and the PDF is exactly p(t)
-    vi.m_p  = ray(t);
-    vi.m_wo = -ray.m_d;
-    vi.m_g  = m_g;
+    vi.m_ray = ray;
+    vi.m_p   = ray(t);
+    vi.m_wo  = -ray.m_d;
+    vi.m_g   = m_g;
     return Vector3f(m_sigma_s / m_sigma_t);
   } else {
     // sampling the surface

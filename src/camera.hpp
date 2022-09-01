@@ -1,7 +1,7 @@
 #ifndef __CAMERA_HPP__
 #define __CAMERA_HPP__
 
-#include "ray.hpp"
+#include "common/ray.h"
 
 FLG_NAMESPACE_BEGIN
 

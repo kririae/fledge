@@ -14,19 +14,38 @@ Vector3f SInteraction::Le(const Vector3f &w) const {
 }
 
 Ray SInteraction::SpawnRay(const Vector3f &d) const {
-  auto res = Interaction::SpawnRay(d);
+  auto res     = Interaction::SpawnRay(d);
+  res.m_volume = m_ray.m_volume;  // copy the previous volume
   if (Entering(d, m_ng) && m_primitive != nullptr)
     res.m_volume = m_primitive->getVolume();
+  if (!Entering(res.m_d, m_ng)) res.m_volume = nullptr;
   return res;
 }
 Ray SInteraction::SpawnRayTo(const Vector3f &p) const {
-  auto res = Interaction::SpawnRayTo(p);
+  auto res     = Interaction::SpawnRayTo(p);
+  res.m_volume = m_ray.m_volume;  // copy the previous volume
   if (Entering(res.m_d, m_ng) && m_primitive != nullptr)
     res.m_volume = m_primitive->getVolume();
+  if (!Entering(res.m_d, m_ng)) res.m_volume = nullptr;
   return res;
 }
 Ray SInteraction::SpawnRayTo(const Interaction &it) const {
-  return Interaction::SpawnRayTo(it.m_p);
+  return SInteraction::SpawnRayTo(it.m_p);
+}
+Ray VInteraction::SpawnRay(const Vector3f &d) const {
+  auto res = Interaction::SpawnRay(d);
+  assert(Norm(m_ray.m_d) != 0);
+  res.m_volume = m_ray.m_volume;  // copy the previous volume
+  return res;
+}
+Ray VInteraction::SpawnRayTo(const Vector3f &p) const {
+  auto res = Interaction::SpawnRayTo(p);
+  assert(Norm(m_ray.m_d) != 0);
+  res.m_volume = m_ray.m_volume;  // copy the previous volume
+  return res;
+}
+Ray VInteraction::SpawnRayTo(const Interaction &it) const {
+  return VInteraction::SpawnRayTo(it.m_p);
 }
 
 FLG_NAMESPACE_END

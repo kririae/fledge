@@ -5,10 +5,10 @@
 
 #include "accel.hpp"
 #include "common/aabb.h"
+#include "common/ray.h"
 #include "interaction.hpp"
 #include "light.hpp"
 #include "plymesh.hpp"
-#include "ray.hpp"
 #include "shape.hpp"
 #include "volume.hpp"
 
@@ -36,10 +36,11 @@ bool ShapePrimitive::intersect(const Ray &ray, SInteraction &isect) const {
 
   Float tHit;
   if (!m_shape->intersect(t_ray, tHit, isect)) return false;
-  ray.m_tMax = tHit;
 
+  ray.m_tMax        = tHit;
   isect             = m_transform.applyInteraction(isect);
   isect.m_primitive = this;
+  isect.m_ray       = ray;
   return true;
 }
 
@@ -94,8 +95,10 @@ bool MeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
   // operation is needed
   if (!m_accel->intersect(t_ray, isect)) return false;
 
+  ray.m_tMax        = t_ray.m_tMax;  // inverse the transformation
   isect             = m_transform.applyInteraction(isect);
   isect.m_primitive = this;
+  isect.m_ray       = ray;  // before transformation
   return true;
 }
 
