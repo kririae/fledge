@@ -59,4 +59,10 @@ bool Render::render() {
   return true;
 }
 
+Vector3f *Render::getOriginalResultBuffer() {
+  return m_scene->m_film
+      ->m_buffers[Film::bufferTypeToIdx(EFilmBufferType::EColor)]
+      .data();
+}
+
 FLG_NAMESPACE_END

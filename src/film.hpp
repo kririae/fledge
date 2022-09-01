@@ -39,10 +39,18 @@ static void checkFilmBufferType(EFilmBufferType buffer_type) {
 }
 
 // template<int FilmBufferType>
+/**
+ * @brief Film class will hold all the image buffer related to the output
+ */
 struct Film {
 public:
-  // Film class should be implemented comprehensively
-  // Those copy manipulations are implemented for denoiser
+  /**
+   * @brief Construct a new Film object with resolution and buffer_type settings
+   *
+   * @param resX The width of the image buffer
+   * @param resY The height of the image buffer
+   * @param buffer_type See EFilmBufferType
+   */
   Film(int resX, int resY, EFilmBufferType buffer_type = EFilmBufferType::EAll)
       : m_resX(resX), m_resY(resY), m_buffer_type(buffer_type) {
     checkFilmBufferType(buffer_type);
@@ -51,12 +59,14 @@ public:
       if (int(buffer_type) & (1 << t))
         m_buffers[t] = std::vector<Vector3f>(m_resX * m_resY, Vector3f(0.0));
   }
+
   Film(const Film &film) {
     std::lock_guard<std::mutex> lock(film.m_mutex);
     m_buffers = film.m_buffers;
     m_resX    = film.m_resX;
     m_resY    = film.m_resY;
   }
+
   Film &operator=(const Film &film) {
     std::lock_guard<std::mutex> lock(film.m_mutex);
     m_buffers = film.m_buffers;
@@ -64,20 +74,25 @@ public:
     m_resY    = film.m_resY;
     return *this;
   }
+
   ~Film() = default;
+
   static size_t bufferTypeToIdx(EFilmBufferType buffer_type) {
     Float index_ = std::log2(int(buffer_type));
     assert(abs(index_ - std::floor(index_)) < 1e-5);
     assert(int(index_) >= 0);
     return size_t(index_);
   }
-  int       getBufferIdx(int x, int y) const { return y * m_resX + x; }
+
+  int getBufferIdx(int x, int y) const { return y * m_resX + x; }
+
   Vector3f &getBuffer(int x, int y, EFilmBufferType buffer_type) {
     size_t buffer_id = bufferTypeToIdx(buffer_type);
     assert(buffer_id < m_buffers.size());
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_buffers[buffer_id][getBufferIdx(x, y)];
   }
+
   bool saveBuffer(const std::string &name, EFilmBufferType buffer_type);
 
   int m_resX, m_resY;

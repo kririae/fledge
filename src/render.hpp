@@ -19,6 +19,12 @@ public:
   bool saveImage(const std::string &name, bool denoise = false);
   bool render();
 
+  /**
+   * The following functions are designed for the propose of debugging and will
+   * not be documented
+   */
+  Vector3f *getOriginalResultBuffer();
+
 private:
   std::shared_ptr<Scene>      m_scene;
   std::shared_ptr<Integrator> m_integrator;

@@ -74,16 +74,16 @@ public:
   Vector3f m_up, m_origin, m_target;
 
   std::vector<std::shared_ptr<Primitive>> m_primitives;
+  std::shared_ptr<Volume>                 m_volume;
+  std::vector<std::shared_ptr<Light>>     m_light;
+  std::vector<std::shared_ptr<Light>>     m_infLight;
 
   /**
    * The following variables are to be initialized *after*(by) init()
    */
-  std::shared_ptr<Primitive>          m_accel;
-  std::shared_ptr<Camera>             m_camera;
-  std::shared_ptr<Film>               m_film;
-  std::shared_ptr<Volume>             m_volume;
-  std::vector<std::shared_ptr<Light>> m_light;
-  std::vector<std::shared_ptr<Light>> m_infLight;
+  std::shared_ptr<Primitive> m_accel;
+  std::shared_ptr<Camera>    m_camera;
+  std::shared_ptr<Film>      m_film;
 
 private:
   path         m_base_dir;
