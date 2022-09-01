@@ -1,5 +1,5 @@
-#ifndef __CAMERA_HPP__
-#define __CAMERA_HPP__
+#ifndef __CAMERA_H__
+#define __CAMERA_H__
 
 #include "common/ray.h"
 

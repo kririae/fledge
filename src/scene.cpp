@@ -11,8 +11,8 @@
 #include <vector>
 
 #include "accel.hpp"
-#include "camera.hpp"
 #include "common/aabb.h"
+#include "common/camera.h"
 #include "common/vector.h"
 #include "debug.hpp"
 #include "film.hpp"
@@ -233,14 +233,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
 }
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
-  // TODO
-  auto env_texture = std::make_shared<ConstTexture>(1.0);
-  scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
-  scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
-  return true;
-
   auto type = tree.get<std::string>("<xmlattr>.type");
-
   assert(type == "envmap");
 
   for (auto &v : tree) {

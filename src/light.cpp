@@ -101,6 +101,8 @@ InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
 
 void InfiniteAreaLight::preprocess(const Scene &scene) {
   scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
+  // TODO: exceed
+  m_worldRadius *= 1000;  // scale up the world radius
   SLog("m_worldRadius=%f", m_worldRadius);
   LVec3(m_worldCenter);
 }

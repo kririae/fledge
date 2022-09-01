@@ -109,6 +109,35 @@ TEST(Triangle, Watertight) {
   }
 }
 
-TEST(Sphere, Comprehensive) {
+TEST(Sphere, intersect) {
+  using namespace fledge;
 
+  // Draw a sphere at zero
+  auto sphere = Sphere(Vector3f(0.0), 1.0);
+
+  Ray ray1(Vector3f(1.1, 0.0, 0.0), Vector3f(1.0, 0.0, 0.0));
+
+  Float        tHit = 2.3;
+  SInteraction isect;
+  bool         result1 = sphere.intersect(ray1, tHit, isect);
+  EXPECT_FALSE(result1);
+
+  Ray  ray2(Vector3f(1.0, 0.0, 0.0), Vector3f(1.0, 0.0, 0.0));
+  bool result2 = sphere.intersect(ray2, tHit, isect);
+  EXPECT_TRUE(result2);
+  EXPECT_NEAR(tHit, 0, 1e-4);
+
+  Ray  ray3(Vector3f(0.6, 0.0, 0.0), Vector3f(1.0, 0.0, 0.0));
+  bool result3 = sphere.intersect(ray3, tHit, isect);
+  EXPECT_TRUE(result3);
+  EXPECT_NEAR(tHit, 0.4, 1e-4);
+  EXPECT_NEAR(isect.m_p.x(), 1.0, 1e-4);
+  EXPECT_NEAR(isect.m_ng.x(), 1.0, 1e-4);
+
+  Ray  ray4(Vector3f(-1.1, 0.0, 0.0), Vector3f(1.0, 0.0, 0.0));
+  bool result4 = sphere.intersect(ray4, tHit, isect);
+  EXPECT_TRUE(result4);
+  EXPECT_NEAR(tHit, 0.1, 1e-4);
+  EXPECT_NEAR(isect.m_p.x(), -1.0, 1e-4);
+  EXPECT_NEAR(isect.m_ng.x(), -1.0, 1e-4);
 }

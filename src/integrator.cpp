@@ -6,8 +6,8 @@
 #include <cstdio>
 #include <thread>
 
-#include "camera.hpp"
 #include "common/aabb.h"
+#include "common/camera.h"
 #include "common/math_utils.h"
 #include "common/sampler.h"
 #include "common/vector.h"
@@ -265,9 +265,7 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
         L += beta * isect.Le(-ray.m_d);
       } else {
         // environment light
-        for (const auto &light : scene.m_infLight) {
-          L += beta * light->Le(ray);
-        }
+        for (const auto &light : scene.m_infLight) L += beta * light->Le(ray);
       }
     }
 
@@ -296,7 +294,6 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);
-    break;
   }
 
   return L;
@@ -436,13 +433,13 @@ Vector3f VolPathIntegrator::Li(const Ray &r, const Scene &scene,
 
     // The behavior is quite a bit non-trivial here. I'm not considering ray
     // spawning from image plane for now. Those rays spawned from interaction
-    // will carry *m_volume if currently the ray is traveling inside any volume.
-    // To be precise, scene.intersect() will inherit primitive's implementation,
-    // that is, it will set the correct ray.tMax. ray(ray.tMax) will either
-    // reside on the boundary of the volume or any boundary of any object inside
-    // the volume(iff the volume exists). To behave correct with multiple
-    // volumes, volumes' surfaces will be meshed and own their spaces in BVH. So
-    // the property is retained.
+    // will carry *m_volume if currently the ray is traveling inside any
+    // volume. To be precise, scene.intersect() will inherit primitive's
+    // implementation, that is, it will set the correct ray.tMax.
+    // ray(ray.tMax) will either reside on the boundary of the volume or any
+    // boundary of any object inside the volume(iff the volume exists). To
+    // behave correct with multiple volumes, volumes' surfaces will be meshed
+    // and own their spaces in BVH. So the property is retained.
     bool         success = false;
     VInteraction vit;
     if (ray.m_volume != nullptr)

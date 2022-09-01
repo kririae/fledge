@@ -15,7 +15,7 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="32" />
+      <integer name="sampleCount" value="64" />
     </sampler>
 
     <film type="hdrfilm">
@@ -39,14 +39,11 @@
   <shape type="sphere">
     <point name="center" x="0" y="0" z="0" />
     <float name="radius" value="3" />
-    <bsdf type="diffuse">
-      <rgb name="reflectance" value="1.0, 1.0, 1.0" />
-    </bsdf>
-    <!-- <bsdf type="dielectric">
+    <bsdf type="dielectric">
       <float name="intIOR" value="1.5" />
       <float name="extIOR" value="1.0" />
     </bsdf>
-    <ref name="interior" id="cloud_homo" /> -->
+    <ref name="interior" id="cloud_homo" />
   </shape>
 
   <emitter type="envmap">
