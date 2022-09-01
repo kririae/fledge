@@ -27,13 +27,13 @@ public:
     m_ray                    = Ray();
   }
   virtual Ray SpawnRay(const Vector3f &d) const {
-    const auto o = OffsetRayOrigin(m_p, m_ns, d);
+    auto o = OffsetRayOrigin(m_p, m_ng, d);
     return {o, Normalize(d)};
   }
   virtual Ray SpawnRayTo(const Vector3f &p) const {
     Float      norm = (p - m_p).norm();
     auto       d    = (p - m_p) / norm;
-    const auto o    = OffsetRayOrigin(m_p, m_ns, d);
+    const auto o    = OffsetRayOrigin(m_p, m_ng, d);
     return {o, d, norm - SHADOW_EPS};
   }
   virtual Ray SpawnRayTo(const Interaction &it) const {

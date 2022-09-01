@@ -108,3 +108,7 @@ TEST(Triangle, Watertight) {
     // EXPECT_TRUE(mesh_primitive.intersect(r, isect2));
   }
 }
+
+TEST(Sphere, Comprehensive) {
+
+}

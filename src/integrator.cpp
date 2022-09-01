@@ -110,6 +110,7 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
       std::min(static_cast<int>(sampler.get1D() * static_cast<Float>(n_lights)),
                n_lights - 1);
   Float light_pdf = 1.0 / n_lights;
+  assert(light_pdf == 1.0);
   return EstimateDirect(it, *(scene.m_light[light_num]), scene, sampler) /
          light_pdf;
 }
@@ -295,9 +296,9 @@ Vector3f PathIntegrator::Li(const Ray &r, const Scene &scene, Sampler &sampler,
 
     beta = beta * f * abs(Dot(wi, isect.m_ns)) / pdf;
     ray  = isect.SpawnRay(wi);
+    break;
   }
 
-  if (L.x() != 1) printf("%s\n", L.toString().c_str());
   return L;
 }
 

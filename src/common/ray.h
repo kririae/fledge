@@ -25,7 +25,7 @@ inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
 class Volume;
 class Ray {
 public:
-  F_CPU_GPU Ray() : m_tMax(INF) {}
+  F_CPU_GPU Ray() : m_tMax(INF), m_volume(nullptr) {}
   F_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
                 Volume const *volume = nullptr)
       : m_o(o), m_d(d), m_tMax(tMax), m_volume(volume) {}
@@ -53,7 +53,7 @@ public:
 
   Vector3f              m_o, m_d;
   mutable Float         m_tMax;
-  mutable Volume const *m_volume{nullptr};
+  mutable Volume const *m_volume;
   // medium
 
 private:

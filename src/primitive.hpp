@@ -19,8 +19,7 @@ class AreaLight;
 // Note: accel do not implements transform
 class Primitive {
 public:
-  Primitive(const Transform &transform = Transform())
-      : m_transform(transform) {}
+  Primitive()          = default;
   virtual ~Primitive() = default;
 
   // will modify the mutable ray.tMax
@@ -33,8 +32,6 @@ public:
   virtual Material  *getMaterial() const = 0;
   virtual AreaLight *getAreaLight() const { return nullptr; }
   virtual Volume    *getVolume() const { return nullptr; }
-
-  Transform m_transform;
 };
 
 class ShapePrimitive : public Primitive {
@@ -46,8 +43,7 @@ public:
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
       const std::shared_ptr<AreaLight> &areaLight = nullptr,
-      const std::shared_ptr<Volume>    &volume    = nullptr,
-      const Transform                  &transform = Transform());
+      const std::shared_ptr<Volume>    &volume    = nullptr);
   ~ShapePrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -76,14 +72,12 @@ public:
       const std::shared_ptr<TriangleMesh> &mesh,
       const std::shared_ptr<Material>     &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr,
-      const Transform                  &transform = Transform());
+      const std::shared_ptr<AreaLight> &areaLight = nullptr);
   MeshPrimitive(
       const std::string               &path,
       const std::shared_ptr<Material> &material =  // default to diffuse
       std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr,
-      const Transform                  &transform = Transform());
+      const std::shared_ptr<AreaLight> &areaLight = nullptr);
   ~MeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive

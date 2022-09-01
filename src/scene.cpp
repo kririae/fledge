@@ -207,8 +207,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
           filename      = scene.getPath(filename);
           SLog("scene.shape%s.filename = %s", shape_id.c_str(),
                filename.c_str());
-          scene.m_primitives.push_back(std::make_shared<EmbreeMeshPrimitive>(
-              filename, mat, nullptr, Transform()));
+          scene.m_primitives.push_back(
+              std::make_shared<EmbreeMeshPrimitive>(filename, mat, nullptr));
         }
       }
 
@@ -225,7 +225,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
       scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(
           std::make_shared<Sphere>(center, radius), mat, nullptr,
-          std::make_shared<HVolume>(), Transform()));
+          std::make_shared<HVolume>()));
     }  // "sphere"
   }
 
@@ -233,6 +233,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
 }
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
+  // TODO
   auto env_texture = std::make_shared<ConstTexture>(1.0);
   scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
   scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);

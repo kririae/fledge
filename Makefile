@@ -49,6 +49,7 @@ format: .FORCE
 
 .PHONY: test
 test: build .FORCE
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j --config $(BUILD_TYPE)
 	@ctest --test-dir $(BUILD_DIR)
 
 .PHONY: help

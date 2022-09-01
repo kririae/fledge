@@ -112,13 +112,16 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   Float    phi   = uv[0] * 2 * PI;
   Float    theta = uv[1] * PI;
   auto     dir   = SphericalDirection(std::sin(theta), std::cos(theta), phi);
-  dir            = LightToWorld(dir);
+  pdf /= (2 * PI * PI * std::sin(theta));
+#if 1
+  dir = UniformSampleSphere(u);
+  pdf = 0.5 * INV_2PI;
+#endif
+  dir = LightToWorld(dir);
+
   C(pdf, uv, dir);
-  // auto     dir = UniformSampleSphere(u);
   auto p     = m_worldCenter + dir * 2 * m_worldRadius;
   sample.m_p = p;
-  // pdf        = 0.5 * INV_2PI;
-  pdf /= (2 * PI * PI * std::sin(theta));
 
   wi = (sample.m_p - ref.m_p).normalized();
   // return Vector3f(pdf) * 5;
