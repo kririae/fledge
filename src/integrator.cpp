@@ -93,7 +93,7 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // Notice that *SpawnRayTo* is responsible for initializing the
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
-    Vector3f tr         = EstimateTr(shadow_ray, scene, sampler);
+    Vector3f tr         = VolEstimateTr(shadow_ray, scene, sampler);
     C(tr);
     Li *= tr;
     L += f * Li / pdf;

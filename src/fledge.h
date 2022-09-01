@@ -52,7 +52,7 @@ class NaiveAccel;
 class PathIntegrator;
 class Primitive;
 class Random;
-class Ray;
+struct Ray;
 class Render;
 class Sampler;
 class SampleIntegrator;

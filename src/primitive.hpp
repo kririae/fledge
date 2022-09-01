@@ -13,25 +13,62 @@ FLG_NAMESPACE_BEGIN
 
 class AreaLight;
 
-// > The abstract Primitive base class is the bridge between the geometry
-// processing and shading subsystems of pbrt.
-// > However, not exactly the same in our render
-// Note: accel do not implements transform
+/**
+ * @brief This Primitive base class is the bridge between the geometry
+ * processing and shading subsystems.
+ * @note There are two types of Primitive implementation, one is the *real*
+ * Primitive implementation, which strictly implements the interface and
+ * generally will not evaluate recursively, i.e., dependents on other primitive
+ * classes. The other is the *pseudo* primitive class, which behaves seemingly
+ * the same as the original Primitive class, but actually it is the aggregation
+ * of primitive classes.
+ */
 class Primitive {
 public:
   Primitive()          = default;
   virtual ~Primitive() = default;
 
-  // will modify the mutable ray.tMax
+  /**
+   * @brief Accept a ray and consider its origin, direction and m_tMax to
+   * perform intersection with the object contained in the class. It will modify
+   * the intersection and ray.m_tMax iff there's intersection. Else the
+   * parameters are retained.
+   * @see Scene.intersect(...)
+   *
+   * @param ray
+   * @param isect
+   * @return true The function will return true iff there's an intersection.
+   */
   virtual bool intersect(const Ray &ray, SInteraction &isect) const = 0;
 
-  // get the AABB bounding box of the primitive
+  /**
+   * @brief Get the boundary of the primitive
+   *
+   * @return AABB The shape AABB representing the boundary.
+   */
   virtual AABB getBound() const = 0;
 
-  // getter
-  virtual Material  *getMaterial() const = 0;
+  /**
+   * The followings are getters for the class.
+   */
+  /**
+   * @brief Get the Material of the primitive
+   * @note Persistence of the object is guaranteed.
+   * @return Material*
+   */
+  virtual Material *getMaterial() const = 0;
+  /**
+   * @brief Get the AreaLight of the primitive if it really exists
+   * @note Persistence of the object is guaranteed.
+   * @return AreaLight*
+   */
   virtual AreaLight *getAreaLight() const { return nullptr; }
-  virtual Volume    *getVolume() const { return nullptr; }
+  /**
+   * @brief Get the Volume of the primitive if is really exists
+   * @note Persistence of the object is guaranteed.
+   * @return Volume*
+   */
+  virtual Volume *getVolume() const { return nullptr; }
 };
 
 class ShapePrimitive : public Primitive {

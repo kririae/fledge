@@ -23,7 +23,8 @@ inline Vector3f OffsetRayOrigin(const Vector3f &p, const Vector3f &n,
 }
 
 class Volume;
-class Ray {
+
+struct Ray {
 public:
   F_CPU_GPU Ray() : m_tMax(INF), m_volume(nullptr) {}
   F_CPU_GPU Ray(const Vector3f &o, const Vector3f &d, Float tMax = INF,
