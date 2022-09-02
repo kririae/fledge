@@ -56,9 +56,9 @@ struct TriangleMesh {
   // nVert = ???
   int nInd, nVert;
 
-  std::unique_ptr<int[]>      ind;
-  std::unique_ptr<Vector3f[]> p, n{};
-  std::unique_ptr<Vector2f[]> uv;
+  int      *ind;
+  Vector3f *p, *n;
+  Vector2f *uv;
 };
 
 class Triangle : public Shape {
@@ -68,7 +68,7 @@ public:
   // ind[idx], ind[idx+1], ind[idx+2] will point to three positions of the
   // triangle
   Triangle(TriangleMesh *mesh, int idx)
-      : m_mesh(mesh), m_v(mesh->ind.get() + 3 * idx) {}
+      : m_mesh(mesh), m_v(mesh->ind + 3 * idx) {}
 
   bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
   Float area() const override;

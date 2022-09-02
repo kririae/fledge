@@ -9,6 +9,9 @@ if(miniply_ADDED)
   target_include_directories(miniply PUBLIC ${miniply_SOURCE_DIR})
 endif()
 
+CPMAddPackage("gh:eyalroz/cuda-api-wrappers@0.5.4")
+find_package(CUDAToolkit REQUIRED)
+
 find_package(Eigen3 REQUIRED)
 find_package(OpenImageIO REQUIRED)
 find_package(TBB REQUIRED)
@@ -68,6 +71,7 @@ if(USE_JEMALLOC)
 endif()
 
 target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
+  cuda-api-wrappers::runtime-and-driver
   OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY

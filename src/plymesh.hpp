@@ -14,7 +14,8 @@
 FLG_NAMESPACE_BEGIN
 
 TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource);
-std::shared_ptr<TriangleMesh> MakeMeshedSphere();
+TriangleMesh *MakeMeshedSphere(int n_theta, int n_phi, Float radius,
+                               Resource &resource);
 
 FLG_NAMESPACE_END
 #endif

@@ -39,6 +39,9 @@ struct JeAllocator {
 struct JeDeallocator {
   void operator()(void *ptr) { return free(ptr); }
 };
+// struct CUManagedAllocator {
+//   void *operator()(size_t size) { return; }
+// };
 };  // namespace detail
 
 /**

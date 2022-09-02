@@ -45,14 +45,14 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
         m_geom, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3,
         3 * sizeof(float), m_mesh->nVert);
     C(normals);
-    memcpy(normals, m_mesh->n.get(), 3 * sizeof(float) * m_mesh->nVert);
+    memcpy(normals, m_mesh->n, 3 * sizeof(float) * m_mesh->nVert);
   }
 
   C(verticies, indicies);
 
-  memcpy(verticies, m_mesh->p.get(), 3 * sizeof(float) * m_mesh->nVert);
+  memcpy(verticies, m_mesh->p, 3 * sizeof(float) * m_mesh->nVert);
   // Notice the implicit conversion
-  memcpy(indicies, m_mesh->ind.get(), sizeof(int) * m_mesh->nInd);
+  memcpy(indicies, m_mesh->ind, sizeof(int) * m_mesh->nInd);
 
   rtcSetGeometryBuildQuality(m_geom, RTC_BUILD_QUALITY_HIGH);
   rtcCommitGeometry(m_geom);

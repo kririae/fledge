@@ -40,19 +40,16 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
       mesh->nVert = reader.num_rows();
 
       // extract position
-      mesh->p = std::unique_ptr<Vector3f[]>(
-          (Vector3f *)std::aligned_alloc(16, sizeof(Vector3f) * mesh->nVert));
-      // mesh->p = std::make_unique<Vector3f[]>(mesh->nVert);
+      mesh->p = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
       reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
-                                mesh->p.get());
+                                mesh->p);
 
       // extract normal
       if (reader.find_normal(indexes)) {
-        mesh->n = std::unique_ptr<Vector3f[]>(
-            (Vector3f *)std::aligned_alloc(16, sizeof(Vector3f) * mesh->nVert));
+        mesh->n = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
         // mesh->n = std::make_unique<Vector3f[]>(mesh->nVert);
         reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
-                                  mesh->n.get());
+                                  mesh->n);
         SLog("normal found in ply file");
       } else {
         SLog("normal not found in ply file");
@@ -60,22 +57,20 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
 
       // extract UV
       if (reader.find_texcoord(indexes)) {
-        mesh->uv = std::unique_ptr<Vector2f[]>(
-            (Vector2f *)std::aligned_alloc(16, sizeof(Vector2f) * mesh->nVert));
+        mesh->uv = resource.alignedAlloc<Vector2f[], 16>(mesh->nVert);
         // mesh->uv = std::make_unique<Vector2f[]>(mesh->nVert);
         reader.extract_properties(indexes, 2, miniply::PLYPropertyType::Float,
-                                  mesh->uv.get());
+                                  mesh->uv);
       }
 
       got_verts = true;
     } else if (!got_faces && reader.element_is(miniply::kPLYFaceElement) &&
                reader.load_element()) {
       mesh->nInd = reader.num_rows() * 3;
-      mesh->ind  = std::unique_ptr<int[]>(
-          (int *)std::aligned_alloc(16, sizeof(int) * mesh->nInd));
+      mesh->ind  = resource.alignedAlloc<int[], 16>(mesh->nInd);
       // mesh->ind = std::make_unique<int[]>(mesh->nInd);
       reader.extract_properties(face_idxs, 3, miniply::PLYPropertyType::Int,
-                                mesh->ind.get());
+                                mesh->ind);
       got_faces = true;
     }
 
@@ -89,22 +84,20 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
   return mesh;
 }
 
-std::shared_ptr<TriangleMesh> MakeMeshedSphere() {
-  // TODO: complete parameters
+TriangleMesh *MakeMeshedSphere(int n_theta, int n_phi, Float radius,
+                               Resource &resource) {
   Random rng;
-  int    n_theta = 16, n_phi = 16;
 
-  int  n_vert = n_theta * n_phi;
-  auto mesh   = std::make_shared<TriangleMesh>();
-  mesh->nVert = n_vert;
+  int           n_vert = n_theta * n_phi;
+  TriangleMesh *mesh   = resource.alloc<TriangleMesh>();
+  mesh->nVert          = n_vert;
   std::vector<Vector3f> vertices;
   for (int t = 0; t < n_theta; ++t) {
     Float theta     = PI * (Float)t / (Float)(n_theta - 1);
     Float cos_theta = std::cos(theta);
     Float sin_theta = std::sin(theta);
     for (int p = 0; p < n_phi; ++p) {
-      Float phi    = 2 * PI * (Float)p / (Float)(n_phi - 1);
-      Float radius = 1;
+      Float phi = 2 * PI * (Float)p / (Float)(n_phi - 1);
       // Make sure all of the top and bottom vertices are coincident.
       if (t == 0)
         vertices.push_back(Vector3f(0, 0, radius));
@@ -151,8 +144,8 @@ std::shared_ptr<TriangleMesh> MakeMeshedSphere() {
   }
 
   mesh->nInd = indices.size();
-  mesh->p    = std::make_unique<Vector3f[]>(mesh->nVert);
-  mesh->ind  = std::make_unique<int[]>(mesh->nInd);
+  mesh->p    = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
+  mesh->ind  = resource.alignedAlloc<int[], 16>(mesh->nInd);
   for (int i = 0; i < mesh->nVert; ++i) mesh->p[i] = vertices[i];
   for (int i = 0; i < mesh->nInd; ++i) mesh->ind[i] = indices[i];
 
