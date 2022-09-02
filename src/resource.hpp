@@ -1,8 +1,12 @@
 #ifndef __RESOURCE_HPP__
 #define __RESOURCE_HPP__
 
+#include <jemalloc/jemalloc.h>
+
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
+#include <iterator>
 #include <list>
 #include <type_traits>
 #include <typeinfo>
@@ -15,13 +19,25 @@ FLG_NAMESPACE_BEGIN
 namespace detail {
 struct DefaultAllocator {
   void *operator()(size_t size) { return std::malloc(size); }
+  template <size_t Alignment>
+  struct Aligned {
+    void *operator()(size_t size) {
+      return std::aligned_alloc(Alignment, size);
+    }
+  };
 };
 struct DefaultDeallocator {
   void operator()(void *ptr) { std::free(ptr); }
 };
-template <size_t N = 16>
-struct AlignedAllocator {
-  void *operator()(size_t size) { return std::aligned_alloc(N, size); }
+struct JeAllocator {
+  void *operator()(size_t size) { return malloc(size); }
+  template <size_t Alignment>
+  struct Aligned {
+    void *operator()(size_t size) { return aligned_alloc(Alignment, size); }
+  };
+};
+struct JeDeallocator {
+  void operator()(void *ptr) { return free(ptr); }
 };
 };  // namespace detail
 
@@ -50,11 +66,11 @@ struct GenericResource {
    * @tparam Args
    * @return T* A pointer to the allocated memory fragment
    */
-  template <typename T, typename... Args>
+  template <typename T, typename Allocator_ = Allocator, typename... Args>
   std::enable_if_t<!std::is_array<T>::value, T *> alloc(Args &&...args) {
     MemoryBlock block;  // create a new block for this allocation
     block.m_description = typeid(T).name();
-    block.m_ptr         = Allocator()(sizeof(T));
+    block.m_ptr         = Allocator_()(sizeof(T));
     assert(block.m_ptr != nullptr);
     block.m_size = sizeof(T);
     block.m_n    = 1;
@@ -78,7 +94,8 @@ struct GenericResource {
    * @param args
    * @return T* A pointer to the allocated memory fragment
    */
-  template <typename T, typename T_ = std::remove_extent_t<T>, typename... Args>
+  template <typename T, typename T_ = std::remove_extent_t<T>,
+            typename Allocator_ = Allocator, typename... Args>
   std::enable_if_t<std::is_unbounded_array_v<T>, T_ *> alloc(size_t n,
                                                              Args &&...args) {
     MemoryBlock block;  // yet, create a new block
@@ -100,6 +117,50 @@ struct GenericResource {
     return static_cast<T_ *>(block.m_ptr);
   }
 
+  /**
+   * @brief The aligned version of alloc<T>(...)
+   * @see The alloc member function in this class
+   *
+   * @tparam T
+   * @tparam Alignment
+   * @tparam Args
+   * @param args
+   * @return T* A aligned pointer to the destination
+   */
+  template <typename T, size_t Alignment, typename... Args>
+  std::enable_if_t<!std::is_array<T>::value, T *> alignedAlloc(Args &&...args) {
+    return alloc<T, typename Allocator::template Aligned<Alignment>, Args...>(
+        std::forward<Args>(args)...);
+  }
+
+  /**
+   * @brief The aligned version of alloc<T>(...)
+   *
+   * @tparam T
+   * @tparam Alignment
+   * @tparam T_
+   * @tparam Allocator_
+   * @tparam Args
+   * @param n
+   * @param args
+   * @return T* A aligned pointer to the destination
+   */
+  template <typename T, size_t Alignment, typename T_ = std::remove_extent_t<T>,
+            typename Allocator_ = Allocator, typename... Args>
+  std::enable_if_t<std::is_unbounded_array_v<T>, T_ *> alignedAlloc(
+      size_t n, Args &&...args) {
+    return alloc<T, T_, typename Allocator::template Aligned<Alignment>,
+                 Args...>(n, std::forward<Args>(args)...);
+  }
+
+  void printStat() {
+    if constexpr (std::is_same_v<Allocator, detail::JeAllocator> &&
+                  std::is_same_v<Deallocator, detail::JeDeallocator>) {
+      // malloc_stats_print(nullptr, nullptr, nullptr);
+    } else {
+    }
+  }
+
 private:
   /**
    * @brief The smallest granularity of memory management in the system
@@ -115,8 +176,7 @@ private:
   std::list<MemoryBlock> m_blocks;
 };
 
-using Resource =
-    GenericResource<detail::DefaultAllocator, detail::DefaultDeallocator>;
+using Resource = GenericResource<detail::JeAllocator, detail::JeDeallocator>;
 
 FLG_NAMESPACE_END
 

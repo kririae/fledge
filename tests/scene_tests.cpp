@@ -16,18 +16,19 @@
 
 using namespace fledge;
 
-static Scene makeWhiteWithDiffusion() {
+TEST(Scene, WhiteWithDiffusion) {
   Scene scene;
 
-  auto sphere_1 = std::make_shared<Sphere>(Vector3f(0.0), 3.0);
-  auto mat      = std::make_shared<DiffuseMaterial>(Vector3f(0.5));
+  auto sphere_1 = scene.m_resource.alloc<Sphere>(Vector3f(0.0), 3.0);
+  auto mat      = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(0.5));
   scene.m_primitives.clear();
-  scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(sphere_1, mat));
+  scene.m_primitives.push_back(
+      scene.m_resource.alloc<ShapePrimitive>(sphere_1, mat));
 
   auto env_texture = std::make_shared<ConstTexture>(1.0);
   scene.m_light.clear();
   scene.m_infLight.clear();
-  scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
+  scene.m_light.push_back(scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
   scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
 
   scene.m_resX     = 1280 / 4;
@@ -43,11 +44,7 @@ static Scene makeWhiteWithDiffusion() {
 
   scene.init();
 
-  return scene;
-}
-
-TEST(Scene, WhiteWithDiffusion) {
-  Render render(std::make_shared<Scene>(makeWhiteWithDiffusion()));
+  Render render(&scene);
   render.init();
   render.preprocess();
   render.render();

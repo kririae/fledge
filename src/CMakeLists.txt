@@ -58,6 +58,15 @@ if(USE_ISPC)
   target_compile_definitions(fledge_lib PUBLIC -DUSE_ISPC)
 endif()
 
+if(USE_JEMALLOC)
+  # Introduct jemalloc
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(JEMALLOC jemalloc)
+  pkg_search_module(JEMALLOC REQUIRED jemalloc)
+  target_include_directories(fledge_lib PUBLIC ${JEMALLOC_INCLUDE_DIRS})
+  target_link_libraries(fledge_lib PUBLIC ${JEMALLOC_LIBRARIES})
+endif()
+
 target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
   OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
 target_link_libraries(fledge PUBLIC fledge_lib)

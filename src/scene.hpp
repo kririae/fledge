@@ -69,28 +69,28 @@ public:
   /**
    * The MAIN resource manager
    */
-  Resource m_resource;
+  Resource m_resource{};
 
   /**
    * The following variables are to be initialized *before* init() by
    * either xml configurations or APIs.
    */
-  int      m_resX, m_resY, m_SPP, m_maxDepth;
-  Float    m_FoV;
-  Vector3f m_up, m_origin, m_target;
-  path     m_base_dir;
+  int      m_resX{0}, m_resY{0}, m_SPP{0}, m_maxDepth{0};
+  Float    m_FoV{0};
+  Vector3f m_up{0}, m_origin{0}, m_target{0};
+  path     m_base_dir{std::filesystem::path(".")};
 
-  std::vector<Primitive *> m_primitives;
-  Volume                  *m_volume;
-  std::vector<Light *>     m_light;
-  std::vector<Light *>     m_infLight;
+  std::vector<Primitive *> m_primitives{};
+  std::vector<Light *>     m_light{};
+  std::vector<Light *>     m_infLight{};
+  Volume                  *m_volume{nullptr};
 
   /**
    * The following variables are to be initialized *after*(by) init()
    */
-  Primitive *m_accel;
-  Camera    *m_camera;
-  Film      *m_film;
+  Primitive *m_accel{nullptr};
+  Camera    *m_camera{nullptr};
+  Film      *m_film{nullptr};
 
 private:
   void parseXML(const std::string &filename);

@@ -2,33 +2,34 @@
 
 #include <memory>
 
-#include "common/aabb.h"
 #include "accel.hpp"
-#include "fledge.h"
+#include "common/aabb.h"
+#include "common/vector.h"
 #include "debug.hpp"
+#include "fledge.h"
 #include "interaction.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "common/vector.h"
 
 TEST(Accel, NaiveBVHAccel) {
   using namespace fledge;
-  Random rng;
+  Random   rng;
+  Resource resource;
 
-  auto diffuse = std::make_shared<DiffuseMaterial>(Vector3f(1.0));
+  auto diffuse = resource.alloc<DiffuseMaterial>(Vector3f(1.0));
 
-  std::vector<std::shared_ptr<Primitive>> p;
+  std::vector<Primitive *> p;
 
   // Init 100 sphere into the scene
   for (int i = 0; i < 200; ++i) {
-    auto sphere = std::make_shared<Sphere>(
+    auto sphere = resource.alloc<Sphere>(
         Vector3f{rng.get1D(), rng.get1D(), rng.get1D()} * 20.0, 2);
-    p.push_back(std::make_shared<ShapePrimitive>(sphere, diffuse));
+    p.push_back(resource.alloc<ShapePrimitive>(sphere, diffuse));
   }
 
   NaiveAccel    acc(p);
-  NaiveBVHAccel bacc(p);
+  NaiveBVHAccel bacc(p, resource);
   ASSERT_EQ(acc.getBound(), bacc.getBound());
   std::clog << "memory usage: " << bacc.getMemoryUsage() / 1024 << "kB"
             << std::endl;

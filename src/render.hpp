@@ -27,8 +27,8 @@ public:
   const Film &getFilm() const;
 
 private:
-  Scene      *m_scene;
-  Integrator *m_integrator;
+  Scene      *m_scene{nullptr};
+  Integrator *m_integrator{nullptr};
   bool        m_init{false};
 };
 

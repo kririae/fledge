@@ -89,7 +89,7 @@ TEST(Triangle, Watertight) {
   for (int i = 0; i < mesh->nVert; ++i) mesh->p[i] = vertices[i];
   for (int i = 0; i < mesh->nInd; ++i) mesh->ind[i] = indices[i];
 
-  auto mesh_primitive = MeshPrimitive(mesh);
+  auto mesh_primitive = MeshPrimitive(mesh.get());
 
   for (int i = 0; i < 1000; ++i) {
     Vector2f u = rng.get2D();

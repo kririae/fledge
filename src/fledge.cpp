@@ -29,8 +29,10 @@ int main() {
   // 3. invoke init() on render
   // 4. invoke render()
   // 5. save the last rendered frame to file
-  // Render render(std::make_shared<Scene>("assets/scene_basic.xml"));
-  Scene  scene("assets/scene_vol_shape.xml");
+  // auto scene = std::make_unique<Scene>("assets/scene_vol_shape.xml");
+  Scene scene("assets/scene_vol_shape.xml");
+  scene.init();
+
   Render render(&scene);
   SLog("render is created");
 
@@ -38,5 +40,6 @@ int main() {
   render.preprocess();
   render.render();
   render.saveImage("fledge_out.exr", false);
+  scene.m_resource.printStat();
   return 0;
 }

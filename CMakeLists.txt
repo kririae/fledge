@@ -7,6 +7,7 @@ option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)
 option(USE_ISPC "use ISPC for SIMD execution" ON)
 option(USE_EMBREE "use Embree 3 as the acceleration structure" ON)
 option(USE_OIDN "use OIDN to denoise" ON)
+option(USE_JEMALLOC "use OIDN to denoise" ON)
 set(USE_SANITIZER
   ""
   CACHE
