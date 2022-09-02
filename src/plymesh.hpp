@@ -9,10 +9,11 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
+#include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
 
-std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path);
+TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource);
 std::shared_ptr<TriangleMesh> MakeMeshedSphere();
 
 FLG_NAMESPACE_END

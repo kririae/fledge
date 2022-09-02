@@ -22,14 +22,13 @@ public:
 
 class NaiveAccel : public Accel {
 public:
-  NaiveAccel(const std::vector<std::shared_ptr<Primitive>> &p)
-      : m_primitives(p) {}
+  NaiveAccel(const std::vector<Primitive *> &p) : m_primitives(p) {}
   ~NaiveAccel() override = default;
   bool intersect(const Ray &ray, SInteraction &isect) const override;
   AABB getBound() const override;
 
 protected:
-  std::vector<std::shared_ptr<Primitive>> m_primitives;
+  std::vector<Primitive *> m_primitives;
 };
 
 class NaiveBVHAccel : public Accel {
@@ -37,7 +36,7 @@ class NaiveBVHAccel : public Accel {
   // Recursively defined
 
 public:
-  NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p, int depth = 0,
+  NaiveBVHAccel(std::vector<Primitive *> p, Resource &resource, int depth = 0,
                 AABB *box = nullptr);
   ~NaiveBVHAccel() override = default;
   bool   intersect(const Ray &ray, SInteraction &isect) const override;
@@ -46,10 +45,10 @@ public:
   size_t getDepth() const { return m_depth; }
 
 protected:
-  AABB                           m_box;
-  std::shared_ptr<NaiveBVHAccel> m_left, m_right;
+  AABB           m_box;
+  NaiveBVHAccel *m_left, *m_right;
 
-  std::vector<std::shared_ptr<Primitive>> m_primitives;
+  std::vector<Primitive *> m_primitives;
 
   size_t m_memory_usage, m_depth;
 };

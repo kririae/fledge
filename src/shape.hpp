@@ -63,11 +63,11 @@ struct TriangleMesh {
 
 class Triangle : public Shape {
 public:
-  Triangle(std::shared_ptr<TriangleMesh> mesh, int *v) : m_mesh(mesh), m_v(v) {}
+  Triangle(TriangleMesh *mesh, int *v) : m_mesh(mesh), m_v(v) {}
   // Triangle Mesh can be indexed with index of triangle, where
   // ind[idx], ind[idx+1], ind[idx+2] will point to three positions of the
   // triangle
-  Triangle(std::shared_ptr<TriangleMesh> mesh, int idx)
+  Triangle(TriangleMesh *mesh, int idx)
       : m_mesh(mesh), m_v(mesh->ind.get() + 3 * idx) {}
 
   bool  intersect(const Ray &ray, Float &tHit, SInteraction &isect) override;
@@ -85,8 +85,8 @@ public:
     return p0 == t_p0 && p1 == t_p1 && p2 == t_p2;
   }
 
-  std::shared_ptr<TriangleMesh> m_mesh;
-  int                          *m_v;
+  TriangleMesh *m_mesh;
+  int          *m_v;
 };
 
 FLG_NAMESPACE_END

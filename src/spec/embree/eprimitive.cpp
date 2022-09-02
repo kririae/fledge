@@ -20,10 +20,8 @@
 
 FLG_NAMESPACE_BEGIN
 
-EmbreeMeshPrimitive::EmbreeMeshPrimitive(
-    const std::shared_ptr<TriangleMesh> &mesh,
-    const std::shared_ptr<Material>     &material,
-    const std::shared_ptr<AreaLight>    &areaLight)
+EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
+                                         AreaLight *areaLight)
     : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
   m_device = embreeInitializeDevice();
   m_scene  = rtcNewScene(m_device);
@@ -65,10 +63,11 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(
   SLog("Embree is ready");
 }
 
-EmbreeMeshPrimitive::EmbreeMeshPrimitive(
-    const std::string &path, const std::shared_ptr<Material> &material,
-    const std::shared_ptr<AreaLight> &areaLight)
-    : EmbreeMeshPrimitive(MakeTriangleMesh(path), material, areaLight) {}
+EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string &path,
+                                         Material          *material,
+                                         AreaLight         *areaLight)
+    : EmbreeMeshPrimitive(MakeTriangleMesh(path, m_resource), material,
+                          areaLight) {}
 
 AABB EmbreeMeshPrimitive::getBound() const {
   // > The provided destination pointer must be aligned to 16 bytes.
@@ -128,11 +127,11 @@ bool EmbreeMeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
 }
 
 AreaLight *EmbreeMeshPrimitive::getAreaLight() const {
-  return m_areaLight.get();
+  return m_areaLight;
 }
 
 Material *EmbreeMeshPrimitive::getMaterial() const {
-  return m_material.get();
+  return m_material;
 }
 
 FLG_NAMESPACE_END

@@ -13,7 +13,7 @@
 
 FLG_NAMESPACE_BEGIN
 
-Render::Render(const std::shared_ptr<Scene> &scene) : m_scene(scene) {
+Render::Render(Scene *scene) : m_scene(scene) {
   SLog("render is created with scene");
 }
 
@@ -21,10 +21,8 @@ void Render::init() {
   SLog("OpenVDB is ready");
   openvdb::initialize();
   SLog("render is ready");
-  // m_integrator = std::make_shared<SampleIntegrator>();
-  m_integrator = std::make_shared<PathIntegrator>(m_scene->m_maxDepth);
-  // m_integrator = std::make_shared<SVolIntegrator>();
-  m_init = true;
+  m_integrator = m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
+  m_init       = true;
 }
 
 bool Render::preprocess() {

@@ -8,6 +8,7 @@
 #include "debug.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
+#include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
 
@@ -35,7 +36,7 @@ AABB NaiveAccel::getBound() const {
   return res;
 }
 
-NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
+NaiveBVHAccel::NaiveBVHAccel(std::vector<Primitive *> p, Resource &resource,
                              int depth, AABB *box) {
   if (depth == 0) SLog("BVH construction start");
 
@@ -49,9 +50,8 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   if (p.size() <= 64 || depth > 20) {
     m_primitives = p;
     m_left = m_right = nullptr;
-    m_memory_usage =
-        sizeof(m_box) + sizeof(m_left) * 2 +
-        sizeof(std::shared_ptr<Primitive>) * m_primitives.capacity();
+    m_memory_usage   = sizeof(m_box) + sizeof(m_left) * 2 +
+                     sizeof(Primitive *) * m_primitives.capacity();
     m_depth = 1;
     return;
   }
@@ -59,7 +59,7 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   // dim will specify the current partition surface
   int dim = depth % 3;
   // allocate space for storing pointers
-  std::vector<std::shared_ptr<Primitive>> left, right;
+  std::vector<Primitive *> left, right;
 
   // sort the primitives by position in the corresponding dim
   std::sort(p.begin(), p.end(), [dim](auto a, auto b) -> bool {
@@ -73,8 +73,8 @@ NaiveBVHAccel::NaiveBVHAccel(std::vector<std::shared_ptr<Primitive>> p,
   right    = std::vector(mid, ed);
   assert(p.size() == (left.size() + right.size()));
 
-  m_left  = std::make_shared<NaiveBVHAccel>(NaiveBVHAccel(left, depth + 1));
-  m_right = std::make_shared<NaiveBVHAccel>(NaiveBVHAccel(right, depth + 1));
+  m_left  = resource.alloc<NaiveBVHAccel>(left, resource, depth + 1);
+  m_right = resource.alloc<NaiveBVHAccel>(right, resource, depth + 1);
 
   m_memory_usage = m_left->m_memory_usage + m_right->m_memory_usage;
   m_depth        = std::max(m_left->m_depth, m_right->m_depth) + 1;

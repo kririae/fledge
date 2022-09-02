@@ -4,6 +4,7 @@
 #include <embree3/rtcore.h>
 #include <embree3/rtcore_geometry.h>
 
+#include <cstddef>
 #include <memory>
 
 #include "common/vector.h"
@@ -11,21 +12,16 @@
 #include "fledge.h"
 #include "light.hpp"
 #include "primitive.hpp"
+#include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
 
 class EmbreeMeshPrimitive : public Primitive {
 public:
-  EmbreeMeshPrimitive(
-      const std::shared_ptr<TriangleMesh> &mesh,
-      const std::shared_ptr<Material>     &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
-  EmbreeMeshPrimitive(
-      const std::string               &path,
-      const std::shared_ptr<Material> &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+  EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material = nullptr,
+                      AreaLight *areaLight = nullptr);
+  EmbreeMeshPrimitive(const std::string &path, Material *material = nullptr,
+                      AreaLight *areaLight = nullptr);
   ~EmbreeMeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -36,15 +32,16 @@ public:
   Material  *getMaterial() const override;
 
 private:
-  std::shared_ptr<TriangleMesh> m_mesh;
-  std::shared_ptr<Material>     m_material;
-  std::shared_ptr<AreaLight>    m_areaLight;
+  TriangleMesh *m_mesh;
+  Material     *m_material;
+  AreaLight    *m_areaLight;
 
   // embree properties
   RTCDevice    m_device;
   RTCScene     m_scene;
   RTCGeometry  m_geom;
   unsigned int m_geomID;
+  Resource     m_resource;
 };
 
 FLG_NAMESPACE_END

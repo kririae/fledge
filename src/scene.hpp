@@ -9,6 +9,7 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
+#include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
 
@@ -66,6 +67,11 @@ public:
   std::string getPath(const std::string &asset_path);
 
   /**
+   * The MAIN resource manager
+   */
+  Resource m_resource;
+
+  /**
    * The following variables are to be initialized *before* init() by
    * either xml configurations or APIs.
    */
@@ -74,20 +80,20 @@ public:
   Vector3f m_up, m_origin, m_target;
   path     m_base_dir;
 
-  std::vector<std::shared_ptr<Primitive>> m_primitives;
-  std::shared_ptr<Volume>                 m_volume;
-  std::vector<std::shared_ptr<Light>>     m_light;
-  std::vector<std::shared_ptr<Light>>     m_infLight;
+  std::vector<Primitive *> m_primitives;
+  Volume                  *m_volume;
+  std::vector<Light *>     m_light;
+  std::vector<Light *>     m_infLight;
 
   /**
    * The following variables are to be initialized *after*(by) init()
    */
-  std::shared_ptr<Primitive> m_accel;
-  std::shared_ptr<Camera>    m_camera;
-  std::shared_ptr<Film>      m_film;
+  Primitive *m_accel;
+  Camera    *m_camera;
+  Film      *m_film;
 
 private:
-  static Scene parseXML(const std::string &filename);
+  void parseXML(const std::string &filename);
 };
 
 FLG_NAMESPACE_END

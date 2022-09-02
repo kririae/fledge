@@ -14,10 +14,8 @@
 
 FLG_NAMESPACE_BEGIN
 
-ShapePrimitive::ShapePrimitive(const std::shared_ptr<Shape>     &shape,
-                               const std::shared_ptr<Material>  &material,
-                               const std::shared_ptr<AreaLight> &areaLight,
-                               const std::shared_ptr<Volume>    &volume)
+ShapePrimitive::ShapePrimitive(Shape *shape, Material *material,
+                               AreaLight *areaLight, Volume *volume)
     : m_shape(shape),
       m_material(material),
       m_areaLight(areaLight),
@@ -41,39 +39,36 @@ bool ShapePrimitive::intersect(const Ray &ray, SInteraction &isect) const {
 
 // if the areaLight actually exists
 AreaLight *ShapePrimitive::getAreaLight() const {
-  return m_areaLight.get();
+  return m_areaLight;
 }
 
 Material *ShapePrimitive::getMaterial() const {
-  return m_material.get();
+  return m_material;
 }
 
 Volume *ShapePrimitive::getVolume() const {
   // if the volume exists, the result is not nullptr
-  return m_volume.get();
+  return m_volume;
 }
 
-MeshPrimitive::MeshPrimitive(const std::shared_ptr<TriangleMesh> &mesh,
-                             const std::shared_ptr<Material>     &material,
-                             const std::shared_ptr<AreaLight>    &areaLight)
+MeshPrimitive::MeshPrimitive(TriangleMesh *mesh, Material *material,
+                             AreaLight *areaLight)
     : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
   assert(m_mesh->nInd % 3 == 0);
   for (int i = 0; i < m_mesh->nInd / 3; ++i)
-    m_triangles.push_back(std::make_shared<Triangle>(m_mesh, i));
+    m_triangles.push_back(m_resource.alloc<Triangle>(m_mesh, i));
 
   // AND, construct the BVH under the mesh
   // Convert triangles to primitive
-  std::vector<std::shared_ptr<Primitive>> p_triangles;
+  std::vector<Primitive *> p_triangles;
   for (size_t i = 0; i < m_triangles.size(); ++i)
-    p_triangles.push_back(
-        std::make_shared<ShapePrimitive>(ShapePrimitive(m_triangles[i])));
-  m_accel = std::shared_ptr<NaiveBVHAccel>(new NaiveBVHAccel(p_triangles));
+    p_triangles.push_back(m_resource.alloc<ShapePrimitive>(m_triangles[i]));
+  m_accel = m_resource.alloc<NaiveBVHAccel>(p_triangles, m_resource);
 }
 
-MeshPrimitive::MeshPrimitive(const std::string                &path,
-                             const std::shared_ptr<Material>  &material,
-                             const std::shared_ptr<AreaLight> &areaLight)
-    : MeshPrimitive(MakeTriangleMesh(path), material, areaLight) {}
+MeshPrimitive::MeshPrimitive(const std::string &path, Material *material,
+                             AreaLight *areaLight)
+    : MeshPrimitive(MakeTriangleMesh(path, m_resource), material, areaLight) {}
 
 AABB MeshPrimitive::getBound() const {
   return m_accel->getBound();
@@ -90,11 +85,11 @@ bool MeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
 }
 
 AreaLight *MeshPrimitive::getAreaLight() const {
-  return m_areaLight.get();
+  return m_areaLight;
 }
 
 Material *MeshPrimitive::getMaterial() const {
-  return m_material.get();
+  return m_material;
 }
 
 FLG_NAMESPACE_END

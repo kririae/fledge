@@ -7,6 +7,7 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
+#include "resource.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
 
@@ -14,7 +15,7 @@ FLG_NAMESPACE_BEGIN
 
 // Code modified from https://github.com/vilya/miniply
 // anyway, it works
-std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path) {
+TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
   if (!std::filesystem::exists(path))
     SErr("plymesh file %s do not exists", path.c_str());
 
@@ -32,7 +33,7 @@ std::shared_ptr<TriangleMesh> MakeTriangleMesh(const std::string &path) {
   bool     got_verts = false, got_faces = false;
 
   SLog("ply mesh loading");
-  auto mesh = std::make_shared<TriangleMesh>();
+  TriangleMesh *mesh = resource.alloc<TriangleMesh>();
   while (reader.has_element() && (!got_verts || !got_faces)) {
     if (reader.element_is(miniply::kPLYVertexElement) &&
         reader.load_element() && reader.find_pos(indexes)) {

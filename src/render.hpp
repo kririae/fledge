@@ -13,7 +13,7 @@ FLG_NAMESPACE_BEGIN
 // serves as *coordinator* between integrator and scene
 class Render {
 public:
-  Render(const std::shared_ptr<Scene> &scene);
+  Render(Scene *scene);
   void init();
   bool preprocess();
   bool saveImage(const std::string &name, bool denoise = false);
@@ -27,9 +27,9 @@ public:
   const Film &getFilm() const;
 
 private:
-  std::shared_ptr<Scene>      m_scene;
-  std::shared_ptr<Integrator> m_integrator;
-  bool                        m_init{false};
+  Scene      *m_scene;
+  Integrator *m_integrator;
+  bool        m_init{false};
 };
 
 FLG_NAMESPACE_END

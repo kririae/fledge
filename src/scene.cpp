@@ -32,33 +32,32 @@ namespace pt = boost::property_tree;
 Scene::Scene() {}
 
 Scene::Scene(const std::string &filename) {
-  *this = parseXML(filename);
+  parseXML(filename);
 }
 
 bool Scene::init() {
-  // AreaLight and Shape are initialized
-  // auto mat = std::make_shared<MicrofacetMaterial>(Vector3f(1.0), 0.007,
-  //                                                 Vector3f(2.0, 2.0, 2.0));
-
-  m_camera = std::make_shared<Camera>(m_origin, m_target, m_up);
-  m_film   = std::make_shared<Film>(m_resX, m_resY, EFilmBufferType::EAll);
-  m_accel  = std::make_shared<NaiveBVHAccel>(m_primitives);
-
+  m_camera = m_resource.alloc<Camera>(m_origin, m_target, m_up);
+  m_film   = m_resource.alloc<Film>(m_resX, m_resY, EFilmBufferType::EAll);
+  m_accel  = m_resource.alloc<NaiveBVHAccel>(m_primitives, m_resource);
+  assert(m_camera != nullptr);
+  assert(m_film != nullptr);
+  assert(m_accel != nullptr);
 #if 0
   m_volume = std::make_shared<OpenVDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
 #endif
-
-  SLog("scene init finished");
+  SLog("Scene init fin.");
   return true;
 }
 
 // @INIT_INTERACTION
 bool Scene::intersect(const Ray &ray, SInteraction &isect) const {
+  assert(m_accel != nullptr);
   return m_accel->intersect(ray, isect);
 }
 
 AABB Scene::getBound() const {
   AABB aabb;
+  assert(m_accel != nullptr);
   aabb = m_accel->getBound();
   if (m_volume != nullptr) aabb = aabb.merge(m_volume->getBound());
   return aabb;
@@ -160,7 +159,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
   std::string shape_id = std::to_string(scene.m_primitives.size());
   SLog("scene.shape%s.type = %s", shape_id.c_str(), type.c_str());
 
-  std::shared_ptr<Material> mat;
+  Material *mat;
 
   auto bsdf      = tree.get_child("bsdf");
   auto bsdf_type = bsdf.get<std::string>("<xmlattr>.type");
@@ -185,11 +184,11 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
         }
       }
 
-      mat = std::make_shared<Transmission>(extIOR, intIOR);
+      mat = scene.m_resource.alloc<Transmission>(extIOR, intIOR);
       break;
     }  // "dielectric"
     case hash("diffuse"): {
-      mat = std::make_shared<DiffuseMaterial>(Vector3f(1.0));
+      mat = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(1.0));
       break;
     }  // "diffuse"
     default:
@@ -208,7 +207,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
           SLog("scene.shape%s.filename = %s", shape_id.c_str(),
                filename.c_str());
           scene.m_primitives.push_back(
-              std::make_shared<EmbreeMeshPrimitive>(filename, mat, nullptr));
+              scene.m_resource.alloc<EmbreeMeshPrimitive>(filename, mat,
+                                                          nullptr));
         }
       }
 
@@ -223,10 +223,10 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       SLog("scene.shape%s.center = %s", shape_id.c_str(),
            center.toString().c_str());
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
-      scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(
-          std::make_shared<Sphere>(center, radius), mat, nullptr,
-          std::make_shared<HVolume>()));  // TODO
-    }                                     // "sphere"
+      scene.m_primitives.push_back(scene.m_resource.alloc<ShapePrimitive>(
+          scene.m_resource.alloc<Sphere>(center, radius), mat, nullptr,
+          scene.m_resource.alloc<HVolume>()));  // TODO
+    }                                           // "sphere"
   }
 
   return true;
@@ -234,7 +234,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
   auto env_texture = std::make_shared<ConstTexture>(1.0);
-  scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
+  scene.m_light.push_back(
+      scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
   scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
   return true;
 
@@ -248,7 +249,8 @@ static bool addLight(const pt::ptree &tree, Scene &scene) {
     if (name == "filename") {
       auto env_texture = std::make_shared<ImageTexture>(
           scene.getPath(v.second.get<std::string>("<xmlattr>.value")));
-      scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
+      scene.m_light.push_back(
+          scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
       scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
     }
   }
@@ -256,12 +258,10 @@ static bool addLight(const pt::ptree &tree, Scene &scene) {
   return true;
 }
 
-Scene Scene::parseXML(const std::string &filename) {
-  Scene res;
-
+void Scene::parseXML(const std::string &filename) {
   auto xml_path = std::filesystem::path(filename);
   assert(xml_path.has_parent_path());
-  res.m_base_dir = xml_path.parent_path();
+  this->m_base_dir = xml_path.parent_path();
 
   pt::ptree tree;
   pt::read_xml(filename, tree);
@@ -270,24 +270,22 @@ Scene Scene::parseXML(const std::string &filename) {
   pt::ptree scene         = tree.get_child("scene");
   pt::ptree integrator    = scene.get_child("integrator");
   pt::ptree sensor        = scene.get_child("sensor");
-  setIntegrator(integrator, res);
-  setSensor(sensor, res);
+  setIntegrator(integrator, *this);
+  setSensor(sensor, *this);
 
   // Parse shapes and emitters
   for (auto &v : scene) {
     switch (hash(v.first.c_str())) {
       case hash("shape"): {
-        addShape(v.second, res);
+        addShape(v.second, *this);
         break;
       }  // "shape"
       case hash("emitter"): {
-        addLight(v.second, res);
+        addLight(v.second, *this);
         break;
       }  // "light"
     }
   }
-
-  return res;
 }
 
 path Scene::getPath(const path &asset_path) {

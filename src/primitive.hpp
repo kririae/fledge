@@ -8,6 +8,7 @@
 #include "debug.hpp"
 #include "fledge.h"
 #include "material.hpp"
+#include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
 
@@ -75,12 +76,8 @@ class ShapePrimitive : public Primitive {
 public:
   // If the primitive is a areaLight, areaLight.m_shape must be
   // the shape passing to the ctor
-  ShapePrimitive(
-      const std::shared_ptr<Shape>    &shape,
-      const std::shared_ptr<Material> &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr,
-      const std::shared_ptr<Volume>    &volume    = nullptr);
+  ShapePrimitive(Shape *shape, Material *material = nullptr,
+                 AreaLight *areaLight = nullptr, Volume *volume = nullptr);
   ~ShapePrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -93,10 +90,10 @@ public:
   Volume *getVolume() const override;
 
 private:
-  std::shared_ptr<Shape>     m_shape;
-  std::shared_ptr<Material>  m_material;
-  std::shared_ptr<AreaLight> m_areaLight;
-  std::shared_ptr<Volume>    m_volume;
+  Shape     *m_shape;
+  Material  *m_material;
+  AreaLight *m_areaLight;
+  Volume    *m_volume;
 };
 
 class MeshPrimitive : public Primitive {
@@ -105,16 +102,10 @@ class MeshPrimitive : public Primitive {
   // However, we provide a MethPrimitive with a higher level of abstraction
 
 public:
-  MeshPrimitive(
-      const std::shared_ptr<TriangleMesh> &mesh,
-      const std::shared_ptr<Material>     &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
-  MeshPrimitive(
-      const std::string               &path,
-      const std::shared_ptr<Material> &material =  // default to diffuse
-      std::make_shared<DiffuseMaterial>(Vector3f(1.0)),
-      const std::shared_ptr<AreaLight> &areaLight = nullptr);
+  MeshPrimitive(TriangleMesh *mesh, Material *material = nullptr,
+                AreaLight *areaLight = nullptr);
+  MeshPrimitive(const std::string &path, Material *material = nullptr,
+                AreaLight *areaLight = nullptr);
   ~MeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -126,12 +117,14 @@ public:
 
 private:
   // Mesh-related
-  std::shared_ptr<TriangleMesh>          m_mesh;
-  std::vector<std::shared_ptr<Triangle>> m_triangles;
-  std::shared_ptr<Accel>                 m_accel;
+  TriangleMesh           *m_mesh;
+  std::vector<Triangle *> m_triangles;
+  Accel                  *m_accel;
 
-  std::shared_ptr<Material>  m_material;
-  std::shared_ptr<AreaLight> m_areaLight;
+  Material  *m_material;
+  AreaLight *m_areaLight;
+
+  Resource m_resource;
 };
 
 // class VolumePremitive: public
