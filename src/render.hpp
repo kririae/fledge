@@ -23,7 +23,8 @@ public:
    * The following functions are designed for the propose of debugging and will
    * not be documented
    */
-  Vector3f *getOriginalResultBuffer();
+  Film       &getFilm();
+  const Film &getFilm() const;
 
 private:
   std::shared_ptr<Scene>      m_scene;

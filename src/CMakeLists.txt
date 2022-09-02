@@ -1,9 +1,5 @@
 set(CMAKE_CXX_STANDARD 20)
 
-CPMAddPackage("gh:StableCoder/cmake-scripts#22.01")
-include(${cmake-scripts_SOURCE_DIR}/sanitizers.cmake)
-include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
-
 CPMAddPackage("gh:vilya/miniply#master")
 
 if(miniply_ADDED)
@@ -38,7 +34,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         -Wno-unused-function -Wno-unused-private-field -Wno-error=deprecated-declarations -Wno-gnu-zero-variadic-macro-arguments -march=native -mtune=native")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pipe -g -Wall -Wextra \
-        -Wpedantic -Werror -Wno-unused -Wno-error=deprecated-declarations -march=native -mtune=native")
+        -Wpedantic -Werror -Wno-unused -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized -march=native -mtune=native")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()

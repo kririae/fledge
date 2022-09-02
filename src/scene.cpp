@@ -225,14 +225,19 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
       scene.m_primitives.push_back(std::make_shared<ShapePrimitive>(
           std::make_shared<Sphere>(center, radius), mat, nullptr,
-          std::make_shared<HVolume>()));
-    }  // "sphere"
+          std::make_shared<HVolume>()));  // TODO
+    }                                     // "sphere"
   }
 
   return true;
 }
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
+  auto env_texture = std::make_shared<ConstTexture>(1.0);
+  scene.m_light.push_back(std::make_shared<InfiniteAreaLight>(env_texture));
+  scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
+  return true;
+
   auto type = tree.get<std::string>("<xmlattr>.type");
   assert(type == "envmap");
 

@@ -60,6 +60,12 @@ public:
         m_buffers[t] = std::vector<Vector3f>(m_resX * m_resY, Vector3f(0.0));
   }
 
+  /**
+   * @brief Init a new Film object with a existing film object. Data will
+   * be copied.
+   *
+   * @param film The existing film object
+   */
   Film(const Film &film) {
     std::lock_guard<std::mutex> lock(film.m_mutex);
     m_buffers = film.m_buffers;
@@ -67,6 +73,12 @@ public:
     m_resY    = film.m_resY;
   }
 
+  /**
+   * @brief Copy a new Film object with a existing film object. Data will
+   * be copied.
+   *
+   * @param film The existing film object
+   */
   Film &operator=(const Film &film) {
     std::lock_guard<std::mutex> lock(film.m_mutex);
     m_buffers = film.m_buffers;
@@ -75,6 +87,9 @@ public:
     return *this;
   }
 
+  /**
+   * @brief Destroy the Film object
+   */
   ~Film() = default;
 
   static size_t bufferTypeToIdx(EFilmBufferType buffer_type) {
@@ -84,8 +99,23 @@ public:
     return size_t(index_);
   }
 
+  /**
+   * @brief Get the pixel index in the buffer with the two indicies.
+   *
+   * @param x Index in width
+   * @param y Index in height
+   * @return int The pixel index in the buffer
+   */
   int getBufferIdx(int x, int y) const { return y * m_resX + x; }
 
+  /**
+   * @brief Get the Buffer with indicies and buffer_type
+   *
+   * @param x
+   * @param y
+   * @param buffer_type
+   * @return Vector3f&
+   */
   Vector3f &getBuffer(int x, int y, EFilmBufferType buffer_type) {
     size_t buffer_id = bufferTypeToIdx(buffer_type);
     assert(buffer_id < m_buffers.size());
@@ -93,6 +123,13 @@ public:
     return m_buffers[buffer_id][getBufferIdx(x, y)];
   }
 
+  /**
+   * @brief Save the whole buffer with the buffer_type to a file
+   *
+   * @param name The file's name to save to
+   * @param buffer_type
+   * @return true The image file is successfully created.
+   */
   bool saveBuffer(const std::string &name, EFilmBufferType buffer_type);
 
   int m_resX, m_resY;

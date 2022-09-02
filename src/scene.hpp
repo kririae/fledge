@@ -72,6 +72,7 @@ public:
   int      m_resX, m_resY, m_SPP, m_maxDepth;
   Float    m_FoV;
   Vector3f m_up, m_origin, m_target;
+  path     m_base_dir;
 
   std::vector<std::shared_ptr<Primitive>> m_primitives;
   std::shared_ptr<Volume>                 m_volume;
@@ -86,7 +87,6 @@ public:
   std::shared_ptr<Film>      m_film;
 
 private:
-  path         m_base_dir;
   static Scene parseXML(const std::string &filename);
 };
 

@@ -22,7 +22,7 @@ void Render::init() {
   openvdb::initialize();
   SLog("render is ready");
   // m_integrator = std::make_shared<SampleIntegrator>();
-  m_integrator = std::make_shared<VolPathIntegrator>(m_scene->m_maxDepth);
+  m_integrator = std::make_shared<PathIntegrator>(m_scene->m_maxDepth);
   // m_integrator = std::make_shared<SVolIntegrator>();
   m_init = true;
 }
@@ -54,15 +54,16 @@ bool Render::render() {
   auto                          end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> diff = end - start;
   SLog("rendering takes %.9lf s to finish", diff.count());
-  SLog("measurement: ");
 
   return true;
 }
 
-Vector3f *Render::getOriginalResultBuffer() {
-  return m_scene->m_film
-      ->m_buffers[Film::bufferTypeToIdx(EFilmBufferType::EColor)]
-      .data();
+Film &Render::getFilm() {
+  return *m_scene->m_film;
+}
+
+const Film &Render::getFilm() const {
+  return *m_scene->m_film;
 }
 
 FLG_NAMESPACE_END

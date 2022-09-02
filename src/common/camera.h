@@ -24,8 +24,8 @@ public:
     Float    y_offset     = fov_ratio * ((y / height) * 2 - 1.0);
     Float    x_offset     = fov_ratio * aspect_ratio * ((x / width) * 2 - 1.0);
     Vector3f ray_dir      = m_forward + x_offset * m_right +
-                       y_offset * (m_forward.cross(m_right).stableNormalized());
-    return {m_pos, ray_dir.stableNormalized()};
+                       y_offset * Normalize(m_forward.cross(m_right));
+    return {m_pos, Normalize(ray_dir)};
   }
 
   Vector3f m_pos, m_forward, m_up, m_right;

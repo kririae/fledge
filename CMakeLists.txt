@@ -17,6 +17,12 @@ set(USE_SANITIZER
 set(CMAKE_CXX_STANDARD 20)
 
 include("get_cpm.cmake")
+
+# Add sanitizer
+CPMAddPackage("gh:StableCoder/cmake-scripts#22.01")
+include(${cmake-scripts_SOURCE_DIR}/sanitizers.cmake)
+include(${cmake-scripts_SOURCE_DIR}/formatting.cmake)
+
 add_subdirectory(src/)
 
 enable_testing()

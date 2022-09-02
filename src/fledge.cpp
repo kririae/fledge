@@ -9,6 +9,9 @@
 
 #include "common/vector.h"
 #include "debug.hpp"
+#include "interaction.hpp"
+#include "light.hpp"
+#include "primitive.hpp"
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
@@ -29,7 +32,6 @@ int main() {
   // Render render(std::make_shared<Scene>("assets/scene_basic.xml"));
   std::shared_ptr<Scene> scene =
       std::make_shared<Scene>("assets/scene_vol_shape.xml");
-  scene->init();
   Render render(scene);
   SLog("render is created");
 
