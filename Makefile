@@ -9,7 +9,7 @@ TARGET_EXEC := $(BUILD_DIR)/bin/fledge
 CC_FORMAT_EXEC := clang-format
 PY_FORMAT_EXEC := autopep8
 NPROCS := $(shell nproc)
-NPROCS_1 := $$(($(NPROCS) - 1))
+NPROCS_1 := $(shell expr $(NPROCS) - 1)
 
 export ASAN_OPTIONS := new_delete_type_mismatch=0,detect_odr_violation=0
 export OMP_NUM_THREADS := $(NPROCS_1)
