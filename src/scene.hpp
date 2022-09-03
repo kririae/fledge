@@ -75,10 +75,11 @@ public:
    * The following variables are to be initialized *before* init() by
    * either xml configurations or APIs.
    */
-  int      m_resX{0}, m_resY{0}, m_SPP{0}, m_maxDepth{0};
-  Float    m_FoV{0};
-  Vector3f m_up{0}, m_origin{0}, m_target{0};
-  path     m_base_dir{std::filesystem::path(".")};
+  int             m_resX{0}, m_resY{0}, m_SPP{0}, m_maxDepth{0};
+  Float           m_FoV{0};
+  Vector3f        m_up{0}, m_origin{0}, m_target{0};
+  path            m_base_dir{std::filesystem::path(".")};
+  EIntegratorType m_integrator_type{EIntegratorType::EPathIntegrator};
 
   std::vector<Primitive *> m_primitives{};
   std::vector<Light *>     m_light{};

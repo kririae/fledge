@@ -30,7 +30,7 @@ int main() {
   // 4. invoke render()
   // 5. save the last rendered frame to file
   // auto scene = std::make_unique<Scene>("assets/scene_vol_shape.xml");
-  Scene scene("assets/scene_vol_shape.xml");
+  Scene scene("assets/scene_vol_mesh.xml");
   scene.init();
 
   Render render(&scene);

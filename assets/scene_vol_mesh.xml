@@ -7,11 +7,8 @@
   <sensor type="perspective">
     <float name="fov" value="30" />
     <string name="fovAxis" value="y" />
-    <!-- <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0.0, 0.6, -0.8" target="0.0, 0.0, 0.0" />
-    </transform> -->
     <transform name="toWorld">
-      <lookat up="0, 1, 0" origin="0, 7, -15" target="0, 0, 0" />
+      <lookat up="0, 1, 0" origin="0, 70, -150" target="50, 20, 0" />
     </transform>
 
     <sampler type="independent">
@@ -36,9 +33,8 @@
     </phase>
   </medium>
 
-  <shape type="sphere">
-    <point name="center" x="0" y="0" z="0" />
-    <float name="radius" value="3" />
+  <shape type="ply">
+    <string name="filename" value="dambreak0.ply" />
     <bsdf type="dielectric">
       <float name="intIOR" value="1.5" />
       <float name="extIOR" value="1.0" />

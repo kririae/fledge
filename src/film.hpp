@@ -19,17 +19,6 @@
 
 FLG_NAMESPACE_BEGIN
 
-enum class EFilmBufferType {
-  EColor  = (1),
-  EAlbedo = (1 << 1),
-  ENormal = (1 << 2),
-  EOutput = (1 << 3),
-  EAll    = (1 << 4) - 1,
-  EExtra1 = (1 << 4),
-  EExtra2 = (1 << 5),
-  EExtra3 = (1 << 6),
-};
-
 static void checkFilmBufferType(EFilmBufferType buffer_type) {
   using enum EFilmBufferType;
   if ((int(buffer_type) & int(EColor)) == 0)

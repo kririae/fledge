@@ -148,28 +148,30 @@ Vector3f OpenVDBVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
 }
 
 // For testing the delta-tracking
-HVolume::HVolume() {
-  // currently the same as above
-  m_sigma_s = 10.0;
-  m_sigma_a = 1.0;
-  m_g       = -0.877;
-  m_sigma_t = m_sigma_a + m_sigma_s;
-  m_density = 1.0;
-}
+HVolume::HVolume(const Vector3f &sigma_s, const Vector3f &sigma_a, Float g,
+                 Float density)
+    : m_sigma_s(sigma_s),
+      m_sigma_a(sigma_a),
+      m_sigma_t(sigma_s + sigma_a),
+      m_g(g),
+      m_density(density) {}
 
-Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
-  return Vector3f(std::exp(-(ray.m_tMax) * m_density * m_sigma_t));
+Vector3f HVolume::tr(const Ray &ray, Sampler &sampler) const {
+  return Exp(-ray.m_tMax * m_density * m_sigma_t);
 }
 
 // @INIT_INTERACTION
-Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
+Vector3f HVolume::sample(const Ray &ray, Sampler &sampler, VInteraction &vi,
                          bool &success) const {
+  // First, sample a channel
+  int channel = min((int)(sampler.get1D() * 3.0), 2);
   // sample the distance by $p(t) = \sigma_t e^{-\sigma_t t}$
-  Float t = -std::log(1 - rng.get1D()) / (m_density * m_sigma_t);
-  // Float tr = std::exp(-t * m_density * m_sigma_t); // tr is elimated
+  Float t = -std::log(1 - sampler.get1D()) / (m_density * m_sigma_t[channel]);
+  Vector3f Tr = Exp(-min(t, ray.m_tMax) * m_density *
+                    m_sigma_t);  // using t rather than t_Max
   C(t);
-
   if (t < ray.m_tMax) {
+    Float pdf = Sum(m_sigma_t * Tr) * 1 / 3;
     // sampling the volume
     success = true;
     // since we are sampling the volume, and the PDF is exactly p(t)
@@ -177,13 +179,12 @@ Vector3f HVolume::sample(const Ray &ray, Sampler &rng, VInteraction &vi,
     vi.m_p   = ray(t);
     vi.m_wo  = -ray.m_d;
     vi.m_g   = m_g;
-    return Vector3f(m_sigma_s / m_sigma_t);
+    return m_sigma_s * Tr / pdf;
   } else {
+    Float pdf = Sum(Tr) * 1 / 3;
     // sampling the surface
     success = false;
-    // since we are sampling the surface, the result must be divided by the pdf,
-    // which is exactly tr
-    return Vector3f(1.0);
+    return Tr / pdf;
   }
 }
 

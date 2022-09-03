@@ -374,6 +374,26 @@ F_CPU_GPU inline bool Same(const Vector<T, N> &x, const Vector<T, N> &y,
   return Norm(x - y) < eps;
 }
 
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Exp(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return exp(x); });
+}
+
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Sin(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return sin(x); });
+}
+
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Cos(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return cos(x); });
+}
+
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Tan(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return tan(x); });
+}
+
 using Vector4f = Vector<Float, 4>;
 using Vector4d = Vector<int, 4>;
 using Vector3f = Vector<Float, 3>;

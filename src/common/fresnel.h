@@ -11,7 +11,8 @@ FLG_NAMESPACE_BEGIN
  * **Assume** that etaI is in the side of n, etaT is in the side of -n,
  * and cosTheta do not need to be adjusted */
 // (Float, Float, Float) -> Float
-inline Float FresnelDielectric(Float cosThetaI, Float etaI, Float etaT) {
+F_CPU_GPU inline Float FresnelDielectric(Float cosThetaI, Float etaI,
+                                         Float etaT) {
   cosThetaI     = abs(cosThetaI);
   bool entering = cosThetaI > 0.f;
   if (!entering) {
@@ -38,7 +39,8 @@ inline Float FresnelDielectric(Float cosThetaI, Float etaI, Float etaT) {
   return (rparl * rparl + rperp * rperp) / 2;
 }
 
-inline Float FresnelSchlick(Float cos_theta_i, Float etaI, Float etaT) {
+F_CPU_GPU inline Float FresnelSchlick(Float cos_theta_i, Float etaI,
+                                      Float etaT) {
   // Following the assumption to do some simplification
   cos_theta_i = std::abs(cos_theta_i);
   cos_theta_i = std::max<Float>(0.0, cos_theta_i);
@@ -48,8 +50,10 @@ inline Float FresnelSchlick(Float cos_theta_i, Float etaI, Float etaT) {
   return R0 + (1 - R0) * pow(1 - cos_theta_i, 5);
 }
 
-inline Vector3f FresnelConductor(Float cos_theta_i, const Vector3f &etaI,
-                                 const Vector3f &etaT, const Vector3f &k) {
+F_CPU_GPU inline Vector3f FresnelConductor(Float           cos_theta_i,
+                                           const Vector3f &etaI,
+                                           const Vector3f &etaT,
+                                           const Vector3f &k) {
   cos_theta_i    = std::clamp<Float>(cos_theta_i, -1, 1);
   Vector3f eta   = etaT / etaI;
   Vector3f eta_k = k / etaI;

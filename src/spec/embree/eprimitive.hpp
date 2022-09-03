@@ -19,9 +19,9 @@ FLG_NAMESPACE_BEGIN
 class EmbreeMeshPrimitive : public Primitive {
 public:
   EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material = nullptr,
-                      AreaLight *areaLight = nullptr);
+                      AreaLight *areaLight = nullptr, Volume *volume = nullptr);
   EmbreeMeshPrimitive(const std::string &path, Material *material = nullptr,
-                      AreaLight *areaLight = nullptr);
+                      AreaLight *areaLight = nullptr, Volume *volume = nullptr);
   ~EmbreeMeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -30,11 +30,13 @@ public:
   // if the areaLight actually exists
   AreaLight *getAreaLight() const override;
   Material  *getMaterial() const override;
+  Volume    *getVolume() const override { return m_volume; }
 
 private:
   TriangleMesh *m_mesh;
-  Material     *m_material;
-  AreaLight    *m_areaLight;
+  Material     *m_material{nullptr};
+  AreaLight    *m_areaLight{nullptr};
+  Volume       *m_volume{nullptr};
 
   // embree properties
   RTCDevice    m_device;

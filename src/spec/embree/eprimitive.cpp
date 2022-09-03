@@ -21,8 +21,11 @@
 FLG_NAMESPACE_BEGIN
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
-                                         AreaLight *areaLight)
-    : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
+                                         AreaLight *areaLight, Volume *volume)
+    : m_mesh(mesh),
+      m_material(material),
+      m_areaLight(areaLight),
+      m_volume(volume) {
   m_device = embreeInitializeDevice();
   m_scene  = rtcNewScene(m_device);
   m_geom   = rtcNewGeometry(m_device, RTC_GEOMETRY_TYPE_TRIANGLE);
@@ -65,9 +68,9 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string &path,
                                          Material          *material,
-                                         AreaLight         *areaLight)
+                                         AreaLight *areaLight, Volume *volume)
     : EmbreeMeshPrimitive(MakeTriangleMesh(path, m_resource), material,
-                          areaLight) {}
+                          areaLight, volume) {}
 
 AABB EmbreeMeshPrimitive::getBound() const {
   // > The provided destination pointer must be aligned to 16 bytes.

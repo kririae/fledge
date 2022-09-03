@@ -9,7 +9,7 @@ FLG_NAMESPACE_BEGIN
 
 class Sampler {
 public:
-  Sampler(uint64_t SPP, uint32_t seed = 0) : m_SPP(SPP), m_rng(seed) {}
+  Sampler(uint64_t SPP) : m_SPP(SPP) {}
   void     setPixel(const Vector2f &p) { m_p = p; }
   Float    get1D() { return m_rng.get1D(); }
   Vector2f get2D() { return m_rng.get2D(); }
@@ -21,7 +21,7 @@ public:
 
   uint64_t m_SPP;
   Vector2f m_p;
-  Random   m_rng;
+  Random   m_rng{};
 };
 
 FLG_NAMESPACE_END

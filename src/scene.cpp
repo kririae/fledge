@@ -54,7 +54,6 @@ bool Scene::intersect(const Ray &ray, SInteraction &isect) const {
 AABB Scene::getBound() const {
   AABB aabb;
   aabb = m_accel->getBound();
-  if (m_volume != nullptr) aabb = aabb.merge(m_volume->getBound());
   return aabb;
 }
 
@@ -79,8 +78,17 @@ static Vector3f parseVector3f(const std::string &s) {
 static bool setIntegrator(const pt::ptree &tree, Scene &scene) {
   auto type = tree.get<std::string>("<xmlattr>.type");
   SLog("scene.integrator.type = %s", type.c_str());
-  // TODO: add volpath as an option
-  assert(type == "path" || type == "volpath");
+  switch (hash(type.c_str())) {
+    case hash("path"):
+      scene.m_integrator_type = EIntegratorType::EPathIntegrator;
+      break;
+    case hash("volpath"):
+      scene.m_integrator_type = EIntegratorType::EVolPathIntegrator;
+      break;
+    default:
+      TODO();
+  }
+
   for (auto &v : tree) {
     switch (hash(v.first.c_str())) {
       case hash("integer"): {
@@ -202,8 +210,10 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
           SLog("scene.shape%s.filename = %s", shape_id.c_str(),
                filename.c_str());
           scene.m_primitives.push_back(
-              scene.m_resource.alloc<EmbreeMeshPrimitive>(filename, mat,
-                                                          nullptr));
+              scene.m_resource.alloc<EmbreeMeshPrimitive>(
+                  filename, mat, nullptr,
+                  scene.m_resource.alloc<HVolume>(Vector3f{3.0}, Vector3f{0.3},
+                                                  -0.877, 1.0)));
         }
       }
 
@@ -218,10 +228,19 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       SLog("scene.shape%s.center = %s", shape_id.c_str(),
            center.toString().c_str());
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
+#if 0
       scene.m_primitives.push_back(scene.m_resource.alloc<ShapePrimitive>(
           scene.m_resource.alloc<Sphere>(center, radius), mat, nullptr,
-          scene.m_resource.alloc<HVolume>()));  // TODO
-    }                                           // "sphere"
+          scene.m_resource.alloc<HVolume>(
+              Vector3f{0.0001764, 0.00032095, 0.00019617},
+              Vector3f{0.031845, 0.031324, 0.030147}, 0.9,
+              1.0)));  // TODO
+#endif
+      scene.m_primitives.push_back(scene.m_resource.alloc<ShapePrimitive>(
+          scene.m_resource.alloc<Sphere>(center, radius), mat, nullptr,
+          scene.m_resource.alloc<HVolume>(Vector3f{3.0}, Vector3f{0.3}, -0.877,
+                                          1.0)));  // TODO
+    }                                              // "sphere"
   }
 
   return true;

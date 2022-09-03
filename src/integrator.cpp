@@ -46,10 +46,12 @@ Vector3f VolEstimateTr(Ray ray, const Scene &scene, Sampler &sampler) {
     bool find_isect = scene.intersect(ray, isect);
     if (find_isect) {
       assert(isect.isSInteraction());
-      if (ray.m_volume != nullptr) tr *= ray.m_volume->tr(ray, sampler);
       // The behavior of shading the intersection is undefined
+      // (and it can not have any volume)
       if (isect.m_primitive == nullptr) return 0.0;
+      // If it has some material, then it should hinder the light transport
       if (isect.m_primitive->getMaterial() != nullptr) return 0.0;
+      if (ray.m_volume != nullptr) tr *= ray.m_volume->tr(ray, sampler);
       t_max -= ray.m_tMax;
       if (t_max < 0) return tr;
       ray        = isect.SpawnRay(ray.m_d);
@@ -94,7 +96,6 @@ Vector3f EstimateDirect(const Interaction &it, const Light &light,
     // ray.tMax, so if intersection
     auto     shadow_ray = it.SpawnRayTo(light_sample);
     Vector3f tr         = VolEstimateTr(shadow_ray, scene, sampler);
-    assert(tr.x() <= 1.0 && tr.y() <= 1.0 && tr.z() <= 1.0);
     C(tr);
     Li *= tr;
     L += f * Li / pdf;

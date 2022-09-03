@@ -69,6 +69,22 @@ class OpenVDBVolume;
 class VInteraction;
 class Volume;
 
+enum class EFilmBufferType {
+  EColor  = (1),
+  EAlbedo = (1 << 1),
+  ENormal = (1 << 2),
+  EOutput = (1 << 3),
+  EAll    = (1 << 4) - 1,
+  EExtra1 = (1 << 4),
+  EExtra2 = (1 << 5),
+  EExtra3 = (1 << 6),
+};
+
+enum class EIntegratorType {
+  EPathIntegrator = 0,
+  EVolPathIntegrator,
+};
+
 FLG_NAMESPACE_END
 
 #endif

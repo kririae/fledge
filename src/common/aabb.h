@@ -10,14 +10,14 @@ FLG_NAMESPACE_BEGIN
 
 class AABB {
 public:
-  AABB() = default;
-  AABB(Vector3f t_min, Vector3f t_max) : m_min(t_min), m_max(t_max) {
+  F_CPU_GPU AABB() = default;
+  F_CPU_GPU AABB(Vector3f t_min, Vector3f t_max) : m_min(t_min), m_max(t_max) {
     m_min = Min(t_min, t_max);
     m_max = Max(t_max, t_min);
   }
-  ~AABB() = default;
+  F_CPU_GPU ~AABB() = default;
 
-  bool intersect(const Ray &ray, Float &t_min, Float &t_max) const {
+  F_CPU_GPU bool intersect(const Ray &ray, Float &t_min, Float &t_max) const {
     auto     inv_d  = ray.m_d.cwiseInverse();
     Vector3f vt1    = (m_min - ray.m_o) * (inv_d);
     Vector3f vt2    = (m_max - ray.m_o) * (inv_d);
@@ -35,7 +35,8 @@ public:
     }
   }
 
-  bool intersect_pbrt(const Ray &ray, Float &t_min, Float &t_max) const {
+  F_CPU_GPU bool intersect_pbrt(const Ray &ray, Float &t_min,
+                                Float &t_max) const {
     Float t0 = 0, t1 = ray.m_tMax;
     for (int i = 0; i < 3; ++i) {
       // Update interval for _i_th bounding box slab
@@ -57,23 +58,23 @@ public:
     return true;
   }
 
-  bool inside(const Vector3f &p) const {
+  F_CPU_GPU bool inside(const Vector3f &p) const {
     return m_min[0] <= p[0] && m_min[1] <= p[1] && m_min[2] <= p[2] &&
            p[0] <= m_max[0] && p[1] <= m_max[1] && p[2] <= m_max[2];
   }
 
-  AABB merge(const AABB &other) {
+  F_CPU_GPU AABB merge(const AABB &other) {
     return AABB(m_min.cwiseMin(other.m_min), m_max.cwiseMax(other.m_max));
   }
 
-  void boundSphere(Vector3f &center, Float &radius) const {
+  F_CPU_GPU void boundSphere(Vector3f &center, Float &radius) const {
     center = (m_min + m_max) / 2;
     radius = (m_max - center).norm();
   }
 
-  Vector3f center() const { return (m_min + m_max) / 2; }
+  F_CPU_GPU Vector3f center() const { return (m_min + m_max) / 2; }
 
-  bool operator==(const AABB &a) const {
+  F_CPU_GPU bool operator==(const AABB &a) const {
     return m_min == a.m_min && m_max == a.m_max;
   }
 

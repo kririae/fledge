@@ -6,6 +6,7 @@
 
 #include "debug.hpp"
 #include "film.hpp"
+#include "fledge.h"
 #include "integrator.hpp"
 #include "light.hpp"
 #include "scene.hpp"
@@ -21,8 +22,19 @@ void Render::init() {
   SLog("OpenVDB is ready");
   openvdb::initialize();
   SLog("render is ready");
-  m_integrator = m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
-  m_init       = true;
+  switch (int(m_scene->m_integrator_type)) {
+    case int(EIntegratorType::EPathIntegrator):
+      m_integrator =
+          m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
+      break;
+    case int(EIntegratorType::EVolPathIntegrator):
+      m_integrator =
+          m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
+      break;
+    default:
+      TODO();
+  }  // switch integrator_type
+  m_init = true;
 }
 
 bool Render::preprocess() {

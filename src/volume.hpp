@@ -32,7 +32,8 @@ public:
 // homogeneous volume
 class HVolume : public Volume {
 public:
-  HVolume();
+  HVolume(const Vector3f &sigma_s, const Vector3f &sigma_a, Float g,
+          Float density = 1.0);
   ~HVolume() override = default;
 
   // function same as above
@@ -41,9 +42,9 @@ public:
                   bool &success) const override;
 
 private:
-  Float m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
-  Float m_g;
-  Float m_density;
+  Vector3f m_sigma_s, m_sigma_a, m_sigma_t;  // m^2
+  Float    m_g;
+  Float    m_density;
 };
 
 class OpenVDBVolume : public Volume {

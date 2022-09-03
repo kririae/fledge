@@ -1,7 +1,10 @@
 #ifndef __RNG_HPP__
 #define __RNG_HPP__
 
+#include <time.h>
+
 #include <random>
+#include <thread>
 
 #include "common/vector.h"
 #include "debug.hpp"

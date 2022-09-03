@@ -28,19 +28,21 @@ TEST(Scene, WhiteWithDiffusion) {
   auto env_texture = std::make_shared<ConstTexture>(1.0);
   scene.m_light.clear();
   scene.m_infLight.clear();
-  scene.m_light.push_back(scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
+  scene.m_light.push_back(
+      scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
   scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
 
-  scene.m_resX     = 1280 / 4;
-  scene.m_resY     = 720 / 4;
-  scene.m_SPP      = 128;
-  scene.m_maxDepth = 16;
-  scene.m_FoV      = 30;  // y axis
-  scene.m_up       = Vector3f(0, 1, 0);
-  scene.m_origin   = Vector3f(0, 7, -15);
-  scene.m_target   = Vector3f(0, 0, 0);
-  scene.m_volume   = nullptr;
-  scene.m_base_dir = std::filesystem::path(".");
+  scene.m_resX            = 1280 / 4;
+  scene.m_resY            = 720 / 4;
+  scene.m_SPP             = 128;
+  scene.m_maxDepth        = 16;
+  scene.m_FoV             = 30;  // y axis
+  scene.m_up              = Vector3f(0, 1, 0);
+  scene.m_origin          = Vector3f(0, 7, -15);
+  scene.m_target          = Vector3f(0, 0, 0);
+  scene.m_volume          = nullptr;
+  scene.m_base_dir        = std::filesystem::path(".");
+  scene.m_integrator_type = EIntegratorType::EPathIntegrator;
 
   scene.init();
 
@@ -57,6 +59,7 @@ TEST(Scene, WhiteWithDiffusion) {
     for (int j = 0; j < film.m_resY; ++j)
       average +=
           film.getBuffer(i, j, EFilmBufferType::EColor).cast<double, 3>();
+
   average /= (film.m_resX * film.m_resY);
   EXPECT_NEAR(average.x(), 1, 1e-3);
   EXPECT_NEAR(average.y(), 1, 1e-3);
