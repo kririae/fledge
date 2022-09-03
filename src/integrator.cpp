@@ -16,7 +16,7 @@
 #include "fledge.h"
 #include "interaction.hpp"
 #include "light.hpp"
-#include "material.hpp"
+#include "materials/material.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "scene.hpp"

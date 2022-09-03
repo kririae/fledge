@@ -1,4 +1,4 @@
-#include "material.hpp"
+#include "materials/material.hpp"
 
 #include <memory>
 
@@ -71,8 +71,7 @@ MicrofacetMaterial::MicrofacetMaterial(const Vector3f &R, Float roughness,
       m_k(k),
       m_roughness(roughness),
       m_dist(BeckmannDistribution(
-          BeckmannDistribution::roughnessToAlpha(roughness))) {
-}
+          BeckmannDistribution::roughnessToAlpha(roughness))) {}
 Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
                                const Vector2f             &uv,
                                const CoordinateTransition &trans) const {

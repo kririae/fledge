@@ -18,7 +18,7 @@
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"
-#include "material.hpp"
+#include "materials/material.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "shape.hpp"
@@ -316,4 +316,3 @@ std::string Scene::getPath(const std::string &asset_path) {
 }
 
 FLG_NAMESPACE_END
-std::allocator<char>

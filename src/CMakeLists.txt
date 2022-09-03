@@ -70,9 +70,11 @@ if(USE_JEMALLOC)
   target_link_libraries(fledge_lib PUBLIC ${JEMALLOC_LIBRARIES})
 endif()
 
+add_subdirectory(materials/)
+
 target_link_libraries(fledge_lib PUBLIC Eigen3::Eigen OpenVDB::openvdb
   cuda-api-wrappers::runtime-and-driver
-  OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn)
+  OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn fledge_materials)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)

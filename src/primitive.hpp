@@ -7,7 +7,7 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
-#include "material.hpp"
+#include "materials/material.hpp"
 #include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
