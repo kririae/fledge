@@ -179,7 +179,8 @@ private:
   std::list<MemoryBlock> m_blocks;
 };
 
-using Resource = GenericResource<detail::JeAllocator, detail::JeDeallocator>;
+using Resource =
+    GenericResource<detail::DefaultAllocator, detail::DefaultDeallocator>;
 
 FLG_NAMESPACE_END
 

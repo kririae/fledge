@@ -228,19 +228,20 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       SLog("scene.shape%s.center = %s", shape_id.c_str(),
            center.toString().c_str());
       SLog("scene.shape%s.radius = %f", shape_id.c_str(), radius);
-#if 0
+#if 1
       scene.m_primitives.push_back(scene.m_resource.alloc<ShapePrimitive>(
           scene.m_resource.alloc<Sphere>(center, radius), mat, nullptr,
           scene.m_resource.alloc<HVolume>(
               Vector3f{0.0001764, 0.00032095, 0.00019617},
               Vector3f{0.031845, 0.031324, 0.030147}, 0.9,
               1.0)));  // TODO
-#endif
+#else
       scene.m_primitives.push_back(scene.m_resource.alloc<ShapePrimitive>(
           scene.m_resource.alloc<Sphere>(center, radius), mat, nullptr,
           scene.m_resource.alloc<HVolume>(Vector3f{3.0}, Vector3f{0.3}, -0.877,
                                           1.0)));  // TODO
-    }                                              // "sphere"
+#endif
+    }  // "sphere"
   }
 
   return true;

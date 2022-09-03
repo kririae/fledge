@@ -39,7 +39,7 @@ int main() {
   render.init();
   render.preprocess();
   render.render();
-  render.saveImage("fledge_out.exr", false);
+  render.saveImage("fledge_out.exr", true);
   scene.m_resource.printStat();
   return 0;
 }

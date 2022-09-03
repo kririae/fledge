@@ -21,6 +21,7 @@ Film Denoise(const Film &pre_filtered) {
   void *albedoPtr = (void *)post_filtered.m_buffers[1].data();
   void *normalPtr = (void *)post_filtered.m_buffers[2].data();
   void *outputPtr = (void *)post_filtered.m_buffers[3].data();
+  C(colorPtr, albedoPtr, normalPtr, outputPtr);
 
   // Create a filter for denoising a beauty (color) image using optional
   // auxiliary images too

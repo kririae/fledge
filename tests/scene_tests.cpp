@@ -20,7 +20,7 @@ TEST(Scene, WhiteWithDiffusion) {
   Scene scene;
 
   auto sphere_1 = scene.m_resource.alloc<Sphere>(Vector3f(0.0), 3.0);
-  auto mat      = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(0.5));
+  auto mat      = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(1.0));
   scene.m_primitives.clear();
   scene.m_primitives.push_back(
       scene.m_resource.alloc<ShapePrimitive>(sphere_1, mat));
