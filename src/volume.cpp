@@ -158,16 +158,7 @@ HVolume::HVolume() {
 }
 
 Vector3f HVolume::tr(const Ray &ray, Sampler &rng) const {
-  // calculate the tr from ray.o to ray.m_tMax
-  Float t_min, t_max;
-
-  if (!m_aabb.intersect(ray, t_min, t_max)) {
-    return Vector3f(1.0);
-  }
-
-  // clamp the t_max
-  t_min = std::max(static_cast<Float>(0), t_min);
-  return Vector3f(std::exp(-(t_max - t_min) * m_density * m_sigma_t));
+  return Vector3f(std::exp(-(ray.m_tMax) * m_density * m_sigma_t));
 }
 
 // @INIT_INTERACTION

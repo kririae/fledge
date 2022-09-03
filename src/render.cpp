@@ -21,7 +21,7 @@ void Render::init() {
   SLog("OpenVDB is ready");
   openvdb::initialize();
   SLog("render is ready");
-  m_integrator = m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
+  m_integrator = m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
   m_init       = true;
 }
 

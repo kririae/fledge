@@ -47,11 +47,11 @@ Vector3f VolEstimateTr(Ray ray, const Scene &scene, Sampler &sampler) {
     if (find_isect) {
       assert(isect.isSInteraction());
       if (ray.m_volume != nullptr) tr *= ray.m_volume->tr(ray, sampler);
-      t_max -= ray.m_tMax;
-      if (t_max <= 0) return tr;
       // The behavior of shading the intersection is undefined
       if (isect.m_primitive == nullptr) return 0.0;
-      if (isect.m_primitive->getMaterial() == nullptr) return 0.0;
+      if (isect.m_primitive->getMaterial() != nullptr) return 0.0;
+      t_max -= ray.m_tMax;
+      if (t_max < 0) return tr;
       ray        = isect.SpawnRay(ray.m_d);
       ray.m_tMax = t_max;
     } else {

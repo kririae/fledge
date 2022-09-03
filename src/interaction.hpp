@@ -27,10 +27,12 @@ public:
     m_ray                    = Ray();
   }
   virtual Ray SpawnRay(const Vector3f &d) const {
+    assert(abs(Norm(m_ray.m_d) - 1) < 1e-4);  // ray is initialized
     auto o = OffsetRayOrigin(m_p, m_ng, d);
     return {o, Normalize(d)};
   }
   virtual Ray SpawnRayTo(const Vector3f &p) const {
+    assert(abs(Norm(m_ray.m_d) - 1) < 1e-4);  // ray is initialized
     Float      norm = (p - m_p).norm();
     auto       d    = (p - m_p) / norm;
     const auto o    = OffsetRayOrigin(m_p, m_ng, d);
@@ -76,7 +78,7 @@ public:
   Ray  SpawnRayTo(const Vector3f &p) const override;
   Ray  SpawnRayTo(const Interaction &it) const override;
 
-  Float m_g;
+  Float m_g{0};
 };
 
 FLG_NAMESPACE_END

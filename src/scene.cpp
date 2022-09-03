@@ -228,12 +228,6 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
 }
 
 static bool addLight(const pt::ptree &tree, Scene &scene) {
-  auto env_texture = std::make_shared<ConstTexture>(1.0);
-  scene.m_light.push_back(
-      scene.m_resource.alloc<InfiniteAreaLight>(env_texture));
-  scene.m_infLight.push_back(scene.m_light[scene.m_light.size() - 1]);
-  return true;
-
   auto type = tree.get<std::string>("<xmlattr>.type");
   assert(type == "envmap");
 
