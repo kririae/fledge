@@ -8,8 +8,12 @@ BUILD_TYPE := Release
 TARGET_EXEC := $(BUILD_DIR)/bin/fledge
 CC_FORMAT_EXEC := clang-format
 PY_FORMAT_EXEC := autopep8
+NPROCS := $(shell nproc)
+NPROCS_1 := $$(($(NPROCS) - 1))
 
-export ASAN_OPTIONS=new_delete_type_mismatch=0,detect_odr_violation=0
+export ASAN_OPTIONS := new_delete_type_mismatch=0,detect_odr_violation=0
+export OMP_NUM_THREADS := $(NPROCS_1)
+
 
 define HELP_TEXT
 Fledge Renderer
@@ -33,7 +37,7 @@ endif
 .PHONY: build
 build: .FORCE
 	@test -d $(BUILD_DIR) || $(BUILD_COMMAND) -B $(BUILD_DIR) -DCMAKE_EXPORT_COMPILE_COMMANDS=True -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
-	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j --config $(BUILD_TYPE) --target fledge
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j $(NPROCS_1) --config $(BUILD_TYPE) --target fledge
 	@test -f compile_commands.json || ln -sf $(BUILD_DIR)/compile_commands.json ./  
 
 .PHONY: clean
@@ -51,8 +55,8 @@ format: .FORCE
 
 .PHONY: test
 test: build .FORCE
-	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j --config $(BUILD_TYPE)
-	@ctest --test-dir $(BUILD_DIR)
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j $(NPROCS_1) --config $(BUILD_TYPE)
+	@ctest --test-dir $(BUILD_DIR) --output-on-failure -j $(NPROCS_1)
 
 .PHONY: help
 export HELP_TEXT
