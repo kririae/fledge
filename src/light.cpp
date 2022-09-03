@@ -118,7 +118,7 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
 
   // Although both of them can produce correct result, the result by uniform
   // sampling is more robust in high-variance environment map.
-#if 0 
+#if 0
   dir = UniformSampleSphere(u);
   pdf = 0.5 * INV_2PI;
 #endif

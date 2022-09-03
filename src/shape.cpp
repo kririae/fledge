@@ -156,6 +156,7 @@ Float Triangle::area() const {
 
 Interaction Triangle::sample(const Vector2f &u, Float &pdf) const {
   TODO();
+  return Interaction{};
 }
 
 AABB Triangle::getBound() const {

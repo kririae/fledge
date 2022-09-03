@@ -106,7 +106,6 @@ struct Vector {
   }
 
   // Notice that type T will not be promoted currently
-  // TODO: specification using SSE
 #if defined(USE_ISPC) && !defined(__CUDACC__)
   Vector operator-() const {
     return forEach([](const T &x) -> T { return -x; });

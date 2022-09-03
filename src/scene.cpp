@@ -29,9 +29,9 @@
 FLG_NAMESPACE_BEGIN
 namespace pt = boost::property_tree;
 
-Scene::Scene() {}
+Scene::Scene() : m_resource(), m_base_dir(".") {}
 
-Scene::Scene(const std::string &filename) {
+Scene::Scene(const std::string &filename) : Scene() {
   parseXML(filename);
 }
 
@@ -194,6 +194,10 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       mat = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(1.0));
       break;
     }  // "diffuse"
+    case hash("roughconductor"): {
+      mat = scene.m_resource.alloc<MicrofacetMaterial>(Vector3f(0.3), 0.04);
+      break;
+    }  // "roughconductor"
     default:
       TODO();
   }
@@ -211,8 +215,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
                filename.c_str());
           scene.m_primitives.push_back(
               scene.m_resource.alloc<EmbreeMeshPrimitive>(
-                  filename, mat, nullptr,
-                  scene.m_resource.alloc<HVolume>(Vector3f{3.0}, Vector3f{0.3},
+                  filename, scene.m_resource, mat, nullptr,
+                  scene.m_resource.alloc<HVolume>(Vector3f{1.0}, Vector3f{0.1},
                                                   -0.877, 1.0)));
         }
       }
@@ -312,3 +316,4 @@ std::string Scene::getPath(const std::string &asset_path) {
 }
 
 FLG_NAMESPACE_END
+std::allocator<char>

@@ -3,6 +3,7 @@
 
 #include <jemalloc/jemalloc.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
@@ -42,6 +43,17 @@ struct JeDeallocator {
 // struct CUManagedAllocator {
 //   void *operator()(size_t size) { return; }
 // };
+
+/**
+ * @brief The smallest granularity of memory management in the system
+ */
+struct MemoryBlock {
+  void       *m_ptr{nullptr};
+  size_t      m_size{0}, m_n{0};
+  std::string m_description;
+  // https://herbsutter.com/2016/09/25/to-store-a-destructor/
+  void (*m_destruct)(const void *){nullptr};
+};
 };  // namespace detail
 
 /**
@@ -49,7 +61,7 @@ struct JeDeallocator {
  */
 template <typename Allocator, typename Deallocator>
 struct GenericResource {
-  GenericResource()                                    = default;
+  GenericResource() : m_blocks() {}
   GenericResource(const GenericResource &)             = delete;
   GenericResource &operator()(const GenericResource &) = delete;
   ~GenericResource() {
@@ -71,7 +83,7 @@ struct GenericResource {
    */
   template <typename T, typename Allocator_ = Allocator, typename... Args>
   std::enable_if_t<!std::is_array<T>::value, T *> alloc(Args &&...args) {
-    MemoryBlock block;  // create a new block for this allocation
+    detail::MemoryBlock block;  // create a new block for this allocation
     block.m_description = typeid(T).name();
     block.m_ptr         = Allocator_()(sizeof(T));
     assert(block.m_ptr != nullptr);
@@ -101,7 +113,7 @@ struct GenericResource {
             typename Allocator_ = Allocator, typename... Args>
   std::enable_if_t<std::is_unbounded_array_v<T>, T_ *> alloc(size_t n,
                                                              Args &&...args) {
-    MemoryBlock block;  // yet, create a new block
+    detail::MemoryBlock block;  // yet, create a new block
     block.m_description = std::string(typeid(T_).name()) + "__array";
     block.m_ptr =
         Allocator()(sizeof(T_) * n);  // use the default malloc for now
@@ -165,18 +177,7 @@ struct GenericResource {
   }
 
 private:
-  /**
-   * @brief The smallest granularity of memory management in the system
-   */
-  struct MemoryBlock {
-    void       *m_ptr;
-    size_t      m_size, m_n;
-    std::string m_description;
-    // https://herbsutter.com/2016/09/25/to-store-a-destructor/
-    void (*m_destruct)(const void *);
-  };
-
-  std::list<MemoryBlock> m_blocks;
+  std::vector<detail::MemoryBlock> m_blocks;
 };
 
 using Resource =

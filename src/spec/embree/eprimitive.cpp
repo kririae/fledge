@@ -2,6 +2,7 @@
 
 #include <embree3/rtcore_buffer.h>
 #include <embree3/rtcore_common.h>
+#include <embree3/rtcore_device.h>
 #include <embree3/rtcore_geometry.h>
 #include <embree3/rtcore_scene.h>
 
@@ -20,9 +21,11 @@
 
 FLG_NAMESPACE_BEGIN
 
-EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
+EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
+                                         Material  *material,
                                          AreaLight *areaLight, Volume *volume)
-    : m_mesh(mesh),
+    : m_resource(&resource),
+      m_mesh(mesh),
       m_material(material),
       m_areaLight(areaLight),
       m_volume(volume) {
@@ -67,13 +70,18 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material,
 }
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string &path,
-                                         Material          *material,
+                                         Resource &resource, Material *material,
                                          AreaLight *areaLight, Volume *volume)
-    : EmbreeMeshPrimitive(MakeTriangleMesh(path, m_resource), material,
+    : EmbreeMeshPrimitive(MakeTriangleMesh(path, resource), resource, material,
                           areaLight, volume) {}
+
+EmbreeMeshPrimitive::~EmbreeMeshPrimitive() {
+  rtcReleaseScene(m_scene);
+}
 
 AABB EmbreeMeshPrimitive::getBound() const {
   // > The provided destination pointer must be aligned to 16 bytes.
+  // This allocation do not use resource
   auto *bounds = (RTCBounds *)std::aligned_alloc(16, sizeof(RTCBounds));
   rtcGetSceneBounds(m_scene, bounds);
   AABB res(Vector3f{bounds->lower_x, bounds->lower_y, bounds->lower_z},
@@ -83,7 +91,6 @@ AABB EmbreeMeshPrimitive::getBound() const {
 }
 
 bool EmbreeMeshPrimitive::intersect(const Ray &ray, SInteraction &isect) const {
-  // TODO: should it be kept outside?
   RTCIntersectContext context;
   rtcInitIntersectContext(&context);
 

@@ -102,10 +102,10 @@ class MeshPrimitive : public Primitive {
   // However, we provide a MethPrimitive with a higher level of abstraction
 
 public:
-  MeshPrimitive(TriangleMesh *mesh, Material *material = nullptr,
-                AreaLight *areaLight = nullptr);
-  MeshPrimitive(const std::string &path, Material *material = nullptr,
-                AreaLight *areaLight = nullptr);
+  MeshPrimitive(TriangleMesh *mesh, Resource &resource,
+                Material *material = nullptr, AreaLight *areaLight = nullptr);
+  MeshPrimitive(const std::string &path, Resource &resource,
+                Material *material = nullptr, AreaLight *areaLight = nullptr);
   ~MeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
@@ -117,14 +117,13 @@ public:
 
 private:
   // Mesh-related
+  Resource               *m_resource;
   TriangleMesh           *m_mesh;
   std::vector<Triangle *> m_triangles;
   Accel                  *m_accel;
 
   Material  *m_material;
   AreaLight *m_areaLight;
-
-  Resource m_resource;
 };
 
 // class VolumePremitive: public

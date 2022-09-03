@@ -51,24 +51,28 @@ Volume *ShapePrimitive::getVolume() const {
   return m_volume;
 }
 
-MeshPrimitive::MeshPrimitive(TriangleMesh *mesh, Material *material,
-                             AreaLight *areaLight)
-    : m_mesh(mesh), m_material(material), m_areaLight(areaLight) {
+MeshPrimitive::MeshPrimitive(TriangleMesh *mesh, Resource &resource,
+                             Material *material, AreaLight *areaLight)
+    : m_resource(&resource),
+      m_mesh(mesh),
+      m_material(material),
+      m_areaLight(areaLight) {
   assert(m_mesh->nInd % 3 == 0);
   for (int i = 0; i < m_mesh->nInd / 3; ++i)
-    m_triangles.push_back(m_resource.alloc<Triangle>(m_mesh, i));
+    m_triangles.push_back(m_resource->alloc<Triangle>(m_mesh, i));
 
   // AND, construct the BVH under the mesh
   // Convert triangles to primitive
   std::vector<Primitive *> p_triangles;
   for (size_t i = 0; i < m_triangles.size(); ++i)
-    p_triangles.push_back(m_resource.alloc<ShapePrimitive>(m_triangles[i]));
-  m_accel = m_resource.alloc<NaiveBVHAccel>(p_triangles, m_resource);
+    p_triangles.push_back(m_resource->alloc<ShapePrimitive>(m_triangles[i]));
+  m_accel = m_resource->alloc<NaiveBVHAccel>(p_triangles, *m_resource);
 }
 
-MeshPrimitive::MeshPrimitive(const std::string &path, Material *material,
-                             AreaLight *areaLight)
-    : MeshPrimitive(MakeTriangleMesh(path, m_resource), material, areaLight) {}
+MeshPrimitive::MeshPrimitive(const std::string &path, Resource &resource,
+                             Material *material, AreaLight *areaLight)
+    : MeshPrimitive(MakeTriangleMesh(path, resource), resource, material,
+                    areaLight) {}
 
 AABB MeshPrimitive::getBound() const {
   return m_accel->getBound();

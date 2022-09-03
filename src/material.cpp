@@ -72,7 +72,7 @@ MicrofacetMaterial::MicrofacetMaterial(const Vector3f &R, Float roughness,
       m_roughness(roughness),
       m_dist(BeckmannDistribution(
           BeckmannDistribution::roughnessToAlpha(roughness))) {
-}  // TODO: constant roughness for now
+}
 Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
                                const Vector2f             &uv,
                                const CoordinateTransition &trans) const {

@@ -27,7 +27,7 @@ TEST(Triangle, Watertight) {
   Resource      resource;
   TriangleMesh *mesh = MakeMeshedSphere(16, 16, 1, resource);
 
-  auto mesh_primitive = MeshPrimitive(mesh);
+  auto mesh_primitive = MeshPrimitive(mesh, resource);
 
   for (int i = 0; i < 1000; ++i) {
     Vector2f u = rng.get2D();

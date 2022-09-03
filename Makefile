@@ -9,6 +9,8 @@ TARGET_EXEC := $(BUILD_DIR)/bin/fledge
 CC_FORMAT_EXEC := clang-format
 PY_FORMAT_EXEC := autopep8
 
+export ASAN_OPTIONS=new_delete_type_mismatch=0,detect_odr_violation=0
+
 define HELP_TEXT
 Fledge Renderer
 

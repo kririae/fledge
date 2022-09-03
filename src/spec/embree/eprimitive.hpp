@@ -18,11 +18,13 @@ FLG_NAMESPACE_BEGIN
 
 class EmbreeMeshPrimitive : public Primitive {
 public:
-  EmbreeMeshPrimitive(TriangleMesh *mesh, Material *material = nullptr,
+  EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
+                      Material  *material  = nullptr,
                       AreaLight *areaLight = nullptr, Volume *volume = nullptr);
-  EmbreeMeshPrimitive(const std::string &path, Material *material = nullptr,
+  EmbreeMeshPrimitive(const std::string &path, Resource &resource,
+                      Material  *material  = nullptr,
                       AreaLight *areaLight = nullptr, Volume *volume = nullptr);
-  ~EmbreeMeshPrimitive() override = default;
+  ~EmbreeMeshPrimitive() override;
 
   // get the AABB bounding box of the primitive
   AABB getBound() const override;
@@ -33,6 +35,8 @@ public:
   Volume    *getVolume() const override { return m_volume; }
 
 private:
+  // initialized first
+  Resource     *m_resource;  // pointer to resource manager
   TriangleMesh *m_mesh;
   Material     *m_material{nullptr};
   AreaLight    *m_areaLight{nullptr};
@@ -43,7 +47,6 @@ private:
   RTCScene     m_scene;
   RTCGeometry  m_geom;
   unsigned int m_geomID;
-  Resource     m_resource;
 };
 
 FLG_NAMESPACE_END
