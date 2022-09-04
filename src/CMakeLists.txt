@@ -73,7 +73,7 @@ add_subdirectory(materials/)
 target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb
 
   # cuda-api-wrappers::runtime-and-driver
-  OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn fledge_materials)
+  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_embree fledge_lib_oidn fledge_materials)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)

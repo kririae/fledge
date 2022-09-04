@@ -5,7 +5,6 @@
 
 #include <memory>
 
-#include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
 

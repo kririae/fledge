@@ -1,8 +1,7 @@
 #ifndef __RESOURCE_HPP__
 #define __RESOURCE_HPP__
 
-#include <bits/align.h>
-#include <oneapi/tbb.h>
+#include <oneapi/tbb/cache_aligned_allocator.h>
 #include <oneapi/tbb/scalable_allocator.h>
 
 #include <functional>
@@ -42,15 +41,12 @@ requires(std::is_unbounded_array_v<T>) struct ArrayDestructor
  */
 struct Resource {
   Resource() = default;  // use local scalable_resource
-  Resource(std::pmr::memory_resource *upstream) : m_mem_resource(upstream) {}
+  Resource(std::pmr::memory_resource *upstream)
+      : m_upstream(upstream), m_mem_resource(&m_upstream) {}
 
   Resource(const Resource &)             = delete;
   Resource &operator()(const Resource &) = delete;
-  ~Resource() {
-    for (auto &i : m_destructors) {
-      delete i;  // explicitly call the destructors of objects
-    }
-  }
+  ~Resource() { release(); }
 
   /**
    * @brief Allocate memory using the memory resource manager and the
@@ -93,8 +89,12 @@ struct Resource {
     T_  *mem =
         static_cast<T_ *>(allocator.allocate_bytes(sizeof(T_) * n, Align));
     assert(static_cast<size_t>(mem) % Align == 0);
-    for (size_t i = 0; i < n; ++i)
-      allocator.construct(mem + i, std::forward<Args>(args)...);
+    if constexpr (sizeof...(args) == 0) {
+      new (mem) T_[n];
+    } else {
+      for (size_t i = 0; i < n; ++i)
+        allocator.construct(mem + i, std::forward<Args>(args)...);
+    }  // if constexpr
     m_destructors.push_back(new detail::ArrayDestructor<T>(mem, n));
     return mem;
   }
@@ -108,7 +108,9 @@ struct Resource {
 
 private:
   std::list<detail::DestructorBase *> m_destructors;
-  std::pmr::unsynchronized_pool_resource m_mem_resource;
+  tbb::cache_aligned_resource         m_upstream{
+      oneapi::tbb::scalable_memory_resource()};
+  std::pmr::unsynchronized_pool_resource m_mem_resource{&m_upstream};
 };
 
 FLG_NAMESPACE_END

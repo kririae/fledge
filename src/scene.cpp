@@ -1,5 +1,8 @@
 #include "scene.hpp"
 
+#include <oneapi/tbb/cache_aligned_allocator.h>
+#include <oneapi/tbb/scalable_allocator.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -29,7 +32,7 @@
 FLG_NAMESPACE_BEGIN
 namespace pt = boost::property_tree;
 
-Scene::Scene() : m_resource(), m_base_dir(".") {}
+Scene::Scene() {}
 
 Scene::Scene(const std::string &filename) : Scene() {
   parseXML(filename);

@@ -1,6 +1,10 @@
 #ifndef __SCENE_HPP__
 #define __SCENE_HPP__
 
+#include <oneapi/tbb.h>
+#include <oneapi/tbb/cache_aligned_allocator.h>
+#include <oneapi/tbb/scalable_allocator.h>
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -69,7 +73,7 @@ public:
   /**
    * The MAIN resource manager
    */
-  Resource m_resource{};
+  Resource m_resource{oneapi::tbb::scalable_memory_resource()};
 
   /**
    * The following variables are to be initialized *before* init() by
