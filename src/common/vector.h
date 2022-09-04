@@ -12,7 +12,7 @@
 #include "fledge.h"
 
 // ispc optimization
-#ifdef USE_ISPC
+#ifdef FLEDGE_USE_ISPC
 #include "spec/ispc/vector_ispc.h"
 #endif
 
@@ -106,7 +106,7 @@ struct Vector {
   }
 
   // Notice that type T will not be promoted currently
-#if defined(USE_ISPC) && !defined(__CUDACC__)
+#if defined(FLEDGE_USE_ISPC) && !defined(__CUDACC__)
   Vector operator-() const {
     return forEach([](const T &x) -> T { return -x; });
   }

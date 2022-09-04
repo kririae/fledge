@@ -3,11 +3,11 @@ project(fledge LANGUAGES CXX C ISPC)
 cmake_policy(SET CMP0135 NEW)
 
 # project options
-option(USE_TBB "use TBB instead of OpenMP for parallization" ON)
-option(USE_ISPC "use ISPC for SIMD execution" ON)
-option(USE_EMBREE "use Embree 3 as the acceleration structure" ON)
-option(USE_OIDN "use OIDN to denoise" ON)
-option(USE_JEMALLOC "use OIDN to denoise" ON)
+option(FLEDGE_USE_TBB "use TBB instead of OpenMP for parallization" ON)
+option(FLEDGE_USE_ISPC "use ISPC for SIMD execution" ON)
+option(FLEDGE_USE_EMBREE "use Embree 3 as the acceleration structure" ON)
+option(FLEDGE_USE_OIDN "use OIDN to denoise" ON)
+option(FLEDGE_USE_JEMALLOC "use JEMALLOC for memory optimization" ON)
 set(USE_SANITIZER
   ""
   CACHE
@@ -16,7 +16,6 @@ set(USE_SANITIZER
 )
 
 set(CMAKE_CXX_STANDARD 20)
-
 include("get_cpm.cmake")
 
 # Add sanitizer

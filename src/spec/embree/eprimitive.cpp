@@ -18,6 +18,7 @@
 #include "embree.hpp"
 #include "fledge.h"
 #include "plymesh.hpp"
+#include "shape.hpp"
 
 FLG_NAMESPACE_BEGIN
 

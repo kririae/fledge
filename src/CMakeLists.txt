@@ -9,8 +9,8 @@ if(miniply_ADDED)
   target_include_directories(miniply PUBLIC ${miniply_SOURCE_DIR})
 endif()
 
-# CPMAddPackage("gh:eyalroz/cuda-api-wrappers@0.5.4")
-# find_package(CUDAToolkit REQUIRED)
+CPMAddPackage("gh:eyalroz/cuda-api-wrappers@0.5.4")
+find_package(CUDAToolkit REQUIRED)
 find_package(OpenImageIO REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenMP)
@@ -51,15 +51,16 @@ clang_format(format_fledge "${all_source}")
 cmake_format(format_cmake "${cmake_files}")
 
 add_library(fledge_lib "${source}")
+set_property(TARGET fledge_lib PROPERTY CXX_STANDARD 20)
 add_executable(fledge "${source}")
 
-if(USE_ISPC)
+if(FLEDGE_USE_ISPC)
   add_subdirectory(spec/ispc/)
   target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
-  target_compile_definitions(fledge_lib PUBLIC -DUSE_ISPC)
+  target_compile_definitions(fledge_lib PUBLIC -DFLEDGE_USE_ISPC)
 endif()
 
-if(USE_JEMALLOC)
+if(FLEDGE_USE_JEMALLOC)
   # Introduct jemalloc
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(JEMALLOC jemalloc)
@@ -71,14 +72,13 @@ endif()
 add_subdirectory(materials/)
 
 target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb
-
-  # cuda-api-wrappers::runtime-and-driver
+  cuda-api-wrappers::runtime-and-driver
   OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_embree fledge_lib_oidn fledge_materials)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
-# if(USE_TBB)
-# target_compile_definitions(fledge PUBLIC -DUSE_TBB)
+# if(FLEDGE_USE_TBB)
+# target_compile_definitions(fledge PUBLIC -DFLEDGE_USE_TBB)
 # endif()
-target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)
+target_compile_definitions(fledge PUBLIC -DFLEDGE_USE_EMBREE)

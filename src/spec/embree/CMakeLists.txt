@@ -4,20 +4,17 @@ CPMAddPackage(
   GIT_TAG v3.13.5-alpha.0
   VERSION 3.13.5
   OPTIONS
-    "EMBREE_TUTORIALS OFF" 
-    "EMBREE_MAX_ISA NONE"
-    "EMBREE_ISA_AVX2 ON"
-    "EMBREE_GEOMETRY_QUAD OFF"
-    "EMBREE_GEOMETRY_CURVE OFF"
-    "EMBREE_GEOMETRY_SUBDIVISION OFF"
-    "EMBREE_GEOMETRY_INSTANCE OFF"
-    "EMBREE_GEOMETRY_POINT OFF"
+  "EMBREE_TUTORIALS OFF"
+  "EMBREE_GEOMETRY_QUAD OFF"
+  "EMBREE_GEOMETRY_CURVE OFF"
+  "EMBREE_GEOMETRY_SUBDIVISION OFF"
+  "EMBREE_GEOMETRY_INSTANCE OFF"
+  "EMBREE_GEOMETRY_POINT OFF"
 )
 set_property(TARGET embree PROPERTY CXX_STANDARD 17)
 
 # https://github.com/embree/embree/issues/385
 # find_package(embree REQUIRED)
-
 add_library(fledge_embree eprimitive.cpp)
 target_include_directories(fledge_embree PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-target_link_libraries(fledge_embree PUBLIC embree miniply)
+target_link_libraries(fledge_embree PUBLIC embree miniply cuda-api-wrappers::runtime-and-driver)

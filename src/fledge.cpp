@@ -1,9 +1,5 @@
 #include "fledge.h"
 
-#include <openvdb/Grid.h>
-#include <openvdb/Types.h>
-#include <openvdb/openvdb.h>
-
 #include <iostream>
 #include <memory>
 

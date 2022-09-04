@@ -170,7 +170,7 @@ void SampleIntegrator::render(const Scene &scene) {
   int  block_cnt = 0;
   auto start     = std::chrono::system_clock::now();
 
-#ifdef USE_TBB
+#ifdef FLEDGE_USE_TBB
   static_assert(false, "TBB is not supported yet");
   SLog("TBB is ready");
   auto __tbb_evalBlock = [&](const tbb::blocked_range2d<int, int> &r) {

@@ -9,9 +9,6 @@
 #include "distribution.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
-#include "scene.hpp"
-#include "shape.hpp"
-#include "texture.hpp"
 
 FLG_NAMESPACE_BEGIN
 

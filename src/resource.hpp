@@ -4,6 +4,11 @@
 #include <oneapi/tbb/cache_aligned_allocator.h>
 #include <oneapi/tbb/scalable_allocator.h>
 
+// clang-format off
+// #include <span>
+// #include <cuda/api.hpp>
+// clang-format on
+
 #include <functional>
 #include <iterator>
 #include <list>
@@ -16,7 +21,7 @@
 
 FLG_NAMESPACE_BEGIN
 
-namespace detail {
+namespace detail_ {
 struct DestructorBase {
   virtual ~DestructorBase() {}
 };
@@ -34,7 +39,7 @@ requires(std::is_unbounded_array_v<T>) struct ArrayDestructor
   T_    *m_p;
   size_t m_n;
 };
-};  // namespace detail
+};  // namespace detail_
 
 /**
  * @brief The resource manager for the whole rendering system.
@@ -64,7 +69,7 @@ struct Resource {
     allocator.construct(
         mem, std::forward<Args>(
                  args)...);  // instead of placement new and new_object
-    m_destructors.push_back(new detail::Destructor<T>(mem));
+    m_destructors.push_back(new detail_::Destructor<T>(mem));
     return mem;
   }
 
@@ -95,7 +100,7 @@ struct Resource {
       for (size_t i = 0; i < n; ++i)
         allocator.construct(mem + i, std::forward<Args>(args)...);
     }  // if constexpr
-    m_destructors.push_back(new detail::ArrayDestructor<T>(mem, n));
+    m_destructors.push_back(new detail_::ArrayDestructor<T>(mem, n));
     return mem;
   }
 
@@ -107,8 +112,8 @@ struct Resource {
   void printStat() {}
 
 private:
-  std::list<detail::DestructorBase *> m_destructors;
-  tbb::cache_aligned_resource         m_upstream{
+  std::list<detail_::DestructorBase *> m_destructors;
+  tbb::cache_aligned_resource          m_upstream{
       oneapi::tbb::scalable_memory_resource()};
   std::pmr::unsynchronized_pool_resource m_mem_resource{&m_upstream};
 };
