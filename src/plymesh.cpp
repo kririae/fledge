@@ -40,13 +40,13 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
       mesh->nVert = reader.num_rows();
 
       // extract position
-      mesh->p = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
+      mesh->p = resource.alloc<Vector3f[], 16>(mesh->nVert);
       reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
                                 mesh->p);
 
       // extract normal
       if (reader.find_normal(indexes)) {
-        mesh->n = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
+        mesh->n = resource.alloc<Vector3f[], 16>(mesh->nVert);
         // mesh->n = std::make_unique<Vector3f[]>(mesh->nVert);
         reader.extract_properties(indexes, 3, miniply::PLYPropertyType::Float,
                                   mesh->n);
@@ -57,7 +57,7 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
 
       // extract UV
       if (reader.find_texcoord(indexes)) {
-        mesh->uv = resource.alignedAlloc<Vector2f[], 16>(mesh->nVert);
+        mesh->uv = resource.alloc<Vector2f[], 16>(mesh->nVert);
         // mesh->uv = std::make_unique<Vector2f[]>(mesh->nVert);
         reader.extract_properties(indexes, 2, miniply::PLYPropertyType::Float,
                                   mesh->uv);
@@ -67,7 +67,7 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
     } else if (!got_faces && reader.element_is(miniply::kPLYFaceElement) &&
                reader.load_element()) {
       mesh->nInd = reader.num_rows() * 3;
-      mesh->ind  = resource.alignedAlloc<int[], 16>(mesh->nInd);
+      mesh->ind  = resource.alloc<int[], 16>(mesh->nInd);
       // mesh->ind = std::make_unique<int[]>(mesh->nInd);
       reader.extract_properties(face_idxs, 3, miniply::PLYPropertyType::Int,
                                 mesh->ind);
@@ -144,8 +144,8 @@ TriangleMesh *MakeMeshedSphere(int n_theta, int n_phi, Float radius,
   }
 
   mesh->nInd = indices.size();
-  mesh->p    = resource.alignedAlloc<Vector3f[], 16>(mesh->nVert);
-  mesh->ind  = resource.alignedAlloc<int[], 16>(mesh->nInd);
+  mesh->p    = resource.alloc<Vector3f[], 16>(mesh->nVert);
+  mesh->ind  = resource.alloc<int[], 16>(mesh->nInd);
   for (int i = 0; i < mesh->nVert; ++i) mesh->p[i] = vertices[i];
   for (int i = 0; i < mesh->nInd; ++i) mesh->ind[i] = indices[i];
 

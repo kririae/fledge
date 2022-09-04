@@ -11,7 +11,6 @@ endif()
 
 # CPMAddPackage("gh:eyalroz/cuda-api-wrappers@0.5.4")
 # find_package(CUDAToolkit REQUIRED)
-
 find_package(OpenImageIO REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenMP)
@@ -72,17 +71,14 @@ endif()
 add_subdirectory(materials/)
 
 target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb
+
   # cuda-api-wrappers::runtime-and-driver
   OpenImageIO::OpenImageIO TBB::tbb miniply fledge_embree fledge_lib_oidn fledge_materials)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
-if(USE_TBB)
-  target_compile_definitions(fledge PUBLIC -DUSE_TBB)
-endif()
-
-# if (USE_EMBREE)
-target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)
-
+# if(USE_TBB)
+# target_compile_definitions(fledge PUBLIC -DUSE_TBB)
 # endif()
+target_compile_definitions(fledge PUBLIC -DUSE_EMBREE)

@@ -3,7 +3,7 @@ project(fledge LANGUAGES CXX C ISPC)
 cmake_policy(SET CMP0135 NEW)
 
 # project options
-option(USE_TBB "use TBB instead of OpenMP for parallization" OFF)
+option(USE_TBB "use TBB instead of OpenMP for parallization" ON)
 option(USE_ISPC "use ISPC for SIMD execution" ON)
 option(USE_EMBREE "use Embree 3 as the acceleration structure" ON)
 option(USE_OIDN "use OIDN to denoise" ON)

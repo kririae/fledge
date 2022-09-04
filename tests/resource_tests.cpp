@@ -29,5 +29,5 @@ TEST(Resource, Resource) {
   EXPECT_EQ(type_arr[9].m_b, 2);
   EXPECT_EQ(type_arr[9].m_c, 1);
 
-  int *type_aligned_arr = resource.alignedAlloc<int[], 16>(10);
+  int *type_aligned_arr = resource.alloc<int[], 16>(10);
 }
