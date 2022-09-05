@@ -1,5 +1,7 @@
 #include "light.hpp"
 
+#include <half.h>
+
 #include <memory>
 #include <vector>
 

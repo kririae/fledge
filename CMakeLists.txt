@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(fledge LANGUAGES CXX C ISPC)
+project(fledge LANGUAGES CXX C ISPC CUDA)
 cmake_policy(SET CMP0135 NEW)
 
 # project options

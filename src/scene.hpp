@@ -4,6 +4,7 @@
 #include <oneapi/tbb.h>
 #include <oneapi/tbb/cache_aligned_allocator.h>
 #include <oneapi/tbb/scalable_allocator.h>
+#include <thrust/universal_allocator.h>
 
 #include <filesystem>
 #include <memory>
@@ -73,7 +74,9 @@ public:
   /**
    * The MAIN resource manager
    */
-  Resource m_resource{oneapi::tbb::scalable_memory_resource()};
+  // Resource m_resource{oneapi::tbb::scalable_memory_resource()};
+  detail_::managed_memory_resource m_upstream{};  // cudaMallocManaged
+  Resource                         m_resource{&m_upstream};
 
   /**
    * The following variables are to be initialized *before* init() by

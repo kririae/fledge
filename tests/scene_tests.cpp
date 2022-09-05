@@ -12,6 +12,8 @@
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
+#include "shape.hpp"
+#include "texture.hpp"
 #include "volume.hpp"
 
 using namespace fledge;
