@@ -35,7 +35,7 @@
 
   <shape type="ply">
     <string name="filename" value="dambreak0.ply" />
-    <bsdf type="dielectric">
+    <bsdf type="roughconductor">
       <float name="intIOR" value="1.5" />
       <float name="extIOR" value="1.0" />
     </bsdf>

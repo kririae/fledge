@@ -133,7 +133,7 @@ void SampleIntegrator::render(const Scene &scene) {
   // define to lambdas here for further evaluation
   auto evalPixel = [&](int x, int y, int SPP, Vector3f *albedo = nullptr,
                        Vector3f *normal = nullptr) -> Vector3f {
-    Sampler sampler(SPP, x + y * resX);
+    HaltonSampler sampler(SPP, x + y * resX);
     sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
     Vector3f color = Vector3f(0.0);
     sampler.reset();  // start generating
