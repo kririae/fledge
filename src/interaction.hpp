@@ -1,7 +1,6 @@
 #ifndef __INTERACTION_HPP__
 #define __INTERACTION_HPP__
 
-#include "common/math_utils.h"
 #include "common/ray.h"
 #include "common/vector.h"
 #include "debug.hpp"

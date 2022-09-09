@@ -71,6 +71,10 @@ public:
 };
 };  // namespace detail_
 
+inline std::pmr::memory_resource *GlobalManagedMemoryResource() {
+  static detail_::managed_memory_resource resource;
+  return &resource;
+}
 /**
  * @brief The resource manager for the whole rendering system.
  */

@@ -82,6 +82,7 @@ public:
     m_resX = film.m_resX;
     m_resY = film.m_resY;
     for (int t = 0; t < FILM_BUFFER_TYPE_NUM; ++t) {
+      if (!(int(film.m_buffer_type) & (1 << t))) continue;
       m_buffers[t] =
           film.m_resource->alloc<Vector3f[]>(m_resX * m_resY, Vector3f{0});
       std::copy(film.m_buffers[t], film.m_buffers[t] + m_resX * m_resY,
@@ -122,7 +123,6 @@ public:
   Vector3f &getBuffer(int x, int y, EFilmBufferType buffer_type) {
     size_t buffer_id = bufferTypeToIdx(buffer_type);
     assert(buffer_id < FILM_BUFFER_TYPE_NUM);
-    std::lock_guard<std::mutex> lock(m_mutex);
     return m_buffers[buffer_id][getBufferIdx(x, y)];
   }
 

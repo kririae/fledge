@@ -166,7 +166,7 @@ void ParallelIntegrator::render(const Scene &scene) {
     int x_max = std::min(x + width, scene.m_resX);
     int y_max = std::min(y + height, scene.m_resY);
 
-#if 0
+#if 1
     auto *sampler =
         thread_resource.alloc<HaltonSampler>(SPP, Vector2d{resX, resY});
 #else

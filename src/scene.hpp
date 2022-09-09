@@ -1,8 +1,6 @@
 #ifndef __SCENE_HPP__
 #define __SCENE_HPP__
 
-#include <oneapi/tbb.h>
-#include <oneapi/tbb/cache_aligned_allocator.h>
 #include <oneapi/tbb/scalable_allocator.h>
 
 #include <filesystem>
@@ -74,11 +72,11 @@ public:
   /**
    * The MAIN resource manager
    */
+  // std::pmr::memory_resource *m_upstream =
+  //     oneapi::tbb::scalable_memory_resource();
   std::pmr::memory_resource *m_upstream =
-      oneapi::tbb::scalable_memory_resource();
+      GlobalManagedMemoryResource();  // cudaMallocManaged
   Resource m_resource{m_upstream};
-  // detail_::managed_memory_resource m_upstream{};  // cudaMallocManaged
-  // Resource                         m_resource{&m_upstream};
 
   /**
    * The following variables are to be initialized *before* init() by
