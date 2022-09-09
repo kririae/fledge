@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scene version="0.6.0">
   <integrator type="volpath">
-    <integer name="maxDepth" value="32" />
+    <integer name="maxDepth" value="16" />
   </integrator>
 
   <sensor type="perspective">
@@ -12,7 +12,7 @@
     </transform>
 
     <sampler type="independent">
-      <integer name="sampleCount" value="32" />
+      <integer name="sampleCount" value="128" />
     </sampler>
 
     <film type="hdrfilm">

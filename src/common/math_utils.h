@@ -2,6 +2,7 @@
 #define __MATH_UTILS_H__
 
 #include <memory>
+#include <type_traits>
 
 #include "common/vector.h"
 #include "debug.hpp"
@@ -145,6 +146,17 @@ F_CPU_GPU inline bool Refract(const Vector3f &wi, const Vector3f &n, Float eta,
 // wi is the leaving ray, wi -> primitive -> wo
 F_CPU_GPU inline bool Entering(const Vector3f &wi, const Vector3f &n) {
   return wi.dot(n) < 0;
+}
+
+// https://pbr-book.org/3ed-2018/Utilities/Main_Include_File#Mod
+template <typename T>
+F_CPU_GPU inline T Mod(T a, T b) {
+  if constexpr (std::is_same_v<T, Float>) {
+    return std::fmod(a, b);
+  } else {
+    T result = a - (a / b) * b;
+    return (T)((result < 0) ? result + b : result);
+  }
 }
 
 FLG_NAMESPACE_END

@@ -24,12 +24,19 @@ TEST(Sampler, GetPrimeList) {
 TEST(Sampler, HaltonSampler) {
   using namespace fledge;
   std::vector<int> counter(10);
-  int              N = 40960;
-  HaltonSampler    sampler(32, 114514);
-  sampler.reset();
-  for (int i = 0; i < N; ++i) {
-    int s = std::min(int(sampler.get1D() * 10), 9);
-    counter[s] += 1;
+  int              SPP = 128;
+  int              N   = 128 * SPP;
+  HaltonSampler    sampler(SPP, Vector2d{5, 5});
+  sampler.setPixel(Vector2d{1, 1});
+
+  for (int spp = 0; spp < SPP; ++spp) {
+    for (int i = 0; i < 128; ++i) {
+      Float sampled = sampler.get1D();
+      int   s       = std::min(int(sampled * 10), 9);
+      counter[s] += 1;
+    }
+
+    sampler.reset();
   }
 
   for (int i = 0; i < 10; ++i) {

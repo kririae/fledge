@@ -131,12 +131,11 @@ void ParallelIntegrator::render(const Scene &scene) {
        blockX, blockY);
 
   // define to lambdas here for further evaluation
-  auto evalPixel = [&](int x, int y, int SPP, Vector3f *albedo = nullptr,
-                       Vector3f *normal = nullptr) -> Vector3f {
-    Sampler sampler(SPP, x + y * resX);
-    sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
+  auto eval_pixel = [&](int x, int y, int SPP, Sampler &sampler,
+                        Vector3f *albedo = nullptr,
+                        Vector3f *normal = nullptr) -> Vector3f {
+    sampler.setPixel(Vector2d(x, y));
     Vector3f color = Vector3f(0.0);
-    sampler.reset();  // start generating
 
     auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
     color += Li(ray, scene, sampler, albedo, normal);
@@ -153,14 +152,20 @@ void ParallelIntegrator::render(const Scene &scene) {
 
   // to be paralleled
   // starting from (x, y)
-  auto evalBlock = [&](int x, int y, int width, int height, int SPP) {
+  auto eval_block = [&](int x, int y, int width, int height, int SPP) {
     int x_max = std::min(x + width, scene.m_resX);
     int y_max = std::min(y + height, scene.m_resY);
+
+#if 1
+    thread_local HaltonSampler sampler(SPP, Vector2d{resX, resY});
+#else
+    thread_local Sampler sampler(SPP, x + y * resX);
+#endif
     for (int i = x; i < x_max; ++i) {
       for (int j = y; j < y_max; ++j) {
         Vector3f albedo, normal;
         scene.m_film->getBuffer(i, j, EFilmBufferType::EColor) =
-            evalPixel(i, j, SPP, &albedo, &normal);
+            eval_pixel(i, j, SPP, sampler, &albedo, &normal);
         scene.m_film->getBuffer(i, j, EFilmBufferType::EAlbedo) = albedo;
         scene.m_film->getBuffer(i, j, EFilmBufferType::ENormal) = normal;
       }
@@ -171,7 +176,6 @@ void ParallelIntegrator::render(const Scene &scene) {
   auto start     = std::chrono::system_clock::now();
 
 #ifdef FLEDGE_USE_TBB
-  static_assert(false, "TBB is not supported yet");
   SLog("TBB is ready");
   auto __tbb_evalBlock = [&](const tbb::blocked_range2d<int, int> &r) {
     // r specifies a range in blocks
@@ -190,7 +194,7 @@ void ParallelIntegrator::render(const Scene &scene) {
   for (int i = 0; i < blockX; ++i) {
     for (int j = 0; j < blockY; ++j) {
       int x = i * BLOCK_SIZE, y = j * BLOCK_SIZE;
-      evalBlock(x, y, BLOCK_SIZE, BLOCK_SIZE, SPP);
+      eval_block(x, y, BLOCK_SIZE, BLOCK_SIZE, SPP);
 
 #pragma omp critical
       {

@@ -26,7 +26,7 @@ public:
   virtual Vector3f Li(const Ray &ray, const Scene &scene, Sampler &sampler,
                       Vector3f *albedo = nullptr, Vector3f *normal = nullptr);
 
-private:
+protected:
 };
 
 class PathIntegrator : public ParallelIntegrator {

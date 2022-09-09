@@ -96,9 +96,13 @@ InfiniteAreaLight::InfiniteAreaLight(const std::shared_ptr<Texture> &tex)
   m_worldRadius = 0;
 
   std::vector<Float> f(NU * NV, 0);
-  for (int v = 0; v < NV; ++v)
-    for (int u = 0; u < NU; ++u)
+  for (int v = 0; v < NV; ++v) {
+    Float sin_theta = std::sin(PI * Float(v + .5f) / Float(NV));
+    for (int u = 0; u < NU; ++u) {
       f[v * NU + u] = m_tex->eval(Float(u) / NU, Float(v) / NV).norm();
+      f[v * NU + u] *= sin_theta;
+    }  // for u
+  }    // for v
   m_dist = std::make_shared<Dist2D>(f.data(), NU, NV);
 }
 
@@ -117,7 +121,7 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
   Float    phi   = uv[0] * 2 * PI;
   Float    theta = uv[1] * PI;
   auto     dir   = SphericalDirection(std::sin(theta), std::cos(theta), phi);
-  pdf /= (2 * PI * PI * std::sin(theta));
+  pdf /= (2 * PI * PI * std::max<Float>(std::sin(theta), 1e-4));
 
   // Although both of them can produce correct result, the result by uniform
   // sampling is more robust in high-variance environment map.
@@ -127,7 +131,9 @@ Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
 #endif
   dir = LightToWorld(dir);
 
-  C(pdf, uv, dir);
+  C(pdf);
+  C(uv);
+  C(dir);
   auto p     = m_worldCenter + dir * 2 * m_worldRadius;
   sample.m_p = p;
 
