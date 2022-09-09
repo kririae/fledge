@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "common/sampler.h"
 #include "debug.hpp"
 #include "film.hpp"
 #include "fledge.h"
@@ -19,6 +20,7 @@ Render::Render(Scene *scene) : m_scene(scene) {
 }
 
 void Render::init() {
+  detail_::GetPrimeList();
   SLog("OpenVDB is ready");
   openvdb::initialize();
   SLog("render is ready");

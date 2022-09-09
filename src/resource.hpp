@@ -95,7 +95,7 @@ struct Resource {
   std::enable_if_t<!std::is_array<T>::value, T *> alloc(Args &&...args) {
     auto allocator = std::pmr::polymorphic_allocator<T>(&m_mem_resource);
     T   *mem = static_cast<T *>(allocator.allocate_bytes(sizeof(T), Align));
-    assert(static_cast<size_t>(mem) % Align == 0);
+    assert(((size_t)(void *)mem) % Align == 0);
     allocator.construct(
         mem, std::forward<Args>(
                  args)...);  // instead of placement new and new_object
@@ -123,7 +123,7 @@ struct Resource {
     auto allocator = std::pmr::polymorphic_allocator<T_>(&m_mem_resource);
     T_  *mem =
         static_cast<T_ *>(allocator.allocate_bytes(sizeof(T_) * n, Align));
-    assert(static_cast<size_t>(mem) % Align == 0);
+    assert(((size_t)(void *)mem) % Align == 0);
     if constexpr (sizeof...(args) == 0) {
       new (mem) T_[n];
     } else {

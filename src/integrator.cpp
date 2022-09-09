@@ -118,7 +118,7 @@ Vector3f UniformSampleOneLight(const Interaction &it, const Scene &scene,
 }
 
 // call by the class Render
-void SampleIntegrator::render(const Scene &scene) {
+void ParallelIntegrator::render(const Scene &scene) {
   constexpr int BLOCK_SIZE    = 16;
   constexpr int SAVE_INTERVAL = 20;  // (s)
   auto          resX          = scene.m_resX;
@@ -133,7 +133,7 @@ void SampleIntegrator::render(const Scene &scene) {
   // define to lambdas here for further evaluation
   auto evalPixel = [&](int x, int y, int SPP, Vector3f *albedo = nullptr,
                        Vector3f *normal = nullptr) -> Vector3f {
-    HaltonSampler sampler(SPP, x + y * resX);
+    Sampler sampler(SPP, x + y * resX);
     sampler.setPixel(Vector2f(x + 0.5, y + 0.5));
     Vector3f color = Vector3f(0.0);
     sampler.reset();  // start generating
@@ -211,9 +211,9 @@ void SampleIntegrator::render(const Scene &scene) {
 #endif
 }
 
-Vector3f SampleIntegrator::Li(const Ray &ray, const Scene &scene,
-                              Sampler &sampler, Vector3f *albedo,
-                              Vector3f *normal) {
+Vector3f ParallelIntegrator::Li(const Ray &ray, const Scene &scene,
+                                Sampler &sampler, Vector3f *albedo,
+                                Vector3f *normal) {
   Vector3f     L = Vector3f(0.0);
   SInteraction isect;
   if (albedo != nullptr) *albedo = Vector3f(0.0);

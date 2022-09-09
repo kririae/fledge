@@ -52,7 +52,7 @@ TEST(Scene, WhiteWithDiffusion) {
   render.init();
   render.preprocess();
   render.render();
-  // render.saveImage("white_with_diffusion.exr", false);
+  render.saveImage("white_with_diffusion.exr", false);
 
   auto film = render.getFilm();
 

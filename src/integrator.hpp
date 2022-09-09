@@ -15,11 +15,10 @@ public:
 
 // similar code structure to the implementation in pbrt
 // [https://pbr-book.org/3ed-2018/Introduction/Class%20Relationships.svg]
-
-class SampleIntegrator : public Integrator {
+class ParallelIntegrator : public Integrator {
 public:
-  SampleIntegrator()           = default;
-  ~SampleIntegrator() override = default;
+  ParallelIntegrator()           = default;
+  ~ParallelIntegrator() override = default;
 
   virtual void preprocess() { TODO(); }
   // call by the class Render
@@ -30,7 +29,7 @@ public:
 private:
 };
 
-class PathIntegrator : public SampleIntegrator {
+class PathIntegrator : public ParallelIntegrator {
 public:
   PathIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~PathIntegrator() override = default;
@@ -45,7 +44,7 @@ private:
 
 // Simple Volume Path Integrator
 // only volume in the scene is considered
-class SVolIntegrator : public SampleIntegrator {
+class SVolIntegrator : public ParallelIntegrator {
 public:
   SVolIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~SVolIntegrator() override = default;
@@ -58,7 +57,7 @@ private:
   Float m_rrThreshold = 0.01;
 };
 
-class VolPathIntegrator : public SampleIntegrator {
+class VolPathIntegrator : public ParallelIntegrator {
 public:
   VolPathIntegrator(int max_depth) : m_maxDepth(max_depth) {}
   ~VolPathIntegrator() override = default;

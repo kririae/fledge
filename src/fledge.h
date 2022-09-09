@@ -55,7 +55,7 @@ class Random;
 struct Ray;
 class Render;
 class Sampler;
-class SampleIntegrator;
+class ParallelIntegrator;
 class ShapePrimitive;
 class Shape;
 class Triangle;

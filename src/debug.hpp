@@ -10,7 +10,7 @@
 #include <stdio.h>
 
 // keep assert in release mode
-// #undef NDEBUG
+#undef NDEBUG
 #include <assert.h>
 
 #define FLG_FG_BLACK        "\33[1;30m"
