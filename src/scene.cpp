@@ -40,8 +40,9 @@ Scene::Scene(const std::string &filename) : Scene() {
 
 bool Scene::init() {
   m_camera = m_resource.alloc<Camera>(m_origin, m_target, m_up);
-  m_film   = m_resource.alloc<Film>(m_resX, m_resY, EFilmBufferType::EAll);
-  m_accel  = m_resource.alloc<NaiveBVHAccel>(m_primitives, m_resource);
+  m_film =
+      m_resource.alloc<Film>(m_resX, m_resY, m_resource, EFilmBufferType::EAll);
+  m_accel = m_resource.alloc<NaiveBVHAccel>(m_primitives, m_resource);
 #if 0
   m_volume = std::make_shared<OpenVDBVolume>("assets/wdas_cloud/wdas_cloud_eighth.vdb");
 #endif

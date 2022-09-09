@@ -17,10 +17,10 @@ Film Denoise(const Film &pre_filtered) {
   OIDNDevice device = oidnNewDevice(OIDN_DEVICE_TYPE_DEFAULT);
   oidnCommitDevice(device);
 
-  void *colorPtr  = (void *)post_filtered.m_buffers[0].data();
-  void *albedoPtr = (void *)post_filtered.m_buffers[1].data();
-  void *normalPtr = (void *)post_filtered.m_buffers[2].data();
-  void *outputPtr = (void *)post_filtered.m_buffers[3].data();
+  void *colorPtr  = (void *)post_filtered.m_buffers[0];
+  void *albedoPtr = (void *)post_filtered.m_buffers[1];
+  void *normalPtr = (void *)post_filtered.m_buffers[2];
+  void *outputPtr = (void *)post_filtered.m_buffers[3];
   C(colorPtr, albedoPtr, normalPtr, outputPtr);
 
   // Create a filter for denoising a beauty (color) image using optional

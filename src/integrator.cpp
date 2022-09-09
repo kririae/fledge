@@ -131,20 +131,26 @@ void ParallelIntegrator::render(const Scene &scene) {
        blockX, blockY);
 
   // define to lambdas here for further evaluation
-  auto eval_pixel = [&](int x, int y, int SPP, Sampler &sampler,
-                        Vector3f *albedo = nullptr,
-                        Vector3f *normal = nullptr) -> Vector3f {
+  auto eval_pixel = [=, &scene, this](int x, int y, int SPP, Sampler &sampler,
+                                      Resource &thread_resource,
+                                      Vector3f *albedo = nullptr,
+                                      Vector3f *normal = nullptr) -> Vector3f {
+    (void)thread_resource;
+
     sampler.setPixel(Vector2d(x, y));
     Vector3f color = Vector3f(0.0);
 
+    // Generate primary ray to provide information for albedo and normal
     auto ray = scene.m_camera->generateRay(x + 0.5, y + 0.5, resX, resY);
     color += Li(ray, scene, sampler, albedo, normal);
-    // temporary implementation
+
     for (int s = 1; s < SPP; ++s) {
       auto uv  = sampler.getPixelSample();
       auto ray = scene.m_camera->generateRay(uv.x(), uv.y(), resX, resY);
-      color += Li(ray, scene, sampler);
-      sampler.reset();
+      auto L   = Li(ray, scene, sampler);
+      scene.m_film->addSample(uv, L);
+      color += L;
+      sampler.reset();  // actually, start a new SPP
     }
 
     return color / SPP;
@@ -152,20 +158,28 @@ void ParallelIntegrator::render(const Scene &scene) {
 
   // to be paralleled
   // starting from (x, y)
-  auto eval_block = [&](int x, int y, int width, int height, int SPP) {
+  auto eval_block = [=, &scene, this](int x, int y, int width, int height,
+                                      int SPP) {
+    (void)this;
+    thread_local Resource thread_resource{
+        scene.m_upstream};  // init thread_local resource from upstream
     int x_max = std::min(x + width, scene.m_resX);
     int y_max = std::min(y + height, scene.m_resY);
 
-#if 1
-    thread_local HaltonSampler sampler(SPP, Vector2d{resX, resY});
+#if 0
+    auto *sampler =
+        thread_resource.alloc<HaltonSampler>(SPP, Vector2d{resX, resY});
 #else
-    thread_local Sampler sampler(SPP, x + y * resX);
+    auto *sampler = thread_resource.alloc<Sampler>(SPP, x + y * resX);
 #endif
     for (int i = x; i < x_max; ++i) {
       for (int j = y; j < y_max; ++j) {
         Vector3f albedo, normal;
-        scene.m_film->getBuffer(i, j, EFilmBufferType::EColor) =
-            eval_pixel(i, j, SPP, sampler, &albedo, &normal);
+        (void)eval_pixel(i, j, SPP, *sampler, thread_resource, &albedo,
+                         &normal);
+        // scene.m_film->getBuffer(i, j, EFilmBufferType::EColor) =
+        //     eval_pixel(i, j, SPP, *sampler, thread_resource, &albedo,
+        //     &normal);
         scene.m_film->getBuffer(i, j, EFilmBufferType::EAlbedo) = albedo;
         scene.m_film->getBuffer(i, j, EFilmBufferType::ENormal) = normal;
       }
@@ -206,6 +220,7 @@ void ParallelIntegrator::render(const Scene &scene) {
 
         std::chrono::duration<double> elapsed_seconds = end - start;
         if (elapsed_seconds.count() > SAVE_INTERVAL) {
+          scene.m_film->commitSamples();
           scene.m_film->saveBuffer("tmp.exr", EFilmBufferType::EColor);
           start = std::chrono::system_clock::now();
         }
@@ -213,11 +228,14 @@ void ParallelIntegrator::render(const Scene &scene) {
     }
   }  // omp loop
 #endif
+
+  scene.m_film->commitSamples();
 }
 
 Vector3f ParallelIntegrator::Li(const Ray &ray, const Scene &scene,
                                 Sampler &sampler, Vector3f *albedo,
                                 Vector3f *normal) {
+  (void)sampler;
   Vector3f     L = Vector3f(0.0);
   SInteraction isect;
   if (albedo != nullptr) *albedo = Vector3f(0.0);

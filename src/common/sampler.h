@@ -17,6 +17,7 @@ static constexpr float ONE_MINUS_EPSILON = 0.99999994;
 class Sampler {
 public:
   Sampler(uint64_t SPP, uint32_t seed) : m_SPP(SPP), m_rng(seed) {}
+  virtual ~Sampler() = default;
   virtual void     setPixel(const Vector2d &p) { m_p = p; }
   virtual Float    get1D() { return m_rng.get1D(); }
   virtual Vector2f get2D() { return m_rng.get2D(); }
@@ -25,7 +26,7 @@ public:
   }  // doing nothing in this trivial sampler
   virtual Vector2f getPixelSample() {
     // Stay naive for now
-    return m_rng.get2D() - Vector2f(0.5) + m_p.cast<Float, 2>();
+    return m_rng.get2D() + m_p.cast<Float, 2>();
   }
 
 protected:
@@ -121,6 +122,7 @@ inline uint64_t InverseRadicalInverse(uint64_t inverse, int n_digits) {
 // clang-format off
 /**
  * HaltonSampler will generate samples through Halton Sequence globally.
+ * The implementation is adapted from https://pbr-book.org/3ed-2018/Sampling_and_Reconstruction/The_Halton_Sampler
 
                                          ────────────────────────►
                         SAMPLE_INDEX        Get1D() or rayDepth
@@ -159,6 +161,7 @@ public:
     m_mul_inverse[1] =
         detail_::MulModInverse(m_base_scales[0], m_base_scales[1]);
   }
+  ~HaltonSampler() override = default;
   void setPixel(const Vector2d &p) override {
     Sampler::setPixel(p);
     m_cnt                = 0;

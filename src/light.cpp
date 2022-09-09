@@ -2,6 +2,7 @@
 
 #include <half.h>
 
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -110,6 +111,8 @@ void InfiniteAreaLight::preprocess(const Scene &scene) {
   scene.getBound().boundSphere(m_worldCenter, m_worldRadius);
   // TODO: exceed
   m_worldRadius *= 1000;  // scale up the world radius
+  m_worldRadius =
+      std::min(std::numeric_limits<Float>::max() / 2, m_worldRadius);
   SLog("m_worldRadius=%f", m_worldRadius);
   LVec3(m_worldCenter);
 }

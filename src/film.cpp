@@ -14,8 +14,8 @@ bool Film::saveBuffer(const std::string &name, EFilmBufferType buffer_type) {
 
   // The transition from vector<Vector3f> to span<Float> must be valid
   assert(sizeof(Vector3f) == 12);
-  auto pixels = std::span<Float>(reinterpret_cast<Float *>(l_pixels.data()),
-                                 3 * l_pixels.size());
+  auto pixels = std::span<Float>(reinterpret_cast<Float *>(l_pixels),
+                                 3 * m_resX * m_resY);
 
   SLog("path ends with %s", extension.c_str());
   if (extension == ".png" || extension == ".jpg") {

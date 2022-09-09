@@ -1,6 +1,6 @@
 # Build settings
-export CC := $(shell which gcc)
-export CXX := $(shell which g++)
+export CC := $(shell which clang)
+export CXX := $(shell which clang++)
 BUILD_DIR := ./build
 SRC_DIR := ./src
 BUILD_COMMAND := cmake
@@ -13,7 +13,6 @@ NPROCS_1 := $(shell expr $(NPROCS) - 1)
 
 export ASAN_OPTIONS := new_delete_type_mismatch=0,detect_odr_violation=0
 export OMP_NUM_THREADS := $(NPROCS_1)
-
 
 define HELP_TEXT
 Fledge Renderer

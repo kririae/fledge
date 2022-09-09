@@ -106,35 +106,53 @@ struct Vector {
   }
 
   // Notice that type T will not be promoted currently
-#if defined(FLEDGE_USE_ISPC) && !defined(__CUDACC__)
+#if defined(FLEDGE_USE_ISPC) && !defined(__CUDACC__) && false
   Vector operator-() const {
     return forEach([](const T &x) -> T { return -x; });
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator*(const Vector &rhs) const {
     Vector res;
     ispc::Mul(res.m_vec, m_vec, rhs.m_vec, N);
     return res;
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator/(const Vector &rhs) const {
     Vector res;
     ispc::Div(res.m_vec, m_vec, rhs.m_vec, N);
     return res;
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator+(const Vector &rhs) const {
     Vector res;
     ispc::Add(res.m_vec, m_vec, rhs.m_vec, N);
     return res;
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator-(const Vector &rhs) const {
     Vector res;
     ispc::Sub(res.m_vec, m_vec, rhs.m_vec, N);
     return res;
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator*(const T &rhs) const {
     Vector res;
     ispc::MulConst(res.m_vec, m_vec, rhs, N);
     return res;
   }
+
+  template <bool B_                                                = true,
+            std::enable_if_t<std::is_same_v<T, Float> && B_, bool> = false>
   Vector operator/(const T &rhs) const {
     assert(rhs != 0);
     Vector res;
@@ -391,6 +409,16 @@ F_CPU_GPU inline Vector<T, N> Cos(const Vector<T, N> &x) {
 template <typename T, int N>
 F_CPU_GPU inline Vector<T, N> Tan(const Vector<T, N> &x) {
   return x.forEach([](T x) -> T { return tan(x); });
+}
+
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Ceil(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return ceil(x); });
+}
+
+template <typename T, int N>
+F_CPU_GPU inline Vector<T, N> Floor(const Vector<T, N> &x) {
+  return x.forEach([](T x) -> T { return floor(x); });
 }
 
 using Vector4f = Vector<Float, 4>;

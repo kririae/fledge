@@ -24,11 +24,11 @@ FLG_NAMESPACE_BEGIN
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
                                          Material  *material,
-                                         AreaLight *areaLight, Volume *volume)
+                                         AreaLight *area_light, Volume *volume)
     : m_resource(&resource),
       m_mesh(mesh),
       m_material(material),
-      m_areaLight(areaLight),
+      m_areaLight(area_light),
       m_volume(volume) {
   m_device = embreeInitializeDevice();
   m_scene  = rtcNewScene(m_device);
@@ -72,9 +72,9 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string &path,
                                          Resource &resource, Material *material,
-                                         AreaLight *areaLight, Volume *volume)
+                                         AreaLight *area_light, Volume *volume)
     : EmbreeMeshPrimitive(MakeTriangleMesh(path, resource), resource, material,
-                          areaLight, volume) {}
+                          area_light, volume) {}
 
 EmbreeMeshPrimitive::~EmbreeMeshPrimitive() {
   rtcReleaseScene(m_scene);
