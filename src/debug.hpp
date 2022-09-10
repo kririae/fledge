@@ -164,6 +164,11 @@ inline void C(T1 v1, T2 v2, T3 v3, T4 v4, T5 v5,
   C(v4, location);
   C(v5, location);
 }
+
+inline void C(...) {
+  TODO();
+}
+
 #elif 0
 // OMG.. WTF is this... ;(
 
