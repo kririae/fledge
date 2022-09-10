@@ -1,5 +1,7 @@
 #include "integrator.hpp"
 
+#include <OpenImageIO/texture.h>
+
 #include <cassert>
 #include <chrono>
 #include <cstddef>
@@ -161,7 +163,7 @@ void ParallelIntegrator::render(const Scene &scene) {
   auto eval_block = [=, &scene, this](int x, int y, int width, int height,
                                       int SPP) {
     (void)this;
-    thread_local Resource thread_resource{
+    Resource thread_resource{
         scene.m_upstream};  // init thread_local resource from upstream
     int x_max = std::min(x + width, scene.m_resX);
     int y_max = std::min(y + height, scene.m_resY);

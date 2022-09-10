@@ -6,6 +6,7 @@
 #include <oneapi/tbb/cache_aligned_allocator.h>
 #include <oneapi/tbb/scalable_allocator.h>
 
+#include <boost/container/flat_map.hpp>
 #include <functional>
 #include <iterator>
 #include <list>
@@ -85,7 +86,7 @@ struct Resource {
 
   Resource(const Resource &)             = delete;
   Resource &operator()(const Resource &) = delete;
-  ~Resource() { release(); }
+  virtual ~Resource() { release(); }
 
   /**
    * @brief Allocate memory using the memory resource manager and the
@@ -103,7 +104,8 @@ struct Resource {
     allocator.construct(
         mem, std::forward<Args>(
                  args)...);  // instead of placement new and new_object
-    m_destructors.push_back(new detail_::Destructor<T>(mem));
+    m_destructors.emplace(static_cast<ptr_t>(mem),
+                          new detail_::Destructor<T>(mem));
     return mem;
   }
 
@@ -134,20 +136,22 @@ struct Resource {
       for (size_t i = 0; i < n; ++i)
         allocator.construct(mem + i, std::forward<Args>(args)...);
     }  // if constexpr
-    m_destructors.push_back(new detail_::ArrayDestructor<T>(mem, n));
+    m_destructors.emplace(static_cast<ptr_t>(mem),
+                          new detail_::ArrayDestructor<T>(mem, n));
     return mem;
   }
 
   void release() {
-    for (auto &i : m_destructors) delete i;
+    for (auto &i : m_destructors) delete i.second;
     m_destructors.clear();
     m_mem_resource.release();
   }
   void printStat() {}
 
-private:
-  std::list<detail_::DestructorBase *> m_destructors;
-  tbb::cache_aligned_resource          m_upstream{
+protected:
+  using ptr_t = void *;
+  boost::container::flat_map<ptr_t, detail_::DestructorBase *> m_destructors;
+  tbb::cache_aligned_resource                                  m_upstream{
       oneapi::tbb::scalable_memory_resource()};
   std::pmr::unsynchronized_pool_resource m_mem_resource{&m_upstream};
 };
