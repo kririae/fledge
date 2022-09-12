@@ -5,6 +5,8 @@
 #include <execinfo.h>
 #endif
 
+#include <fmt/color.h>
+#include <fmt/core.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -57,10 +59,6 @@ inline void backtrace() {
     assert(false);                                                         \
   } while (false)
 #define TODO() SErr("please implement me")
-
-#define LFloat(val) SLog(#val "=%f", val)
-#define LVec3(vec3) SLog(#vec3 "=[%f, %f, %f]", vec3.x(), vec3.y(), vec3.z())
-#define LClass(cls) SLog(#cls "=%s", cls.toString().c_str())
 
 #include <memory>
 #include <type_traits>

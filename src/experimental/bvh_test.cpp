@@ -41,7 +41,8 @@ static void test_BasicBVHBuilder() {
   ref_builder->build();
   e_ref_build.end();
 
-  fmt::print("bounds: {}, {}\n", builder->getBound().lower.toString().c_str(),
+  fmt::print(fg(fmt::color::floral_white), "bounds: {}, {}\n",
+             builder->getBound().lower.toString().c_str(),
              builder->getBound().upper.toString().c_str());
 
   constexpr int N = 1000;

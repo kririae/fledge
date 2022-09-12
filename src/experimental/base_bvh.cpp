@@ -1,8 +1,9 @@
+#include "base_bvh.hpp"
+
 #include <algorithm>
 #include <cstring>
 #include <memory_resource>
 
-#include "base_bvh.hpp"
 #include "debug.hpp"
 #include "fledge.h"
 #include "spec/embree/embree.hpp"

@@ -16,7 +16,8 @@ struct Event {
   Event(const std::string &desc) : m_start(clock::now()), m_desc(desc) {}
   void end() {
     using namespace std::literals::chrono_literals;
-    fmt::print("[{}] takes {} ms\n", m_desc, (clock::now() - m_start) / 1ms);
+    fmt::print(fg(fmt::color::steel_blue), "[{}] takes {} ms\n", m_desc,
+               (clock::now() - m_start) / 1ms);
   }
 
 private:

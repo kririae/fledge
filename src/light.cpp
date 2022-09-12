@@ -114,7 +114,6 @@ void InfiniteAreaLight::preprocess(const Scene &scene) {
   m_worldRadius =
       std::min(std::numeric_limits<Float>::max() / 2, m_worldRadius);
   SLog("m_worldRadius=%f", m_worldRadius);
-  LVec3(m_worldCenter);
 }
 
 Vector3f InfiniteAreaLight::sampleLi(const Interaction &ref, const Vector2f &u,
