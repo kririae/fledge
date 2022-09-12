@@ -36,7 +36,7 @@ endif
 .PHONY: build
 build: .FORCE
 	@test -d $(BUILD_DIR) || $(BUILD_COMMAND) -B $(BUILD_DIR) -DCMAKE_EXPORT_COMPILE_COMMANDS=True -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -G Ninja
-	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j $(NPROCS_1) --config $(BUILD_TYPE) --target fledge
+	@$(BUILD_COMMAND) --build $(BUILD_DIR) -j $(NPROCS_1) --config $(BUILD_TYPE) --target fledge bvh_test
 	@test -f compile_commands.json || ln -sf $(BUILD_DIR)/compile_commands.json ./  
 
 .PHONY: clean

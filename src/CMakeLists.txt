@@ -17,6 +17,9 @@ find_package(TBB REQUIRED)
 find_package(OpenMP)
 find_package(OpenVDB REQUIRED COMPONENTS openvdb)
 
+# add fmt
+CPMAddPackage("gh:fmtlib/fmt#9.1.0")
+
 # add it before the compiler specifications
 add_subdirectory(spec/oidn/)
 
@@ -47,6 +50,8 @@ file(GLOB source "${PROJECT_SOURCE_DIR}/src/*.c*")
 file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
 file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
 
+add_subdirectory(experimental/)
+
 # clang-format
 clang_format(format_fledge "${all_source}")
 cmake_format(format_cmake "${cmake_files}")
@@ -72,7 +77,7 @@ endif()
 
 add_subdirectory(materials/)
 
-target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb CUDA::cudart Thrust::Thrust
+target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb CUDA::cudart Thrust::Thrust fmt
   OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_embree fledge_lib_oidn fledge_materials)
 target_link_libraries(fledge PUBLIC fledge_lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY
