@@ -1,31 +1,17 @@
-#include "bvh.hpp"
+#include "bvh_test.hpp"
 
-#include <fmt/chrono.h>
-#include <fmt/color.h>
-#include <fmt/core.h>
-
-#include <chrono>
 #include <iostream>
+#include <limits>
 #include <memory_resource>
 
+#include "base_bvh.hpp"
 #include "plymesh.hpp"
+#include "rng.hpp"
 #include "shape.hpp"
 
 using namespace fledge;
 using namespace fledge::experimental;
 using namespace std::literals::chrono_literals;
-
-struct Event {
-  using clock = std::chrono::high_resolution_clock;
-  Event(const std::string &desc) : m_start(clock::now()), m_desc(desc) {}
-  void end() {
-    fmt::print("[{}] takes {} ms\n", m_desc, (clock::now() - m_start) / 1ms);
-  }
-
-private:
-  decltype(clock::now()) m_start;
-  std::string            m_desc;
-};
 
 static void test_BasicBVHBuilder() {
   std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
@@ -44,13 +30,38 @@ static void test_BasicBVHBuilder() {
                                .uv    = mesh->uv};  // convert mesh
   BVHBuilderBase *builder =
       resource.alloc<BasicBVHBuilder>(imesh, mem_resource);
+  BVHBuilderBase *ref_builder =
+      resource.alloc<RefBVHBuilder>(imesh, mem_resource);
 
   Event e_build("BVH build time");
   builder->build();
   e_build.end();
 
-  fmt::print("bounds: {}, {}", builder->getBound().lower.toString().c_str(),
+  Event e_ref_build("Reference BVH build time");
+  ref_builder->build();
+  e_ref_build.end();
+
+  fmt::print("bounds: {}, {}\n", builder->getBound().lower.toString().c_str(),
              builder->getBound().upper.toString().c_str());
+
+  constexpr int N = 1000;
+  Random        rng;
+  for (int i = 0; i < N; ++i) {
+    BVHBuilderBase::BVHRayHit rayhit1{
+        .ray_o = Vector3f{rng.get1D(), rng.get1D(), rng.get1D()}
+          / 2,
+        .ray_d = Normalize(Vector3f{rng.get1D(), rng.get1D(), rng.get1D()}
+          ),
+        .tnear = 0,
+        .tfar  = std::numeric_limits<float>::max()
+    };
+    auto rayhit2 = rayhit1;
+    bool inter1  = builder->intersect(rayhit1);
+    bool inter2  = ref_builder->intersect(rayhit2);
+    assert(inter1 == inter2);
+    assert(abs(rayhit1.tfar - rayhit2.tfar) < 1e-4);
+    assert(Same(rayhit1.hit_ng, rayhit2.hit_ng, 1e-4));
+  }
 
   delete imesh;
 }

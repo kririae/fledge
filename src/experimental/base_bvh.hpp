@@ -1,5 +1,5 @@
-#ifndef __EXPERIMENTAL_BVH_HPP__
-#define __EXPERIMENTAL_BVH_HPP__
+#ifndef __EXPERIMENTAL_BASE_BVH_HPP__
+#define __EXPERIMENTAL_BASE_BVH_HPP__
 
 #include <embree3/rtcore.h>
 #include <embree3/rtcore_geometry.h>
@@ -16,6 +16,52 @@
 
 FLG_NAMESPACE_BEGIN
 namespace experimental {
+namespace detail_ {
+inline bool TriangleIntersect(const Vector3f &a, const Vector3f &b,
+                              const Vector3f &c, const Vector3f &ray_o,
+                              const Vector3f &ray_d, float *thit,
+                              Vector3f *ng) {
+  // Naive implementation
+  Vector3f e1      = b - a;
+  Vector3f e2      = c - a;
+  Vector3f p       = Cross(ray_d, e2);
+  Float    d       = e1.dot(p);
+  float    inv_det = 1 / d;
+  if (d == 0) return false;
+
+  Vector3f t = ray_o - a;
+  Float    u = t.dot(p) * inv_det;
+  if (u < 0 || u > 1) return false;
+
+  Vector3f q = t.cross(e1);
+  Float    v = ray_d.dot(q) * inv_det;
+  if (v < 0 || u + v > 1) return false;
+
+  Float t_near = e2.dot(q) * inv_det;
+  if (t_near <= 0) return false;
+
+  if (thit != nullptr) *thit = t_near;
+  if (ng != nullptr) *ng = Normalize(Cross(e1, e2));
+  return true;
+}
+
+inline bool BoundIntersect(const Vector3f &lower, const Vector3f &upper,
+                           const Vector3f &ray_o, const Vector3f &ray_d,
+                           float &tnear, float &tfar) {
+  Float t0 = 0, t1 = std::numeric_limits<float>::max();
+  for (int i = 0; i < 3; ++i) {
+    Float inv_ray_dir = 1 / ray_d[i];
+    Float t_near      = (lower[i] - ray_o[i]) * inv_ray_dir;
+    Float t_far       = (upper[i] - ray_o[i]) * inv_ray_dir;
+    if (t_near > t_far) std::swap(t_near, t_far);
+    t0 = t_near > t0 ? t_near : t0;
+    t1 = t_far < t1 ? t_far : t1;
+    if (t0 > t1) return false;
+  }  // for
+  tnear = t0, tfar = t1;
+  return true;
+}
+}  // namespace detail_
 // Some classes are borrowed from the original project
 // 1. Math primitives, e.g., Vector3f
 struct InternalTriangleMesh {
@@ -31,11 +77,11 @@ public:
     Vector3f ray_o{0};                                /* init */
     Vector3f ray_d{0};                                /* init */
     float    tnear{0};                                /* init */
-    float    tfar{std::numeric_limits<float>::max()}; /* init */
+    float    tfar{std::numeric_limits<float>::max()}; /* init, modified */
 
-    Vector3f hit_ng{0};
-    Vector3f hit_ns{0};
-    bool     hit{false};
+    Vector3f hit_ng{0};  /* modified */
+    Vector3f hit_ns{0};  /* modified */
+    bool     hit{false}; /* modified */
   };
 
   // TODO: to be extended to SIMD
@@ -46,6 +92,10 @@ public:
       lower = Min(lower, other.lower);
       upper = Max(upper, other.upper);
     }  // void merge()
+    bool intersect(const Vector3f &ray_o, const Vector3f &ray_d, float &tnear,
+                   float &tfar) {
+      return detail_::BoundIntersect(lower, upper, ray_o, ray_d, tnear, tfar);
+    }
   };
 
   struct alignas(16) Triangle {
@@ -123,6 +173,7 @@ protected:
   BasicBVHNode *m_root;
   BasicBVHNode *recursiveBuilder(Triangle *triangles, std::size_t n_triangles,
                                  int depth);
+  bool          recursiveIntersect(BasicBVHNode *node, BVHRayHit &rayhit);
   /**
    * The specific memory resource manager inherited from BaseClass.
    */

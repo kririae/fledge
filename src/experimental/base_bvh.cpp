@@ -1,9 +1,8 @@
-#include "bvh.hpp"
-
 #include <algorithm>
 #include <cstring>
 #include <memory_resource>
 
+#include "base_bvh.hpp"
 #include "debug.hpp"
 #include "fledge.h"
 #include "spec/embree/embree.hpp"
@@ -22,8 +21,7 @@ void BasicBVHBuilder::build() {
   m_root = recursiveBuilder(triangles, n_triangles, 0);
 }
 bool BasicBVHBuilder::intersect(BVHRayHit &rayhit) {
-  TODO();
-  return true;
+  return recursiveIntersect(m_root, rayhit);
 }
 
 BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
@@ -89,6 +87,43 @@ BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
   if (node->right != nullptr) node->bound.merge(node->right->bound);
   if (node->left == nullptr && node->right == nullptr) return nullptr;
   return node;
+}
+bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
+                                         BVHRayHit    &rayhit) {
+  float tnear, tfar;
+  // Note that this intersection function will not modify the rayhit
+  bool inter = node->bound.intersect(rayhit.ray_o, rayhit.ray_d, tnear, tfar);
+  if (!inter) return false;
+  if (rayhit.tfar < tnear) return false;
+
+  // Leaf node
+  if (node->n_triangles != 0) {
+    bool  hit  = false;
+    float tfar = rayhit.tfar;
+    for (std::size_t i = 0; i < node->n_triangles; ++i) {
+      Triangle &triangle = node->triangles[i];
+      float     thit;
+      Vector3f  ng;
+      bool      inter =
+          detail_::TriangleIntersect(triangle.a(), triangle.b(), triangle.c(),
+                                     rayhit.ray_o, rayhit.ray_d, &thit, &ng);
+      if (!inter) continue;
+      if (thit > tfar) continue;
+      hit           = true;
+      tfar          = thit;
+      rayhit.hit    = true;
+      rayhit.tfar   = tfar;
+      rayhit.hit_ng = rayhit.hit_ns = ng;
+    }
+    if (hit) return true;
+    return false;
+  }
+
+  bool res_left = false, res_right = false;
+  if (node->left != nullptr) res_left = recursiveIntersect(node->left, rayhit);
+  if (node->right != nullptr)
+    res_right = recursiveIntersect(node->right, rayhit);
+  return res_left || res_right;
 }
 
 RefBVHBuilder::RefBVHBuilder(InternalTriangleMesh      *mesh,
