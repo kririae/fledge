@@ -72,10 +72,10 @@ public:
   /**
    * The MAIN resource manager
    */
-  // std::pmr::memory_resource *m_upstream =
-  //     oneapi::tbb::scalable_memory_resource();
   std::pmr::memory_resource *m_upstream =
-      GlobalManagedMemoryResource();  // cudaMallocManaged
+      oneapi::tbb::scalable_memory_resource();
+  // std::pmr::memory_resource *m_upstream =
+  //     GlobalManagedMemoryResource();  // cudaMallocManaged
   Resource m_resource{m_upstream};
 
   /**

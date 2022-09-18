@@ -46,11 +46,16 @@ inline void backtrace() {
 #endif
 }
 
-#define SLog(format, ...)                                                    \
-  do {                                                                       \
-    fprintf(stdout, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_GREEN) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);                \
+/* This is the temporary solution */
+#define SLog(format, ...)                                                   \
+  do {                                                                      \
+    fmt::print(fg(fmt::color::steel_blue) | fmt::emphasis::bold,            \
+               "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
+    char buffer[1024];                                                      \
+    snprintf(buffer, 1024, format "\n", ##__VA_ARGS__);                     \
+    fmt::print(fg(fmt::color::floral_white), buffer);                       \
   } while (false)
+
 #define SErr(format, ...)                                                  \
   do {                                                                     \
     fprintf(stderr, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_RED) "\n", \
