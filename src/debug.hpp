@@ -7,6 +7,7 @@
 
 #include <fmt/color.h>
 #include <fmt/core.h>
+#include <fmt/printf.h>
 #include <math.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -51,17 +52,17 @@ inline void backtrace() {
   do {                                                                      \
     fmt::print(fg(fmt::color::steel_blue) | fmt::emphasis::bold,            \
                "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
-    char buffer[1024];                                                      \
-    snprintf(buffer, 1024, format "\n", ##__VA_ARGS__);                     \
-    fmt::print(fg(fmt::color::floral_white), buffer);                       \
+    fmt::print(fg(fmt::color::floral_white),                                \
+               fmt::sprintf(format "\n", ##__VA_ARGS__));                   \
   } while (false)
 
-#define SErr(format, ...)                                                  \
-  do {                                                                     \
-    fprintf(stderr, FLG_COLOR("[%16s:%3d %14s] " format, FLG_FG_RED) "\n", \
-            __FILENAME__, __LINE__, __func__, ##__VA_ARGS__);              \
-    backtrace();                                                           \
-    assert(false);                                                         \
+#define SErr(format, ...)                                                   \
+  do {                                                                      \
+    fmt::print(stderr,                                                      \
+               fg(fmt::color::medium_violet_red) | fmt::emphasis::bold,     \
+               "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
+    backtrace();                                                            \
+    assert(false);                                                          \
   } while (false)
 #define TODO() SErr("please implement me")
 
