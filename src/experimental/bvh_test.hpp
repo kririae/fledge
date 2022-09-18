@@ -17,13 +17,21 @@
 
 FLG_NAMESPACE_BEGIN
 namespace experimental {
+struct TimeInfo {
+  std::size_t ms;
+  std::string desc;
+};
 struct Event {
   using clock = std::chrono::high_resolution_clock;
   Event(const std::string &desc) : m_start(clock::now()), m_desc(desc) {}
-  void end() {
+  TimeInfo end(bool print = false) {
     using namespace std::literals::chrono_literals;
-    fmt::print(fg(fmt::color::steel_blue), "[{}] takes {} ms\n", m_desc,
-               (clock::now() - m_start) / 1ms);
+    TimeInfo info{.ms   = static_cast<size_t>((clock::now() - m_start) / 1ms),
+                  .desc = m_desc};
+    if (print)
+      fmt::print(fg(fmt::color::steel_blue), "[{}] takes {} ms\n", m_desc,
+                 info.ms);
+    return info;
   }
 
 private:
