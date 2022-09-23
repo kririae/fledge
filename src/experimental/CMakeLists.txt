@@ -8,6 +8,11 @@ target_link_libraries(bvh_test PRIVATE fledge_experimental fledge_lib)
 set_target_properties(bvh_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
+add_executable(ch_test ch_test.cpp)
+target_link_libraries(ch_test PRIVATE fledge_experimental fledge_lib)
+set_target_properties(ch_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+  ${CMAKE_BINARY_DIR}/bin)
+
 # Add nanobind
 find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 
