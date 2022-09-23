@@ -25,7 +25,14 @@ struct Face {
  * @brief Doubly connected edge list
  * @see https://en.wikipedia.org/wiki/Doubly_connected_edge_list
  */
-struct DCEL {
+class DCEL {
+public:
+  DCEL(size_t nVert, size_t nFaces, std::pmr::memory_resource *mem_resource)
+      : faces(nFaces, mem_resource),
+        edges(nFaces * 3, mem_resource),
+        verts(nVert, mem_resource),
+        m_mem_resource(mem_resource) {}
+  ~DCEL() = default;
   struct Edge;
   struct Face {
     Edge *edge{nullptr};
@@ -40,10 +47,15 @@ struct DCEL {
     Vector3f p;
     Edge    *edge{nullptr};
   };
-  std::vector<Face>   faces;
-  std::vector<Edge>   edges;
-  std::vector<Vertex> verts;
+
+  std::pmr::vector<Face>   faces;
+  std::pmr::vector<Edge>   edges;
+  std::pmr::vector<Vertex> verts;
+
+private:
+  std::pmr::memory_resource *m_mem_resource;
 };
+
 bool SameDirection(const Vector3f &x, const Vector3f &y) {
   return Dot(x, y) > 0;
 }
@@ -71,7 +83,7 @@ class ConvexHullInstance {
 public:
   ConvexHullInstance(InternalTriangleMesh      *mesh,
                      std::pmr::memory_resource *mem_resource)
-      : m_mesh(mesh), m_mem_resource(mem_resource) {}
+      : m_mesh(mesh), m_faces(mem_resource), m_mem_resource(mem_resource) {}
   ~ConvexHullInstance() = default;
   /**
    * @brief Judge if the point is inside of the ConvexHull
@@ -123,10 +135,8 @@ public:
     using dVertex = detail_::DCEL::Vertex;
     boost::container::flat_map<std::pair<size_t, size_t>, dEdge *> mapping;
 
-    detail_::DCEL dcel;
-    dcel.verts.resize(m_mesh->nVert);
-    dcel.edges.resize(m_faces.size() * 3);
-    dcel.faces.resize(m_faces.size());
+    detail_::DCEL dcel{static_cast<size_t>(m_mesh->nVert), m_faces.size(),
+                       m_mem_resource};
 
     // Initialize Vertices
     for (int i = 0; i < m_mesh->nVert; ++i)
@@ -195,9 +205,9 @@ public:
   double surfaceArea() { TODO(); }
 
   // TODO: use pmr resource
-  InternalTriangleMesh      *m_mesh;
-  std::list<detail_::Face>   m_faces;
-  std::pmr::memory_resource *m_mem_resource;
+  InternalTriangleMesh         *m_mesh;
+  std::pmr::list<detail_::Face> m_faces;
+  std::pmr::memory_resource    *m_mem_resource;
 };
 class ConvexHullBuilder {
 public:
@@ -242,7 +252,7 @@ public:
 
       if (inside) continue;
       // Else, traverse the non-visible faces and link the new faces
-      std::list<detail_::Face> new_faces;
+      std::pmr::list<detail_::Face> new_faces(m_mem_resource);
       for (auto &face : ch.m_faces) {
         if (!face.enable) continue;
         for (int j = 0; j < 3; ++j) {
