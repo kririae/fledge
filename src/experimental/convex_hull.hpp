@@ -1,11 +1,14 @@
 #ifndef __EXPERIMENTAL_CONVEX_HULL_HPP__
 #define __EXPERIMENTAL_CONVEX_HULL_HPP__
 
+#include <boost/container/flat_map.hpp>
+#include <cstddef>
 #include <list>
 #include <memory_resource>
 #include <vector>
 
 #include "common/vector.h"
+#include "debug.hpp"
 #include "experimental/base_bvh.hpp"
 #include "fledge.h"
 #include "fmt/core.h"
@@ -15,12 +18,32 @@ namespace experimental {
 namespace detail_ {
 struct Face {
   size_t index[3];
+  bool   enable{true};
 };  // struct Face
-struct Edge {
-  size_t index[2];
-  Edge  *prev, *twin, *next;
-  Face  *face;
-};  // struct Edge
+
+/**
+ * @brief Doubly connected edge list
+ * @see https://en.wikipedia.org/wiki/Doubly_connected_edge_list
+ */
+struct DCEL {
+  struct Edge;
+  struct Face {
+    Edge *edge{nullptr};
+    bool  enable{true};
+  };  // struct Face
+  struct Edge {
+    size_t index[2];
+    Edge  *prev{nullptr}, *twin{nullptr}, *next{nullptr};
+    Face  *face{nullptr};
+  };  // struct Edge
+  struct Vertex {
+    Vector3f p;
+    Edge    *edge{nullptr};
+  };
+  std::vector<Face>   faces;
+  std::vector<Edge>   edges;
+  std::vector<Vertex> verts;
+};
 bool SameDirection(const Vector3f &x, const Vector3f &y) {
   return Dot(x, y) > 0;
 }
@@ -46,11 +69,10 @@ bool PositiveSide(const Face &face, const InternalTriangleMesh *mesh,
 // Intermediate Representation
 class ConvexHullInstance {
 public:
-  // TODO: use pmr resource
-  InternalTriangleMesh    *m_mesh;
-  std::list<detail_::Face> m_faces;
-  std::vector<bool>        m_used;
-
+  ConvexHullInstance(InternalTriangleMesh      *mesh,
+                     std::pmr::memory_resource *mem_resource)
+      : m_mesh(mesh), m_mem_resource(mem_resource) {}
+  ~ConvexHullInstance() = default;
   /**
    * @brief Judge if the point is inside of the ConvexHull
    *
@@ -62,24 +84,147 @@ public:
       if (detail_::PositiveSide(i, m_mesh, p)) return false;
     return true;
   }
+
+  /**
+   * @brief Convert the ConvexHull instance to InternalTriangleMesh*.
+   * Corresponding memory is managed by mem_resource
+   *
+   * @return InternalTriangleMesh*
+   */
+  InternalTriangleMesh *toITriangleMesh() {
+    InternalTriangleMesh *result;
+    auto                  allocator =
+        std::pmr::polymorphic_allocator<InternalTriangleMesh>{m_mem_resource};
+    result        = allocator.new_object<InternalTriangleMesh>();
+    result->nInd  = m_faces.size() * 3;
+    result->nVert = m_mesh->nVert;
+    result->ind   = allocator.allocate_object<int>(result->nInd);
+    result->p     = m_mesh->p;
+
+    size_t face_counter = 0;
+    for (auto &face : m_faces) {
+      for (int i = 0; i < 3; ++i)
+        result->ind[face_counter * 3 + i] = face.index[i];
+      face_counter++;
+    }
+
+    return result;
+  }
+
+  /**
+   * @brief Convert the ConvexHull from normal mesh and faces representation to
+   * DCEL representation in O(nlogn).
+   *
+   * @return detail_::DCEL
+   */
+  detail_::DCEL toDCEL() {
+    using dEdge   = detail_::DCEL::Edge;
+    using dFace   = detail_::DCEL::Face;
+    using dVertex = detail_::DCEL::Vertex;
+    boost::container::flat_map<std::pair<size_t, size_t>, dEdge *> mapping;
+
+    detail_::DCEL dcel;
+    dcel.verts.resize(m_mesh->nVert);
+    dcel.edges.resize(m_faces.size() * 3);
+    dcel.faces.resize(m_faces.size());
+
+    // Initialize Vertices
+    for (int i = 0; i < m_mesh->nVert; ++i)
+      dcel.verts[i] = dVertex{.p = m_mesh->p[i], .edge = nullptr};
+
+    size_t face_counter = 0;
+    for (auto &face : m_faces) {
+      for (int i = 0; i < 3; ++i) {
+        dcel.edges[face_counter * 3 + i] = dEdge{
+            {face.index[i], face.index[(i + 1) % 3]},
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+        };
+        auto &last_edge = dcel.edges[face_counter * 3 + i];
+        mapping[{face.index[i], face.index[(i + 1) % 3]}] = &last_edge;
+        dcel.verts[face.index[i]].edge                    = &last_edge;
+      }  // add edges
+      dcel.faces[face_counter] =
+          dFace{&dcel.edges[face_counter * 3], face.enable};
+      auto &e1 = dcel.edges[face_counter * 3];
+      auto &e2 = dcel.edges[face_counter * 3 + 1];
+      auto &e3 = dcel.edges[face_counter * 3 + 2];
+
+      e1.prev = &e3;
+      e1.next = &e2;
+      e2.prev = &e1;
+      e2.next = &e3;
+      e3.prev = &e2;
+      e3.next = &e1;
+      e1.face = e2.face = e3.face = &dcel.faces[face_counter];
+      ++face_counter;
+    }  // for face
+
+    // Establish the twin mapping
+    for (auto &edge : dcel.edges)
+      edge.twin = mapping[{edge.index[1], edge.index[0]}];
+
+    // Verification
+    for (auto &vert : dcel.verts) {
+      if (vert.edge == nullptr) continue;
+      assert(dcel.verts[vert.edge->index[0]].p == vert.p);
+    }  // for vert
+    for (auto &edge : dcel.edges) {
+      assert(edge.face != nullptr);
+      assert(edge.prev != nullptr);
+      assert(edge.twin != nullptr);
+      assert(edge.next != nullptr);
+      assert(edge.prev->next == &edge);
+      assert(edge.twin->twin == &edge);
+      assert(edge.next->prev == &edge);
+      assert(edge.prev->index[1] == edge.index[0]);
+      assert(edge.twin->index[0] == edge.index[1]);
+      assert(edge.twin->index[1] == edge.index[0]);
+      assert(edge.next->index[0] == edge.index[1]);
+    }  // for edge
+    for (auto &face : dcel.faces) {
+      assert(face.edge != nullptr);
+      assert(face.edge->face == &face);
+    }  // for face
+
+    return dcel;
+  }
+
+  double surfaceArea() { TODO(); }
+
+  // TODO: use pmr resource
+  InternalTriangleMesh      *m_mesh;
+  std::list<detail_::Face>   m_faces;
+  std::pmr::memory_resource *m_mem_resource;
 };
 class ConvexHullBuilder {
 public:
   ConvexHullBuilder(InternalTriangleMesh      *mesh,
                     std::pmr::memory_resource *mem_resource)
-      : m_mesh(mesh), m_mem_resource(mem_resource) {}
+      : m_mesh(mesh), m_mem_resource(mem_resource) {
+    assert(m_mesh->nVert <= 10000);
+  }  // ctor
   ConvexHullInstance build() {
     const int n_points = m_mesh->nVert;
 
-    ConvexHullInstance ch{.m_mesh = m_mesh,
-                          .m_used = std::vector<bool>(false, m_mesh->nVert)};
+    ConvexHullInstance ch{m_mesh, m_mem_resource};
     // TODO: hopefully this is the correct order
-    ch.m_faces.push_back(detail_::Face{0, 1, 2});
-    ch.m_faces.push_back(
-        detail_::Face{2, 1, 0});  // trick to ensure the first point added
+    ch.m_faces.push_back(detail_::Face{
+        {0, 1, 2},
+        true
+    });
+    ch.m_faces.push_back(detail_::Face{
+        {2, 1, 0},
+        true
+    });  // trick to ensure the first point added
 
     // Add the later points to construct the base CH
     for (int i = 4; i < n_points; ++i) {
+      std::vector<std::vector<bool>> edge_mark(
+          n_points, std::vector<bool>(n_points, false));
+
       // if (ch.inside(m_mesh->p[i])) continue;
       Point3f p      = m_mesh->p[i];
       bool    inside = true;
@@ -87,9 +232,32 @@ public:
         // Since it is ConvexHull, just remove the face
         if (detail_::PositiveSide(*it, m_mesh, p)) {
           inside = false;
-          ch.m_faces.erase(it);
+          for (int j = 0; j < 3; ++j) {
+            size_t s = it->index[j], t = it->index[(j + 1) % 3];
+            edge_mark[s][t] = true;
+            it->enable      = false;
+          }  // for j
         }
       }
+
+      if (inside) continue;
+      // Else, traverse the non-visible faces and link the new faces
+      std::list<detail_::Face> new_faces;
+      for (auto &face : ch.m_faces) {
+        if (!face.enable) continue;
+        for (int j = 0; j < 3; ++j) {
+          size_t s = face.index[j], t = face.index[(j + 1) % 3];
+          if (!edge_mark[s][t] && edge_mark[t][s])
+            new_faces.push_back(detail_::Face{
+                .index = {static_cast<size_t>(i), t, s},
+                  .enable = true
+            });
+        }  // for j
+      }    // for face
+
+      ch.m_faces.remove_if([](auto x) -> bool { return !x.enable; });
+      // merge the new faces
+      ch.m_faces.splice(ch.m_faces.end(), new_faces);
     }  // main CH loop
 
     return ch;

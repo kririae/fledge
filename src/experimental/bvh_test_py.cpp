@@ -10,5 +10,5 @@ using namespace nb::literals;
 NB_MODULE(bvh_test_py, m) {
   using namespace fledge;
   using namespace fledge::experimental;
-  // nb::class_<BVHTester>
+  // nb::class_<BVHTester>[]
 }
