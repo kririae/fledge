@@ -474,38 +474,44 @@ inline Vector3f Support(const ConvexHullInstance &shape, const Vector3f &d) {
 inline std::tuple<SimplexBase *, Vector3f, bool> NearestSimplex(
     SimplexBase *s) {
   std::size_t N = s->getSize();
-  if (N == 1) {
-    const Simplex<1> *s_ = dynamic_cast<const Simplex<1> *>(s);
-    return {s, -ProjectPointToLine(Vector3f{}, s_->points[0], s_->points[1]),
-            false};
-  } else if (N == 2) {
-    const Simplex<2> *s_ = dynamic_cast<const Simplex<2> *>(s);
-    Normal3f          n  = Normal(s_->face, s_->points);
-    if (SameDirection(s_->points[s_->face.index[0]], n)) n = -n;
-    return {s, n, false};
-  } else if (N == 3) {
-    const Simplex<3> *s_ = dynamic_cast<const Simplex<3> *>(s);
-    if (s_->inside(Vector3f{0})) {
-      return {{}, {}, true};
-    } else {
-      // traverse the faces of s
-      std::pair<Face, float> result = std::make_pair(
-          s_->faces[0], DistanceToFace(s_->faces[0], s_->points, Vector3f{0}));
-      // Select the face with minimum distance
-      for (int i = 1; i < 4; ++i) {
-        float distance = DistanceToFace(s_->faces[i], s_->points, Vector3f{0});
-        if (distance < result.second)
-          result = std::make_pair(s_->faces[i], distance);
-      }
+  switch (N) {
+    case 1: {
+      const Simplex<1> *s_ = dynamic_cast<const Simplex<1> *>(s);
+      return {s, -ProjectPointToLine(Vector3f{}, s_->points[0], s_->points[1]),
+              false};
+    }  // case 1
+    case 2: {
+      const Simplex<2> *s_ = dynamic_cast<const Simplex<2> *>(s);
+      Normal3f          n  = Normal(s_->face, s_->points);
+      if (SameDirection(s_->points[s_->face.index[0]], n)) n = -n;
+      return {s, n, false};
+    }  // case 2
+    case 3: {
+      const Simplex<3> *s_ = dynamic_cast<const Simplex<3> *>(s);
+      if (s_->inside(Vector3f{0})) {
+        return {{}, {}, true};
+      } else {
+        // traverse the faces of s
+        std::pair<Face, float> result = std::make_pair(
+            s_->faces[0],
+            DistanceToFace(s_->faces[0], s_->points, Vector3f{0}));
+        // Select the face with minimum distance
+        for (int i = 1; i < 4; ++i) {
+          float distance =
+              DistanceToFace(s_->faces[i], s_->points, Vector3f{0});
+          if (distance < result.second)
+            result = std::make_pair(s_->faces[i], distance);
+        }
 
-      // Acquire the normal of the face
-      Normal3f n = Normal(result.first, s_->points);
-      if (SameDirection(s_->points[result.first.index[0]], n)) n = -n;
-      return {new Simplex<2>(result.first, s_->points), n, false};
+        // Acquire the normal of the face
+        Normal3f n = Normal(result.first, s_->points);
+        if (SameDirection(s_->points[result.first.index[0]], n)) n = -n;
+        return {new Simplex<2>(result.first, s_->points), n, false};
+      }
+    }  // case 3
+    default: {
+      TODO();
     }
-  } else {
-    TODO();
-    return {};
   }
 }
 }  // namespace detail_
