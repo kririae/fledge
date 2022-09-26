@@ -68,7 +68,7 @@ bool SameDirection(const Vector3f &x, const Vector3f &y) {
 }
 Normal3f Normal(const Vector3f &x, const Vector3f &y, const Vector3f &z) {
   // in LHS coordinate system
-  return Normalize(Cross(z - x, y - z));
+  return Normalize(Cross(y - x, z - x));
 }
 Normal3f Normal(const Face &face, const Vector3f *points_array) {
   return Normal(points_array[face.index[0]], points_array[face.index[1]],
@@ -228,6 +228,37 @@ public:
   }
 
   double surfaceArea() { TODO(); }
+
+  bool verifyOrientation() {
+    bool result = true;
+
+    std::vector<int> visit(m_mesh->nVert, 0);
+    // Assume it is convex
+    for (auto &face : m_faces)
+      for (int i = 0; i < 3; ++i) visit[face.index[i]] = 1;
+
+    Vector3f    center{0};
+    std::size_t cnt = 0;
+    for (int i = 0; i < m_mesh->nVert; ++i) {
+      if (visit[i]) {
+        center += m_mesh->p[i];
+        ++cnt;
+      }
+    }  // for i
+    center /= cnt;
+
+    for (auto &face : m_faces) {
+      Vector3f a          = m_mesh->p[face.index[0]];
+      Vector3f b          = m_mesh->p[face.index[1]];
+      Vector3f c          = m_mesh->p[face.index[2]];
+      Vector3f abc_center = (a + b + c) / 3;
+      // TODO: ???
+      result &= detail_::SameDirection(abc_center - center,
+                                        detail_::Normal(a, b, c));
+    }
+
+    return result;
+  }
 
   // TODO: use pmr resource
   InternalTriangleMesh         *m_mesh;
@@ -506,12 +537,10 @@ inline bool GJKIntersection(const ConvexHullInstance &p,
                             const ConvexHullInstance &q) {
   using namespace detail_;
   Vector3f     initial_axis = Vector3f{1, 0, 0};
-  Vector3f     A = Support(p, initial_axis) - Support(q, -initial_axis);
-  SimplexBase *s = new Simplex<0>{A};
-  // fmt::print("first Support: {}\n", Support(q, -initial_axis).toString());
-  // fmt::print("first A: {}\n", A.toString());
-  Vector3f D       = -A;
-  bool     success = false;
+  Vector3f     A       = Support(p, initial_axis) - Support(q, -initial_axis);
+  SimplexBase *s       = new Simplex<0>{A};
+  Vector3f     D       = -A;
+  bool         success = false;
   while (true) {
     A = Support(p, D) - Support(q, -D);
     if (Dot(A, D) < 0) return false;

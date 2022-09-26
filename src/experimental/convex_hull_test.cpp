@@ -1,9 +1,10 @@
+#include "experimental/convex_hull.hpp"
+
 #include <memory_resource>
 
 #include "common/vector.h"
 #include "debug.hpp"
 #include "experimental/base_bvh.hpp"
-#include "experimental/convex_hull.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"
@@ -93,7 +94,7 @@ static void intersectTest() {
   TriangleMesh *mesh_2 = fledge::CloneTriangleMesh(mesh_1, resource);
 
   // Offset the mesh to perform intersection
-  const Vector3f offset(1.9, 0.1, 0);
+  const Vector3f offset(1.9, 0.3, 0);
   for (int i = 0; i < mesh_2->nVert; ++i) mesh_2->p[i] += offset;
 
   InternalTriangleMesh imesh_1 = toITriangleMesh(mesh_1);
@@ -112,7 +113,7 @@ static void intersectTest() {
     Vector3f  b      = p[face.index[1]];
     Vector3f  c      = p[face.index[2]];
     Vector3f  center = (a + b + c) / 3;
-    assert(!fledge::experimental::detail_::SameDirection(
+    assert(fledge::experimental::detail_::SameDirection(
         fledge::experimental::detail_::Normal(a, b, c), center));
   }
 
@@ -124,6 +125,11 @@ int main() {
   Resource                   resource{mem_resource};
   TriangleMesh              *mesh =
       fledge::MakeTriangleMesh("assets/bun_zipper_res4.ply", resource);
+  TriangleMesh        *mesh_  = CloneTriangleMesh(mesh, resource);
+  InternalTriangleMesh imesh_ = toITriangleMesh(mesh_);
+  ConvexHullInstance   instance_(&imesh_, mem_resource);
+  instance_.assumeConvex();
+  instance_.verifyOrientation();
 
   // Convert mesh to internal mesh
   InternalTriangleMesh imesh = toITriangleMesh(mesh);
@@ -132,7 +138,8 @@ int main() {
   auto                 _        = instance.toDCEL();
   auto                *ch_imesh = instance.toITriangleMesh();
   TriangleMesh         ch_mesh  = toTriangleMesh(ch_imesh);
-  //   display(&ch_mesh, "ch_mesh.exr");
+  assert(instance.verifyOrientation());
+  display(&ch_mesh, "ch_mesh.exr");
 
   intersectTest();
 }

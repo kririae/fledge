@@ -8,9 +8,9 @@ target_link_libraries(bvh_test PRIVATE fledge_experimental fledge_lib)
 set_target_properties(bvh_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
-add_executable(ch_test ch_test.cpp)
-target_link_libraries(ch_test PRIVATE fledge_experimental fledge_lib)
-set_target_properties(ch_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+add_executable(convex_hull_test convex_hull_test.cpp)
+target_link_libraries(convex_hull_test PRIVATE fledge_experimental fledge_lib)
+set_target_properties(convex_hull_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
 # Add nanobind
