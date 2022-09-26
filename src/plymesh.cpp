@@ -1,5 +1,6 @@
 #include "plymesh.hpp"
 
+#include <cstddef>
 #include <cstdlib>
 #include <memory>
 
@@ -81,6 +82,28 @@ TriangleMesh *MakeTriangleMesh(const std::string &path, Resource &resource) {
   if (!got_verts || !got_faces) SErr("failed to create mesh");
 
   SLog("ply mesh loaded");
+  return mesh;
+}
+
+TriangleMesh *CloneTriangleMesh(const TriangleMesh *src, Resource &resource) {
+  TriangleMesh *mesh = resource.alloc<TriangleMesh>();
+  mesh->nInd         = src->nInd;
+  mesh->nVert        = src->nVert;
+  mesh->p            = resource.alloc<Vector3f[], 16>(mesh->nVert);
+  mesh->ind          = resource.alloc<int[], 16>(mesh->nInd);
+  std::memcpy(mesh->p, src->p, sizeof(Vector3f) * mesh->nVert);
+  std::memcpy(mesh->ind, src->ind, sizeof(int) * mesh->nInd);
+
+  if (src->n != nullptr) {
+    mesh->n = resource.alloc<Vector3f[], 16>(mesh->nVert);
+    std::memcpy(mesh->n, src->n, sizeof(Vector3f) * mesh->nVert);
+  }
+
+  if (src->uv != nullptr) {
+    mesh->uv = resource.alloc<Vector2f[], 16>(mesh->nVert);
+    std::memcpy(mesh->uv, src->uv, sizeof(Vector2f) * mesh->nVert);
+  }
+
   return mesh;
 }
 

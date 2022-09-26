@@ -2,6 +2,7 @@
 
 #include "common/vector.h"
 #include "debug.hpp"
+#include "experimental/base_bvh.hpp"
 #include "experimental/convex_hull.hpp"
 #include "film.hpp"
 #include "fledge.h"
@@ -18,6 +19,26 @@
 
 using namespace fledge;
 using namespace fledge::experimental;
+
+static InternalTriangleMesh toITriangleMesh(const TriangleMesh *mesh) {
+  InternalTriangleMesh imesh{.nInd  = mesh->nInd,
+                             .nVert = mesh->nVert,
+                             .ind   = mesh->ind,
+                             .p     = mesh->p,
+                             .n     = mesh->n,
+                             .uv    = mesh->uv};  // convert mesh
+  return imesh;
+}
+
+static TriangleMesh toTriangleMesh(const InternalTriangleMesh *imesh) {
+  TriangleMesh mesh{.nInd  = imesh->nInd,
+                    .nVert = imesh->nVert,
+                    .ind   = imesh->ind,
+                    .p     = imesh->p,
+                    .n     = imesh->n,
+                    .uv    = imesh->uv};  // convert imesh
+  return mesh;
+}
 
 static void display(TriangleMesh *mesh, const std::string &name) {
   Scene scene;
@@ -64,6 +85,40 @@ static void display(TriangleMesh *mesh, const std::string &name) {
   render.saveImage(name);
 }
 
+static void intersectTest() {
+  std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
+  Resource                   resource{mem_resource};
+  TriangleMesh              *mesh_1 =
+      fledge::MakeTriangleMesh("assets/watertight.ply", resource);
+  TriangleMesh *mesh_2 = fledge::CloneTriangleMesh(mesh_1, resource);
+
+  // Offset the mesh to perform intersection
+  const Vector3f offset(1.9, 0.1, 0);
+  for (int i = 0; i < mesh_2->nVert; ++i) mesh_2->p[i] += offset;
+
+  InternalTriangleMesh imesh_1 = toITriangleMesh(mesh_1);
+  InternalTriangleMesh imesh_2 = toITriangleMesh(mesh_2);
+
+  ConvexHullInstance instance_1(&imesh_1, mem_resource);
+  ConvexHullInstance instance_2(&imesh_2, mem_resource);
+
+  instance_1.assumeConvex();
+  instance_2.assumeConvex();
+
+  // Mesh direction validation not passed
+  for (auto &face : instance_1.m_faces) {
+    Vector3f *p      = instance_1.m_mesh->p;
+    Vector3f  a      = p[face.index[0]];
+    Vector3f  b      = p[face.index[1]];
+    Vector3f  c      = p[face.index[2]];
+    Vector3f  center = (a + b + c) / 3;
+    assert(!fledge::experimental::detail_::SameDirection(
+        fledge::experimental::detail_::Normal(a, b, c), center));
+  }
+
+  fmt::print("{}\n", GJKIntersection(instance_1, instance_2));
+}
+
 int main() {
   std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
   Resource                   resource{mem_resource};
@@ -71,28 +126,13 @@ int main() {
       fledge::MakeTriangleMesh("assets/bun_zipper_res4.ply", resource);
 
   // Convert mesh to internal mesh
-  InternalTriangleMesh *imesh =
-      new InternalTriangleMesh{.nInd  = mesh->nInd,
-                               .nVert = mesh->nVert,
-                               .ind   = mesh->ind,
-                               .p     = mesh->p,
-                               .n     = mesh->n,
-                               .uv    = mesh->uv};  // convert mesh
-  ConvexHullBuilder  builder(imesh, mem_resource);
-  ConvexHullInstance instance = builder.build();
-  auto               _        = instance.toDCEL();
+  InternalTriangleMesh imesh = toITriangleMesh(mesh);
+  ConvexHullBuilder    builder(&imesh, mem_resource);
+  ConvexHullInstance   instance = builder.build();
+  auto                 _        = instance.toDCEL();
+  auto                *ch_imesh = instance.toITriangleMesh();
+  TriangleMesh         ch_mesh  = toTriangleMesh(ch_imesh);
+  //   display(&ch_mesh, "ch_mesh.exr");
 
-  auto *ch_imesh = instance.toITriangleMesh();
-  // Inverse conversion
-  TriangleMesh *ch_mesh = new TriangleMesh{.nInd  = ch_imesh->nInd,
-                                           .nVert = ch_imesh->nVert,
-                                           .ind   = ch_imesh->ind,
-                                           .p     = ch_imesh->p,
-                                           .n     = ch_imesh->n,
-                                           .uv = ch_imesh->uv};  // convert mesh
-
-  display(ch_mesh, "ch_mesh.exr");
-
-  delete imesh;
-  delete ch_mesh;
+  intersectTest();
 }
