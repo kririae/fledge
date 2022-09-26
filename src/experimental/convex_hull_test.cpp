@@ -1,5 +1,10 @@
 #include "experimental/convex_hull.hpp"
 
+#include <oneapi/tbb/scalable_allocator.h>
+#include <pstl/glue_execution_defs.h>
+
+#include <algorithm>
+#include <execution>
 #include <memory_resource>
 
 #include "common/vector.h"
@@ -87,15 +92,13 @@ static void display(TriangleMesh *mesh, const std::string &name) {
 }
 
 static void intersectTest() {
+  Random rng;
+
   std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
   Resource                   resource{mem_resource};
   TriangleMesh              *mesh_1 =
-      fledge::MakeTriangleMesh("assets/watertight.ply", resource);
+      fledge::MakeTriangleMesh("assets/sphere.ply", resource);
   TriangleMesh *mesh_2 = fledge::CloneTriangleMesh(mesh_1, resource);
-
-  // Offset the mesh to perform intersection
-  const Vector3f offset(1.9, 0.3, 0);
-  for (int i = 0; i < mesh_2->nVert; ++i) mesh_2->p[i] += offset;
 
   InternalTriangleMesh imesh_1 = toITriangleMesh(mesh_1);
   InternalTriangleMesh imesh_2 = toITriangleMesh(mesh_2);
@@ -106,30 +109,46 @@ static void intersectTest() {
   instance_1.assumeConvex();
   instance_2.assumeConvex();
 
-  // Mesh direction validation not passed
-  for (auto &face : instance_1.m_faces) {
-    Vector3f *p      = instance_1.m_mesh->p;
-    Vector3f  a      = p[face.index[0]];
-    Vector3f  b      = p[face.index[1]];
-    Vector3f  c      = p[face.index[2]];
-    Vector3f  center = (a + b + c) / 3;
-    assert(fledge::experimental::detail_::SameDirection(
-        fledge::experimental::detail_::Normal(a, b, c), center));
-  }
+  assert(instance_1.verifyOrientation());
+  assert(instance_2.verifyOrientation());
 
-  fmt::print("{}\n", GJKIntersection(instance_1, instance_2));
+  auto i2_pos_array =
+      std::span{imesh_2.p, static_cast<std::size_t>(imesh_2.nVert)};
+
+  for (int i = 0; i < 100; ++i) {
+    float    distance = rng.get1D() * 0.4;
+    Vector3f direction =
+        Normalize(Vector3f{rng.get1D(), rng.get1D(), rng.get1D()});
+    Vector3f offset = distance * direction;
+
+    // Transform
+    std::transform(std::execution::par, i2_pos_array.begin(),
+                   i2_pos_array.end(), i2_pos_array.begin(),
+                   [=](const Vector3f &x) -> Vector3f { return x + offset; });
+
+    bool intersect_result = GJKIntersection(instance_1, instance_2);
+    if (distance < 0.199) assert(intersect_result);  // some extent of tolerance
+
+    // Inverse transform
+    std::transform(std::execution::par, i2_pos_array.begin(),
+                   i2_pos_array.end(), i2_pos_array.begin(),
+                   [=](const Vector3f &x) -> Vector3f { return x - offset; });
+  }
 }
 
 int main() {
-  std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
+  auto                       upstream = std::pmr::monotonic_buffer_resource{};
+  std::pmr::memory_resource *mem_resource = &upstream;
   Resource                   resource{mem_resource};
   TriangleMesh              *mesh =
       fledge::MakeTriangleMesh("assets/bun_zipper_res4.ply", resource);
+#if 0
   TriangleMesh        *mesh_  = CloneTriangleMesh(mesh, resource);
   InternalTriangleMesh imesh_ = toITriangleMesh(mesh_);
   ConvexHullInstance   instance_(&imesh_, mem_resource);
   instance_.assumeConvex();
-  instance_.verifyOrientation();
+  assert(instance_.verifyOrientation());
+#endif
 
   // Convert mesh to internal mesh
   InternalTriangleMesh imesh = toITriangleMesh(mesh);
@@ -139,7 +158,11 @@ int main() {
   auto                *ch_imesh = instance.toITriangleMesh();
   TriangleMesh         ch_mesh  = toTriangleMesh(ch_imesh);
   assert(instance.verifyOrientation());
+
+#if 0
   display(&ch_mesh, "ch_mesh.exr");
+#endif
 
   intersectTest();
+  upstream.release();  // release all memory used
 }

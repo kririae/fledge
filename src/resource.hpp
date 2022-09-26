@@ -22,6 +22,7 @@ FLG_NAMESPACE_BEGIN
 
 namespace detail_ {
 struct DestructorBase {
+  // avoid linkage error
   virtual ~DestructorBase() {}
 };
 template <typename T>

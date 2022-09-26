@@ -381,7 +381,7 @@ F_CPU_GPU inline Vector<T, N> Abs(const Vector<T, N> &x) {
 }
 
 template <typename T, int N>
-F_CPU_GPU inline Vector<T, N> RandVec() requires(std::is_arithmetic<T>::value) {
+F_CPU_GPU inline Vector<T, N> RandVec() {
   Deprecated();
 }
 

@@ -2,6 +2,7 @@
 #define __EXPERIMENTAL_CONVEX_HULL_HPP__
 
 #include <boost/container/flat_map.hpp>
+#include <cassert>
 #include <cstddef>
 #include <limits>
 #include <list>
@@ -252,9 +253,8 @@ public:
       Vector3f b          = m_mesh->p[face.index[1]];
       Vector3f c          = m_mesh->p[face.index[2]];
       Vector3f abc_center = (a + b + c) / 3;
-      // TODO: ???
-      result &= detail_::SameDirection(abc_center - center,
-                                        detail_::Normal(a, b, c));
+      result &=
+          detail_::SameDirection(abc_center - center, detail_::Normal(a, b, c));
     }
 
     return result;
@@ -287,7 +287,7 @@ public:
     });  // trick to ensure the first point added
 
     // Add the later points to construct the base CH
-    for (int i = 4; i < n_points; ++i) {
+    for (int i = 3; i < n_points; ++i) {
       std::vector<std::vector<bool>> edge_mark(
           n_points, std::vector<bool>(n_points, false));
 
@@ -296,7 +296,7 @@ public:
       bool    inside = true;
       for (auto it = ch.m_faces.begin(); it != ch.m_faces.end(); ++it) {
         // Since it is ConvexHull, just remove the face
-        if (detail_::PositiveSide(*it, m_mesh->p, p)) {
+        if (!detail_::PositiveSide(*it, m_mesh->p, p)) {
           inside = false;
           for (int j = 0; j < 3; ++j) {
             size_t s = it->index[j], t = it->index[(j + 1) % 3];
@@ -315,7 +315,7 @@ public:
           size_t s = face.index[j], t = face.index[(j + 1) % 3];
           if (!edge_mark[s][t] && edge_mark[t][s])
             new_faces.push_back(detail_::Face{
-                .index = {static_cast<size_t>(i), t, s},
+                .index = {t, s, static_cast<size_t>(i)},
                   .enable = true
             });
         }  // for j
@@ -386,22 +386,21 @@ struct Simplex<2> : public SimplexBase {
   Simplex<3> *promote(const Vector3f &p) const override {
     Simplex<3> result;
     for (int i = 0; i < 3; ++i) result.points[i] = points[i];
-    result.faces[0] = face;
+    result.points[3] = p;
+    result.faces[0]  = face;
+
+    // reorient the face
+    if (PositiveSide(face, points, p))
+      std::swap(result.faces[0].index[0], result.faces[0].index[1]);
 
     for (int i = 0; i < 3; ++i) {
-      auto  A     = face.index[i];
-      auto  B     = face.index[(i + 1) % 3];
-      auto  C     = 3;
-      auto &face_ = result.faces[i + 1];
-      if (PositiveSide(face, points, p)) {
-        face_.index[0] = A;
-        face_.index[1] = B;
-        face_.index[2] = C;  // counter-clock-wise
-      } else {
-        face_.index[0] = B;
-        face_.index[1] = A;
-        face_.index[2] = C;  // clock-wise
-      }
+      auto  A        = face.index[i];
+      auto  B        = face.index[(i + 1) % 3];
+      auto  C        = 3;
+      auto &face_    = result.faces[i + 1];
+      face_.index[0] = A;
+      face_.index[1] = C;
+      face_.index[2] = B;
     }
 
     // TODO: do not deallocate for now
@@ -541,17 +540,34 @@ inline bool GJKIntersection(const ConvexHullInstance &p,
   SimplexBase *s       = new Simplex<0>{A};
   Vector3f     D       = -A;
   bool         success = false;
+
+  int max_iter = 128;
   while (true) {
     A = Support(p, D) - Support(q, -D);
     if (Dot(A, D) < 0) return false;
     auto s_ = s->promote(A);
-    delete s;
-    s                        = s_;
+    delete s;  // replacement
+    s = s_;
+    if (max_iter-- <= 0) break;
     std::tie(s_, D, success) = NearestSimplex(s);
     if (success) return true;
-    delete s;
+    delete s;  // replacement
     s = s_;
   }
+
+#if 0
+  fmt::print("{}\n", s->getSize());
+  const auto s_ = dynamic_cast<Simplex<3> *>(s);
+  fmt::print("{} {} {} {}\n", s_->points[0].toString(),
+             s_->points[1].toString(), s_->points[2].toString(),
+             s_->points[3].toString());
+  for (int i = 0; i < 4; ++i) {
+    assert(s_->faces[i].index[0] != s_->faces[i].index[1]);
+    assert(s_->faces[i].index[1] != s_->faces[i].index[2]);
+  }
+#endif
+
+  return true;
 }
 }  // namespace experimental
 FLG_NAMESPACE_END
