@@ -83,9 +83,9 @@ static void display(TriangleMesh *mesh, const std::string &name) {
 
   scene.init();  // reinit;
 
-  Render render(&scene);
+  CPURender render(&scene);
   render.init();
-  render.preprocess();
+  render.preProcess();
   render.render();
 
   render.saveImage(name);

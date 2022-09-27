@@ -7,8 +7,9 @@ FLG_NAMESPACE_BEGIN
 
 class Camera {
 public:
-  F_CPU_GPU Camera(const Vector3f &pos, const Vector3f &lookAt,
-                   const Vector3f &up = Vector3f{0, 1, 0}, Float fov = 30)
+  F_CPU_GPU
+  Camera(const Vector3f &pos, const Vector3f &lookAt,
+         const Vector3f &up = Vector3f{0, 1, 0}, Float fov = 30)
       : m_pos(pos),
         m_forward(Normalize(lookAt - pos)),
         m_up(up),
@@ -17,7 +18,8 @@ public:
     C(m_up, m_right);
   }
 
-  F_CPU_GPU Ray generateRay(Float x, Float y, int width, int height) {
+  F_CPU_GPU
+  Ray generateRay(Float x, Float y, int width, int height) {
     // (pos - center_of_image_plane).norm() is fixed to 1
     Float    aspect_ratio = static_cast<Float>(width) / height;
     Float    fov_ratio    = tanf(PI * m_fov / 360);

@@ -125,7 +125,7 @@ public:
 
   Vector3f              m_o, m_d;
   mutable Float         m_tMax;
-  mutable Volume const *m_volume;
+  mutable Volume const *m_volume{nullptr};
   // medium
 
 private:

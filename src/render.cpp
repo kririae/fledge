@@ -16,9 +16,9 @@
 
 FLG_NAMESPACE_BEGIN
 
-Render::Render(Scene *scene) : m_scene(scene) {}
+CPURender::CPURender(Scene *scene) : m_scene(scene) {}
 
-void Render::init(EBackendType backend) {
+void CPURender::init() {
   detail_::GetPrimeList();
   SLog("Global prime list is initialized");
 
@@ -27,37 +27,28 @@ void Render::init(EBackendType backend) {
 
   SLog("Render is initializing");
 
-  if (backend == EBackendType::ECPUBackend) {
-    switch (int(m_scene->m_integrator_type)) {
-      case int(EIntegratorType::EPathIntegrator):
-        m_integrator =
-            m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
-        break;
-      case int(EIntegratorType::EVolPathIntegrator):
-        m_integrator =
-            m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
-        break;
-      default:
-        TODO();
-    }  // switch integrator_type
-  } else if (backend == EBackendType::EOptiXBackend) {
-    optix::InitOptiX();
-    SLog("Renderer initialized with OptiX backend");
-    m_integrator =
-        m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
-  } else {
-    SErr("This backend is currently not supported");
-  }
+  switch (int(m_scene->m_integrator_type)) {
+    case int(EIntegratorType::EPathIntegrator):
+      m_integrator =
+          m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
+      break;
+    case int(EIntegratorType::EVolPathIntegrator):
+      m_integrator =
+          m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
+      break;
+    default:
+      TODO();
+  }  // switch integrator_type
 
   m_init = true;
 }
 
-bool Render::preprocess() {
+bool CPURender::preProcess() {
   for (auto &light : m_scene->m_infLight) light->preprocess(*m_scene);
   return true;
 }
 
-bool Render::saveImage(const std::string &name, bool denoise) {
+bool CPURender::saveImage(const std::string &name, bool denoise) {
   if (!m_init) return false;
   auto name_ = m_scene->getPath(name);
   SLog("saveImage(%s)", name_.c_str());
@@ -71,7 +62,7 @@ bool Render::saveImage(const std::string &name, bool denoise) {
   return true;
 }
 
-bool Render::render() {
+bool CPURender::render() {
   if (!m_init) return false;
   auto start = std::chrono::high_resolution_clock::now();
   // call Integrator
@@ -83,11 +74,11 @@ bool Render::render() {
   return true;
 }
 
-Film &Render::getFilm() {
+Film &CPURender::getFilm() {
   return *m_scene->m_film;
 }
 
-const Film &Render::getFilm() const {
+const Film &CPURender::getFilm() const {
   return *m_scene->m_film;
 }
 

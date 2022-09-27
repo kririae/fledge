@@ -62,9 +62,27 @@ inline void backtrace() {
     fmt::print(stderr,                                                      \
                fg(fmt::color::medium_violet_red) | fmt::emphasis::bold,     \
                "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
+    fmt::print(fg(fmt::color::floral_white),                                \
+               fmt::sprintf(format "\n", ##__VA_ARGS__));                   \
     backtrace();                                                            \
     assert(false);                                                          \
   } while (false)
+
+#define OLog(format, ...)                                                   \
+  do {                                                                      \
+    fmt::print(fg(fmt::color::forest_green) | fmt::emphasis::bold,          \
+               "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
+    fmt::print(fg(fmt::color::floral_white), format "\n", ##__VA_ARGS__);   \
+  } while (false)
+
+#define OErr(format, ...)                                                   \
+  do {                                                                      \
+    fmt::print(fg(fmt::color::medium_violet_red) | fmt::emphasis::bold,     \
+               "[{:<16}:{:<3d} {:<s}] ", __FILENAME__, __LINE__, __func__); \
+    fmt::print(fg(fmt::color::floral_white), format "\n", ##__VA_ARGS__);   \
+    assert(false);                                                          \
+  } while (false)
+
 #define TODO() SErr("please implement me")
 
 #include <memory>

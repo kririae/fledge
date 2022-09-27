@@ -14,7 +14,7 @@
 
 FLG_NAMESPACE_BEGIN
 namespace optix {
-#define CUDA_CALL(expr)                                        \
+#define CUDA_CHECK(expr)                                       \
   {                                                            \
     cudaError_t err = (expr);                                  \
     if (err != cudaSuccess) {                                  \

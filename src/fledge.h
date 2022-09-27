@@ -53,7 +53,7 @@ class PathIntegrator;
 class Primitive;
 class Random;
 struct Ray;
-class Render;
+class CPURender;
 class Sampler;
 class ParallelIntegrator;
 class ShapePrimitive;

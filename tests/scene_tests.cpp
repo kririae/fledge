@@ -50,7 +50,7 @@ TEST(Scene, WhiteWithDiffusion) {
 
   scene.init();
 
-  Render render(&scene);
+  CPURender render(&scene);
   render.init();
   render.preprocess();
   render.render();

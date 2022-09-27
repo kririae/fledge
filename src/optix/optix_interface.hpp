@@ -6,7 +6,6 @@
 FLG_NAMESPACE_BEGIN
 namespace optix {
 void InitOptiX();
-
 }  // namespace optix
 FLG_NAMESPACE_END
 #endif

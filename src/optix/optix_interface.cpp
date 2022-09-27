@@ -7,23 +7,6 @@
 
 FLG_NAMESPACE_BEGIN
 namespace optix {
-// Link against .*ptx_embedded.c
-extern "C" char embedded_ptx_code[];
-struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) RaygenRecord {
-  alignas(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-  void *data;
-};
-
-struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) MissRecord {
-  alignas(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-  void *data;
-};
-
-struct alignas(OPTIX_SBT_RECORD_ALIGNMENT) HitgroupRecord {
-  alignas(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-  int objectID;
-};
-
 void InitOptiX() {
   cudaFree(0);
   int num_devices;
