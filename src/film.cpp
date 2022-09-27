@@ -1,7 +1,12 @@
 #include "film.hpp"
 
-#include <cstdint>
+#include <OpenImageIO/imageio.h>
+
+#include <execution>  // for transform, par
+#include <filesystem>
+#include <memory>  // for unique_ptr
 #include <mutex>
+#include <span>
 
 FLG_NAMESPACE_BEGIN
 

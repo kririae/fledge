@@ -1,23 +1,11 @@
 #ifndef __FILM_HPP__
 #define __FILM_HPP__
 
-// clang-format off
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-// clang-format on
-
-#include <OpenImageIO/imageio.h>
-
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <execution>
-#include <filesystem>
-#include <memory>
 #include <mutex>
-#include <span>
 #include <string>
-#include <vector>
 
 #include "common/filter.h"
 #include "common/vector.h"

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <execution>
 #include <memory_resource>
+#include <span>
 
 #include "common/vector.h"
 #include "debug.hpp"

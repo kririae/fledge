@@ -1,10 +1,6 @@
 #include "accel.hpp"
 
-#include <cstddef>
-#include <memory>
-
 #include "common/aabb.h"
-#include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
 #include "interaction.hpp"

@@ -13,7 +13,7 @@ FLG_NAMESPACE_BEGIN
 
 class CoordinateTransition {
 public:
-  CoordinateTransition(const Vector3f &normal) : m_normal(normal) {
+  F_CPU_GPU CoordinateTransition(const Vector3f &normal) : m_normal(normal) {
     NormalizeInplace(m_normal);
     if (abs(m_normal[0]) > abs(m_normal[2])) {
       m_binormal = Vector3f(-m_normal[1], m_normal[0], 0);
@@ -26,12 +26,12 @@ public:
     C(m_normal, m_binormal, m_tangent);
   }
 
-  Vector3f WorldToLocal(const Vector3f &p) const {
+  F_CPU_GPU Vector3f WorldToLocal(const Vector3f &p) const {
     C(p);
     return {Dot(p, m_tangent), Dot(p, m_binormal), Dot(p, m_normal)};
   }
 
-  Vector3f LocalToWorld(const Vector3f &p) const {
+  F_CPU_GPU Vector3f LocalToWorld(const Vector3f &p) const {
     C(p);
     return m_tangent * p[0] + m_binormal * p[1] + m_normal * p[2];
   }
@@ -91,11 +91,8 @@ public:
     TODO();
   }
 
-  F_CPU_GPU
-  virtual bool isDelta_impl() const { return false; }
-
-  F_CPU_GPU
-  virtual Vector3f getAlbedo_impl() const { return Vector3f{0.0}; }
+  F_CPU_GPU virtual bool     isDelta_impl() const { return false; }
+  F_CPU_GPU virtual Vector3f getAlbedo_impl() const { return Vector3f{0.0}; }
 
 private:
   constexpr static void checkType(auto cls) {

@@ -192,11 +192,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
         }
       }
 
-      // mat = MakeMaterialInstance<TransmissionMaterial>(scene.m_resource,
-      // extIOR,
-      //                                                  intIOR);
-      mat = MakeMaterialInstance<DiffuseMaterial>(scene.m_resource,
-                                                  Vector3f(1.0));
+      mat = MakeMaterialInstance<TransmissionMaterial>(scene.m_resource, extIOR,
+                                                       intIOR);
       break;
     }  // "dielectric"
     case hash("diffuse"): {
@@ -205,10 +202,8 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
       break;
     }  // "diffuse"
     case hash("roughconductor"): {
-      // mat = MakeMaterialInstance<MicrofacetMaterial>(scene.m_resource,
-      //                                                Vector3f(0.3), 0.04);
-      mat = MakeMaterialInstance<DiffuseMaterial>(scene.m_resource,
-                                                  Vector3f(1.0));
+      mat = MakeMaterialInstance<MicrofacetMaterial>(scene.m_resource,
+                                                     Vector3f(0.3), 0.04);
       break;
     }  // "roughconductor"
     default:

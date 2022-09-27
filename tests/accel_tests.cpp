@@ -8,6 +8,7 @@
 #include "debug.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
+#include "materials/builtin_materials.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
@@ -17,7 +18,7 @@ TEST(Accel, NaiveBVHAccel) {
   Random   rng;
   Resource resource;
 
-  auto diffuse = resource.alloc<DiffuseMaterial>(Vector3f(1.0));
+  auto diffuse = MakeMaterialInstance<DiffuseMaterial>(resource, Vector3f(1.0));
 
   std::vector<Primitive *> p;
 

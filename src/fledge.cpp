@@ -3,15 +3,8 @@
 #include <iostream>
 #include <memory>
 
-#include "common/vector.h"
-#include "debug.hpp"
-#include "interaction.hpp"
-#include "light.hpp"
-#include "primitive.hpp"
 #include "render.hpp"
-#include "rng.hpp"
 #include "scene.hpp"
-#include "volume.hpp"
 
 using namespace fledge;
 

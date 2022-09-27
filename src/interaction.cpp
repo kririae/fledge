@@ -24,6 +24,7 @@ Ray SInteraction::SpawnRay(const Vector3f &d) const {
 
   return res;
 }
+
 Ray SInteraction::SpawnRayTo(const Vector3f &p) const {
   auto res     = Interaction::SpawnRayTo(p);
   res.m_volume = m_ray.m_volume;  // copy the previous volume
@@ -35,21 +36,25 @@ Ray SInteraction::SpawnRayTo(const Vector3f &p) const {
 
   return res;
 }
+
 Ray SInteraction::SpawnRayTo(const Interaction &it) const {
   return SInteraction::SpawnRayTo(it.m_p);
 }
+
 Ray VInteraction::SpawnRay(const Vector3f &d) const {
   auto res = Interaction::SpawnRay(d);
   assert(Norm(m_ray.m_d) != 0);
   res.m_volume = m_ray.m_volume;  // copy the previous volume
   return res;
 }
+
 Ray VInteraction::SpawnRayTo(const Vector3f &p) const {
   auto res = Interaction::SpawnRayTo(p);
   assert(Norm(m_ray.m_d) != 0);
   res.m_volume = m_ray.m_volume;  // copy the previous volume
   return res;
 }
+
 Ray VInteraction::SpawnRayTo(const Interaction &it) const {
   return VInteraction::SpawnRayTo(it.m_p);
 }
