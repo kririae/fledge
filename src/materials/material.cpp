@@ -119,18 +119,18 @@ Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
 }
 
 // Transmission Material
-Vector3f Transmission::f(const Vector3f &w_wo, const Vector3f &w_wi,
+Vector3f TransmissionMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
                          const Vector2f             &uv,
                          const CoordinateTransition &trans) const {
   return Vector3f(0.0);
 }
 
-Float Transmission::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
+Float TransmissionMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
                         const CoordinateTransition &trans) const {
   return 0.0;
 }
 
-Vector3f Transmission::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
+Vector3f TransmissionMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
                                const Vector2f &u, const Vector2f &uv,
                                const CoordinateTransition &trans) const {
   Vector3f wo = trans.WorldToLocal(w_wo), wi;

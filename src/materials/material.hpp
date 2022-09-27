@@ -142,9 +142,9 @@ private:
   BeckmannDistribution m_dist;
 };
 
-class Transmission : public Material {
+class TransmissionMaterial : public Material {
 public:
-  Transmission(Float etaI, Float etaT) : m_etaI(etaI), m_etaT(etaT) {}
+  TransmissionMaterial(Float etaI, Float etaT) : m_etaI(etaI), m_etaT(etaT) {}
   Vector3f f(const Vector3f &w_wo, const Vector3f &w_wi, const Vector2f &uv,
              const CoordinateTransition &trans) const override;
   Float    pdf(const Vector3f &w_wo, const Vector3f &w_wi,

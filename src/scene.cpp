@@ -191,7 +191,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
         }
       }
 
-      mat = scene.m_resource.alloc<Transmission>(extIOR, intIOR);
+      mat = scene.m_resource.alloc<TransmissionMaterial>(extIOR, intIOR);
       break;
     }  // "dielectric"
     case hash("diffuse"): {

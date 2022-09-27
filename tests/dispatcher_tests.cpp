@@ -14,10 +14,10 @@ struct C;
 struct D;
 struct E;
 
-class Tmp : public Dispatcher<A, B> {
+class Derived : public Dispatcher<A, B> {
 public:
   using Dispatcher::Dispatcher;
-  virtual ~Tmp() = default;
+  virtual ~Derived() = default;
 
   virtual int funcA(int a, int b);
   virtual int funcA_impl(int a, int b) {
@@ -25,21 +25,21 @@ public:
   }  // should be implemented in derived class
 };
 
-struct A : public Tmp {
+struct A : public Derived {
   int funcA_impl(int a, int b) override {
     fmt::print("funcA_impl is called inside A\n");
     return a + b;
   }
 };
 
-struct B : public Tmp {
+struct B : public Derived {
   int funcA_impl(int a, int b) override {
     fmt::print("funcA_impl is called inside B\n");
     return a * b;
   }
 };
 
-int Tmp::funcA(int a, int b) {
+int Derived::funcA(int a, int b) {
   // Capture all the parameters
   auto invoker = [&](auto cls) -> int {
     static_assert(HasType<typename std::pointer_traits<
@@ -71,10 +71,10 @@ TEST(Dispatcher, TypePack) {
 }
 
 TEST(Dispatcher, Comprehensive) {
-  A  *a          = new A;
-  B  *b          = new B;
-  Tmp dispatch_a = Tmp(a);
-  Tmp dispatch_b = Tmp(b);
+  A      *a          = new A;
+  B      *b          = new B;
+  Derived dispatch_a = Derived(a);
+  Derived dispatch_b = Derived(b);
 
   int x = 2, y = 3;
   EXPECT_EQ(dispatch_a.funcA(x, y), 5);
