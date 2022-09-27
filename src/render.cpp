@@ -11,6 +11,7 @@
 #include "fledge.h"
 #include "integrator.hpp"
 #include "light.hpp"
+#include "optix/optix_interface.hpp"
 #include "scene.hpp"
 
 FLG_NAMESPACE_BEGIN
@@ -40,6 +41,7 @@ void Render::init(EBackendType backend) {
         TODO();
     }  // switch integrator_type
   } else if (backend == EBackendType::EOptiXBackend) {
+    optix::InitOptiX();
     SLog("Renderer initialized with OptiX backend");
     m_integrator =
         m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);

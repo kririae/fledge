@@ -16,6 +16,8 @@
 #include "debug.hpp"
 #include "experimental/base_bvh.hpp"
 #include "fledge.h"
+
+#define FMT_HEADER_ONLY  // use header-only fmt
 #include "fmt/core.h"
 
 FLG_NAMESPACE_BEGIN

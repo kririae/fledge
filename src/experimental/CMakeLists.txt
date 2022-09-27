@@ -23,12 +23,17 @@ set_target_properties(convex_hull_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
 # Add nanobind
 find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 
+if (NOT Python_Interpreter_FOUND)
+  message(FATAL_ERROR "Cannot find the Python Interpreter to handle nanovdb")
+endif()
+
 execute_process(
   COMMAND
   "${PYTHON_EXECUTABLE}" -c "import nanobind; print(nanobind.cmake_dir())"
-  OUTPUT_VARIABLE _tmp_dir
+  # "python" -c "import nanobind; print(nanobind.cmake_dir())"
+  OUTPUT_VARIABLE nanobind_tmp_dir
   OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ECHO STDOUT)
-list(APPEND CMAKE_PREFIX_PATH "${_tmp_dir}")
+list(APPEND CMAKE_PREFIX_PATH "${nanobind_tmp_dir}")
 
 find_package(nanobind CONFIG REQUIRED)
 

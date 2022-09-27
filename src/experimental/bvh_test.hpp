@@ -1,6 +1,7 @@
 #ifndef __EXPERIMENTAL_BVH_TEST_HPP__
 #define __EXPERIMENTAL_BVH_TEST_HPP__
 
+#define FMT_HEADER_ONLY  // use header-only fmt
 #include <fmt/chrono.h>
 #include <fmt/color.h>
 #include <fmt/core.h>

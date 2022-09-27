@@ -25,4 +25,10 @@ find_package_handle_standard_args(OptiX
   REQUIRED_VARS OptiX_ROOT_DIR)
 
 add_library(OptiX INTERFACE IMPORTED)
-target_include_directories(OptiX INTERFACE ${OptiX_ROOT_DIR}/include)
+target_include_directories(OptiX INTERFACE "${OptiX_ROOT_DIR}/include")
+
+find_path(OptiX_INCLUDE
+  NAMES optix.h
+  PATHS "${OptiX_ROOT_DIR}/include"
+  NO_DEFAULT_PATH
+)

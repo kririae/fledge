@@ -1,8 +1,5 @@
 #include "experimental/convex_hull.hpp"
 
-#include <oneapi/tbb/scalable_allocator.h>
-#include <pstl/glue_execution_defs.h>
-
 #include <algorithm>
 #include <execution>
 #include <memory_resource>

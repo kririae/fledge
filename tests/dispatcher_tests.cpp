@@ -4,6 +4,8 @@
 #include <type_traits>
 
 #include "common/dispatcher.h"
+
+#define FMT_HEADER_ONLY  // use header-only fmt
 #include "fmt/core.h"
 
 using namespace fledge;

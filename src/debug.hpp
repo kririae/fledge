@@ -5,6 +5,7 @@
 #include <execinfo.h>
 #endif
 
+#define FMT_HEADER_ONLY  // use header-only fmt
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/printf.h>
