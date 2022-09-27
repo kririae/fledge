@@ -23,9 +23,10 @@ public:
   Random(uint32_t seed = 0) : m_seed(seed), m_generator(m_seed) {}
   // generate Float range from [0, 1]
   Float get1D() {
-    std::uniform_real_distribution<Float> distribution(0, 1);
+    static std::uniform_real_distribution<Float> distribution(0, 1);
     return distribution(m_generator);
   }
+
   Vector2f get2D() { return {get1D(), get1D()}; }
 
 private:

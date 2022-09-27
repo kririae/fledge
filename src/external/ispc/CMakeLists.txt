@@ -6,3 +6,5 @@ set_target_properties(
     LINKER_LANGUAGE C
     ISPC_INSTRUCTION_SETS avx2
 )
+
+add_library(fledge::lib::ispc ALIAS fledge_lib_ispc)

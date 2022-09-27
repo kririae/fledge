@@ -22,6 +22,7 @@ public:
                   std::size_t alignment = alignof(std::max_align_t)) {
     return do_deallocate(p, bytes, alignment);
   }
+
   bool is_equal(const std::pmr::memory_resource &other) {
     return do_is_equal(other);
   }
@@ -32,11 +33,13 @@ public:
     cudaMallocManaged(&ret, bytes);
     return ret;
   }
+
   void do_deallocate(void *p, std::size_t bytes,
                      std::size_t alignment) override {
     (void)bytes, (void)alignment;
     cudaFree(p);
   }
+
   bool do_is_equal(
       const std::pmr::memory_resource &other) const noexcept override {
     return this == &other;

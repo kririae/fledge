@@ -80,7 +80,7 @@ struct BeckmannDistribution {
 };
 }  // namespace detail_
 
-#define MAKE_MATERIAL_IMPL                                            \
+#define MAKE_MATERIAL_IMPL()                                          \
   F_CPU_GPU Vector3f f_impl(const Vector3f &wo, const Vector3f &wi,   \
                             const Vector2f &uv) const override;       \
   F_CPU_GPU Float    pdf_impl(const Vector3f &wo, const Vector3f &wi) \
@@ -93,7 +93,7 @@ struct BeckmannDistribution {
 
 class DiffuseMaterial : public MaterialDispatcher {
 public:
-  MAKE_MATERIAL_IMPL
+  MAKE_MATERIAL_IMPL()
   DiffuseMaterial(const Vector3f &albedo);
 
 private:
@@ -102,7 +102,7 @@ private:
 
 class MicrofacetMaterial : public MaterialDispatcher {
 public:
-  // MAKE_MATERIAL_IMPL
+  MAKE_MATERIAL_IMPL()
   // roughness, k: absorption coefficient
   MicrofacetMaterial(const Vector3f &R, Float roughness = 0.4,
                      const Vector3f &k = Vector3f(2.0));
@@ -115,7 +115,7 @@ private:
 
 class TransmissionMaterial : public MaterialDispatcher {
 public:
-  // MAKE_MATERIAL_IMPL
+  MAKE_MATERIAL_IMPL()
   TransmissionMaterial(Float etaI, Float etaT);
 
 private:

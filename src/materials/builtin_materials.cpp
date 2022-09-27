@@ -1,5 +1,6 @@
 #include "builtin_materials.hpp"
 
+#include "common/fresnel.h"
 #include "common/math_utils.h"
 #include "fledge.h"
 
@@ -58,14 +59,9 @@ Vector3f DiffuseMaterial::getAlbedo_impl() const {
   return m_albedo;
 }
 
-#if 0
-Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
-                               const Vector2f             &uv,
-                               const CoordinateTransition &trans) const {
-  Vector3f wo = trans.WorldToLocal(w_wo);
-  Vector3f wi = trans.WorldToLocal(w_wi);
-  C(wo, wi);  // validity check
-
+F_CPU_GPU
+Vector3f MicrofacetMaterial::f_impl(const Vector3f &wo, const Vector3f &wi,
+                                    const Vector2f &uv) const {
   Float    cosThetaO = AbsCosTheta(wo), cosThetaI = AbsCosTheta(wi);
   Vector3f wh = wi + wo;
   if (cosThetaI == 0 || cosThetaO == 0) return Vector3f(0.0);
@@ -77,71 +73,82 @@ Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
          (4 * cosThetaI * cosThetaO);
 }
 
-Float MicrofacetMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
-                              const CoordinateTransition &trans) const {
-  Vector3f wo = trans.WorldToLocal(w_wo);
-  Vector3f wi = trans.WorldToLocal(w_wi);
-  Vector3f wh = (wo + wi).stableNormalized();
-  return m_dist.pdf(wo, wh) / (4 * wo.dot(wh));
+F_CPU_GPU
+Float MicrofacetMaterial::pdf_impl(const Vector3f &wo,
+                                   const Vector3f &wi) const {
+  Vector3f wh = Normalize(wo + wi);
+  return m_dist.pdf(wo, wh) / (4 * Dot(wo, wh));
 }
 
-Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
-                                     Float &pdf, const Vector2f &u,
-                                     const Vector2f             &uv,
-                                     const CoordinateTransition &trans) const {
-  // As usual, begin with coordinate transition
-  Vector3f wo = trans.WorldToLocal(w_wo);
-
+F_CPU_GPU
+Vector3f MicrofacetMaterial::sampleF_impl(const Vector3f &wo, Vector3f &wi,
+                                          Float &pdf, const Vector2f &u,
+                                          const Vector2f &uv) const {
   // Sample microfacet orientation $\wh$ and reflected direction $\wi$
   if (wo.z() == 0) return Vector3f(0.0);
   Vector3f wh = m_dist.sampleWh(wo, u);
-  if (wo.dot(wh) < 0) return Vector3f(0.0);  // Should be rare
-  auto wi = Reflect(wo, wh);
-  w_wi    = trans.LocalToWorld(wi);
+  if (Dot(wo, wh) < 0) return Vector3f(0.0);  // Should be rare
+  wi = Reflect(wo, wh);
   if (!SameHemisphere(wo, wi)) return Vector3f(0.0);
 
   // Compute PDF of _wi_ for microfacet reflection
-  pdf = m_dist.pdf(wo, wh) / (4 * wo.dot(wh));
-  return f(w_wo, w_wi, Vector2f(0.0), trans);
+  pdf = m_dist.pdf(wo, wh) / (4 * Dot(wo, wh));
+  return f_impl(wo, wi, Vector2f{0.0});
 }
 
-// Transmission Material
-Vector3f TransmissionMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
-                                 const Vector2f             &uv,
-                                 const CoordinateTransition &trans) const {
-  return Vector3f(0.0);
+F_CPU_GPU
+bool MicrofacetMaterial::isDelta_impl() const {
+  return false;
 }
 
-Float TransmissionMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
-                                const CoordinateTransition &trans) const {
+F_CPU_GPU
+Vector3f MicrofacetMaterial::getAlbedo_impl() const {
+  return m_R;
+}
+
+F_CPU_GPU
+Vector3f TransmissionMaterial::f_impl(const Vector3f &wo, const Vector3f &wi,
+                                      const Vector2f &uv) const {
+  return Vector3f{0.0};
+}
+
+F_CPU_GPU
+Float TransmissionMaterial::pdf_impl(const Vector3f &wo,
+                                     const Vector3f &wi) const {
   return 0.0;
 }
 
-Vector3f TransmissionMaterial::sampleF(
-    const Vector3f &w_wo, Vector3f &w_wi, Float &pdf, const Vector2f &u,
-    const Vector2f &uv, const CoordinateTransition &trans) const {
-  Vector3f wo = trans.WorldToLocal(w_wo), wi;
-
+F_CPU_GPU
+Vector3f TransmissionMaterial::sampleF_impl(const Vector3f &wo, Vector3f &wi,
+                                            Float &pdf, const Vector2f &u,
+                                            const Vector2f &uv) const {
   bool  entering = CosTheta(wo) > 0;
   Float etaI     = entering ? m_etaI : m_etaT;
   Float etaT     = entering ? m_etaT : m_etaI;
 
   Float F = FresnelDielectric(CosTheta(wo), etaI, etaT);
   if (u[0] < F) {
-    wi   = {-wo.x(), -wo.y(), wo.z()};
-    w_wi = trans.LocalToWorld(wi);
-    pdf  = F;
+    wi  = {-wo.x(), -wo.y(), wo.z()};
+    pdf = F;
     return F / AbsCosTheta(wi);
   } else {
     Vector3f n = CosTheta(wo) > 0 ? Vector3f(0, 0, 1) : Vector3f(0, 0, -1);
     if (!Refract(wo, n, etaI / etaT, wi)) return 0;
-    w_wi        = trans.LocalToWorld(wi);
     pdf         = 1 - F;
     Vector3f ft = Vector3f(1 - F);
     ft *= (etaI * etaI) / (etaT * etaT);
     return ft / AbsCosTheta(wi);
   }
 }
-#endif
+
+F_CPU_GPU
+bool TransmissionMaterial::isDelta_impl() const {
+  return true;
+}
+
+F_CPU_GPU
+Vector3f TransmissionMaterial::getAlbedo_impl() const {
+  return Vector3f{1.0};
+}
 
 FLG_NAMESPACE_END
