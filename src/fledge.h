@@ -85,6 +85,12 @@ enum class EIntegratorType {
   EVolPathIntegrator,
 };
 
+enum class EBackendType {
+  ECPUBackend            = (1),
+  EOptiXBackend          = (1 << 1),
+  EOptiXWaveFrontBackend = (1 << 2),
+};
+
 FLG_NAMESPACE_END
 
 #endif

@@ -84,7 +84,7 @@ flg_add_ext(embree)
 add_subdirectory(optix/)
 
 target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb Thrust::Thrust fmt
-  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_materials fledge_optix)
+  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge::materials fledge::optix)
 
 target_link_libraries(fledge PUBLIC fledge::lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY

@@ -27,7 +27,7 @@ public:
    * @brief After accepting the scene pointer, initialize the render object from
    * the scene objects.
    */
-  void init();
+  void init(EBackendType backend = EBackendType::ECPUBackend);
 
   /**
    * @brief Invoke the preprocess function of the objects. This function is

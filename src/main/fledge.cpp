@@ -25,7 +25,7 @@ int main() {
   Render render(&scene);
   SLog("render is created");
 
-  render.init();
+  render.init(EBackendType::EOptiXBackend);
   render.preprocess();
   render.render();
   render.saveImage("fledge_out.exr", false);

@@ -4,6 +4,7 @@
 #include <cuda_runtime_api.h>
 
 #include "fledge.h"
+#include "optix/optix7.h"
 
 FLG_NAMESPACE_BEGIN
 namespace optix {

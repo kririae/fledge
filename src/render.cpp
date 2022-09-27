@@ -15,27 +15,38 @@
 
 FLG_NAMESPACE_BEGIN
 
-Render::Render(Scene *scene) : m_scene(scene) {
-  SLog("render is created with scene");
-}
+Render::Render(Scene *scene) : m_scene(scene) {}
 
-void Render::init() {
+void Render::init(EBackendType backend) {
   detail_::GetPrimeList();
-  SLog("OpenVDB is ready");
+  SLog("Global prime list is initialized");
+
   openvdb::initialize();
-  SLog("render is ready");
-  switch (int(m_scene->m_integrator_type)) {
-    case int(EIntegratorType::EPathIntegrator):
-      m_integrator =
-          m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
-      break;
-    case int(EIntegratorType::EVolPathIntegrator):
-      m_integrator =
-          m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
-      break;
-    default:
-      TODO();
-  }  // switch integrator_type
+  SLog("OpenVDB is ready");
+
+  SLog("Render is initializing");
+
+  if (backend == EBackendType::ECPUBackend) {
+    switch (int(m_scene->m_integrator_type)) {
+      case int(EIntegratorType::EPathIntegrator):
+        m_integrator =
+            m_scene->m_resource.alloc<PathIntegrator>(m_scene->m_maxDepth);
+        break;
+      case int(EIntegratorType::EVolPathIntegrator):
+        m_integrator =
+            m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
+        break;
+      default:
+        TODO();
+    }  // switch integrator_type
+  } else if (backend == EBackendType::EOptiXBackend) {
+    SLog("Renderer initialized with OptiX backend");
+    m_integrator =
+        m_scene->m_resource.alloc<VolPathIntegrator>(m_scene->m_maxDepth);
+  } else {
+    SErr("This backend is currently not supported");
+  }
+
   m_init = true;
 }
 
