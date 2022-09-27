@@ -1,51 +1,64 @@
-#include "materials/material.hpp"
+#include "builtin_materials.hpp"
 
-#include <memory>
-
-#include "common/fresnel.h"
 #include "common/math_utils.h"
-#include "common/vector.h"
-#include "debug.hpp"
 #include "fledge.h"
 
 FLG_NAMESPACE_BEGIN
 
+/**
+ * This section contains the constructors of builtin materials
+ */
+F_CPU_GPU
 DiffuseMaterial::DiffuseMaterial(const Vector3f &albedo) : m_albedo(albedo) {}
-Vector3f DiffuseMaterial::f(const Vector3f &wo, const Vector3f &wi,
-                            const Vector2f             &uv,
-                            const CoordinateTransition &trans) const {
-  return m_albedo * INV_PI;
-}
-
-Float DiffuseMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
-                           const CoordinateTransition &trans) const {
-  Vector3f wo = trans.WorldToLocal(w_wo);
-  Vector3f wi = trans.WorldToLocal(w_wi);
-  C(wo);
-  C(wi);  // valid check
-
-  return wo[2] * wi[2] > 0 ? abs(wi[2]) * INV_PI : 0;
-}
-
-Vector3f DiffuseMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
-                                  Float &_pdf, const Vector2f &u,
-                                  const Vector2f             &uv,
-                                  const CoordinateTransition &trans) const {
-  auto wi  = CosineSampleHemisphere(u);
-  w_wi     = trans.LocalToWorld(wi);
-  _pdf     = pdf(w_wo, w_wi, trans);
-  auto l_f = f(w_wo, w_wi, uv, trans);
-  return l_f;
-}
 
 // Yet adapted from PBRT src/core/reflection.cpp
+F_CPU_GPU
 MicrofacetMaterial::MicrofacetMaterial(const Vector3f &R, Float roughness,
                                        const Vector3f &k)
     : m_R(R),
       m_k(k),
       m_roughness(roughness),
-      m_dist(BeckmannDistribution(
-          BeckmannDistribution::roughnessToAlpha(roughness))) {}
+      m_dist(detail_::BeckmannDistribution(
+          detail_::BeckmannDistribution::roughnessToAlpha(roughness))) {}
+
+F_CPU_GPU
+TransmissionMaterial::TransmissionMaterial(Float etaI, Float etaT)
+    : m_etaI(etaI), m_etaT(etaT) {}
+
+/**
+ * This section contains the implementations of builtin materials
+ */
+F_CPU_GPU
+Vector3f DiffuseMaterial::f_impl(const Vector3f &wo, const Vector3f &wi,
+                                 const Vector2f &uv) const {
+  return m_albedo * INV_PI;
+}
+
+F_CPU_GPU
+Float DiffuseMaterial::pdf_impl(const Vector3f &wo, const Vector3f &wi) const {
+  return wo[2] * wi[2] > 0 ? abs(wi[2]) * INV_PI : 0;
+}
+
+F_CPU_GPU
+Vector3f DiffuseMaterial::sampleF_impl(const Vector3f &wo, Vector3f &wi,
+                                       Float &pdf_, const Vector2f &u,
+                                       const Vector2f &uv) const {
+  wi   = CosineSampleHemisphere(u);
+  pdf_ = pdf_impl(wo, wi);
+  return f_impl(wo, wi, uv);
+}
+
+F_CPU_GPU
+bool DiffuseMaterial::isDelta_impl() const {
+  return false;
+}
+
+F_CPU_GPU
+Vector3f DiffuseMaterial::getAlbedo_impl() const {
+  return m_albedo;
+}
+
+#if 0
 Vector3f MicrofacetMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
                                const Vector2f             &uv,
                                const CoordinateTransition &trans) const {
@@ -129,5 +142,6 @@ Vector3f TransmissionMaterial::sampleF(
     return ft / AbsCosTheta(wi);
   }
 }
+#endif
 
 FLG_NAMESPACE_END

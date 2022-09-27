@@ -18,14 +18,15 @@
 #include "common/camera.h"
 #include "common/vector.h"
 #include "debug.hpp"
+#include "external/embree/eprimitive.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"
-#include "materials/material.hpp"
+#include "materials/builtin_materials.hpp"
+#include "materials/material_base.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "shape.hpp"
-#include "spec/embree/eprimitive.hpp"
 #include "texture.hpp"
 #include "volume.hpp"
 
@@ -166,7 +167,7 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
   std::string shape_id = std::to_string(scene.m_primitives.size());
   SLog("scene.shape%s.type = %s", shape_id.c_str(), type.c_str());
 
-  Material *mat;
+  MaterialDispatcher *mat;
 
   auto bsdf      = tree.get_child("bsdf");
   auto bsdf_type = bsdf.get<std::string>("<xmlattr>.type");
@@ -191,15 +192,23 @@ static bool addShape(const pt::ptree &tree, Scene &scene) {
         }
       }
 
-      mat = scene.m_resource.alloc<TransmissionMaterial>(extIOR, intIOR);
+      // mat = MakeMaterialInstance<TransmissionMaterial>(scene.m_resource,
+      // extIOR,
+      //                                                  intIOR);
+      mat = MakeMaterialInstance<DiffuseMaterial>(scene.m_resource,
+                                                  Vector3f(1.0));
       break;
     }  // "dielectric"
     case hash("diffuse"): {
-      mat = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(1.0));
+      mat = MakeMaterialInstance<DiffuseMaterial>(scene.m_resource,
+                                                  Vector3f(1.0));
       break;
     }  // "diffuse"
     case hash("roughconductor"): {
-      mat = scene.m_resource.alloc<MicrofacetMaterial>(Vector3f(0.3), 0.04);
+      // mat = MakeMaterialInstance<MicrofacetMaterial>(scene.m_resource,
+      //                                                Vector3f(0.3), 0.04);
+      mat = MakeMaterialInstance<DiffuseMaterial>(scene.m_resource,
+                                                  Vector3f(1.0));
       break;
     }  // "roughconductor"
     default:

@@ -7,13 +7,13 @@
 #include "common/math_utils.h"
 #include "common/vector.h"
 #include "debug.hpp"
+#include "external/embree/eprimitive.hpp"
 #include "fledge.h"
 #include "interaction.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "shape.hpp"
-#include "spec/embree/eprimitive.hpp"
 
 TEST(Triangle, ComprehensiveTestWithEmbree) {
   using namespace fledge;

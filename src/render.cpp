@@ -6,12 +6,12 @@
 
 #include "common/sampler.h"
 #include "debug.hpp"
+#include "external/oidn/oidn.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "integrator.hpp"
 #include "light.hpp"
 #include "scene.hpp"
-#include "spec/oidn/oidn.hpp"
 
 FLG_NAMESPACE_BEGIN
 

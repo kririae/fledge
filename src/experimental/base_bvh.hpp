@@ -11,8 +11,8 @@
 
 #include "common/aabb.h"
 #include "common/vector.h"
+#include "external/embree/embree.hpp"
 #include "fledge.h"
-#include "spec/embree/embree.hpp"
 
 FLG_NAMESPACE_BEGIN
 namespace experimental {

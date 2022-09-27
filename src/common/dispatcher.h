@@ -96,6 +96,50 @@ F_CPU_GPU R Dispatch(F &&func, void *ptr, int index) {
       return func(reinterpret_cast<T1 *>(ptr));
     default:
       assert(false);
+      return R{};
+  }
+}
+
+template <typename F, typename R, typename T0, typename T1>
+F_CPU_GPU R Dispatch(F &&func, const void *ptr, int index) {
+  switch (index) {
+    case 0:
+      return func(reinterpret_cast<const T0 *>(ptr));
+    case 1:
+      return func(reinterpret_cast<const T1 *>(ptr));
+    default:
+      assert(false);
+      return R{};
+  }
+}
+
+template <typename F, typename R, typename T0, typename T1, typename T2>
+F_CPU_GPU R Dispatch(F &&func, void *ptr, int index) {
+  switch (index) {
+    case 0:
+      return func(reinterpret_cast<T0 *>(ptr));
+    case 1:
+      return func(reinterpret_cast<T1 *>(ptr));
+    case 2:
+      return func(reinterpret_cast<T2 *>(ptr));
+    default:
+      assert(false);
+      return R{};
+  }
+}
+
+template <typename F, typename R, typename T0, typename T1, typename T2>
+F_CPU_GPU R Dispatch(F &&func, const void *ptr, int index) {
+  switch (index) {
+    case 0:
+      return func(reinterpret_cast<const T0 *>(ptr));
+    case 1:
+      return func(reinterpret_cast<const T1 *>(ptr));
+    case 2:
+      return func(reinterpret_cast<const T2 *>(ptr));
+    default:
+      assert(false);
+      return R{};
   }
 }
 }  // namespace detail_
@@ -111,7 +155,8 @@ public:
   using type_pack = TypePack<Ts...>;
   using ptr_type  = void *;
 
-  F_CPU_GPU Dispatcher() = default;
+  F_CPU_GPU Dispatcher()          = default;
+  F_CPU_GPU virtual ~Dispatcher() = default;
   template <typename T>
   F_CPU_GPU Dispatcher(T *ptr)
       : m_index(IndexOf<std::remove_cv_t<T>, type_pack>::value), m_ptr(ptr) {}
@@ -127,7 +172,7 @@ public:
     return reinterpret_cast<T *>(m_ptr);
   }
   template <typename T = void>
-  F_CPU_GPU T *ptr() const {
+  F_CPU_GPU const T *ptr() const {
     return reinterpret_cast<const T *>(m_ptr);
   }
 
@@ -137,6 +182,12 @@ public:
    */
   template <typename F>
   F_CPU_GPU decltype(auto) dispatch(F &&func) {
+    using R = typename ReturnType<F, Ts...>::type;
+    return detail_::Dispatch<F, R, Ts...>(func, ptr(), index());
+  }
+
+  template <typename F>
+  F_CPU_GPU decltype(auto) dispatch(F &&func) const {
     using R = typename ReturnType<F, Ts...>::type;
     return detail_::Dispatch<F, R, Ts...>(func, ptr(), index());
   }

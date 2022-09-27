@@ -5,8 +5,8 @@
 #include <memory_resource>
 
 #include "debug.hpp"
+#include "external/embree/embree.hpp"
 #include "fledge.h"
-#include "spec/embree/embree.hpp"
 
 FLG_NAMESPACE_BEGIN
 

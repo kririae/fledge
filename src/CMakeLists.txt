@@ -21,7 +21,7 @@ find_package(OpenVDB REQUIRED COMPONENTS openvdb)
 CPMAddPackage("gh:fmtlib/fmt#9.1.0")
 
 # add it before the compiler specifications
-add_subdirectory(spec/oidn/)
+add_subdirectory(external/oidn/)
 
 # add OpenMP
 if(OPENMP_FOUND)
@@ -44,7 +44,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
-add_subdirectory(spec/embree/)
+add_subdirectory(external/embree/)
 
 file(GLOB source "${PROJECT_SOURCE_DIR}/src/*.c*")
 file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
@@ -61,7 +61,7 @@ set_property(TARGET fledge_lib PROPERTY CXX_STANDARD 20)
 add_executable(fledge "${source}")
 
 if(FLEDGE_USE_ISPC)
-  add_subdirectory(spec/ispc/)
+  add_subdirectory(external/ispc/)
   target_link_libraries(fledge_lib PUBLIC fledge_lib_ispc)
   target_compile_definitions(fledge_lib PUBLIC -DFLEDGE_USE_ISPC)
 endif()

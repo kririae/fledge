@@ -7,7 +7,6 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
-#include "materials/material.hpp"
 #include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
@@ -57,7 +56,7 @@ public:
    * @note Persistence of the object is guaranteed.
    * @return Material*
    */
-  virtual Material *getMaterial() const = 0;
+  virtual MaterialDispatcher *getMaterial() const = 0;
   /**
    * @brief Get the AreaLight of the primitive if it really exists
    * @note Persistence of the object is guaranteed.
@@ -76,7 +75,7 @@ class ShapePrimitive : public Primitive {
 public:
   // If the primitive is a areaLight, areaLight.m_shape must be
   // the shape passing to the ctor
-  ShapePrimitive(Shape *shape, Material *material = nullptr,
+  ShapePrimitive(Shape *shape, MaterialDispatcher *material = nullptr,
                  AreaLight *areaLight = nullptr, Volume *volume = nullptr);
   ~ShapePrimitive() override = default;
 
@@ -84,16 +83,16 @@ public:
   AABB getBound() const override;
   bool intersect(const Ray &ray, SInteraction &isect) const override;
   // if the areaLight actually exists
-  AreaLight *getAreaLight() const override;
-  Material  *getMaterial() const override;
+  AreaLight          *getAreaLight() const override;
+  MaterialDispatcher *getMaterial() const override;
   // if the volume actually exists, the result will not be nullptr
   Volume *getVolume() const override;
 
 private:
-  Shape     *m_shape;
-  Material  *m_material;
-  AreaLight *m_areaLight;
-  Volume    *m_volume;
+  Shape              *m_shape;
+  MaterialDispatcher *m_material;
+  AreaLight          *m_areaLight;
+  Volume             *m_volume;
 };
 
 class MeshPrimitive : public Primitive {
@@ -103,17 +102,19 @@ class MeshPrimitive : public Primitive {
 
 public:
   MeshPrimitive(TriangleMesh *mesh, Resource &resource,
-                Material *material = nullptr, AreaLight *areaLight = nullptr);
+                MaterialDispatcher *material  = nullptr,
+                AreaLight          *areaLight = nullptr);
   MeshPrimitive(const std::string &path, Resource &resource,
-                Material *material = nullptr, AreaLight *areaLight = nullptr);
+                MaterialDispatcher *material  = nullptr,
+                AreaLight          *areaLight = nullptr);
   ~MeshPrimitive() override = default;
 
   // get the AABB bounding box of the primitive
   AABB getBound() const override;
   bool intersect(const Ray &ray, SInteraction &isect) const override;
   // if the areaLight actually exists
-  AreaLight *getAreaLight() const override;
-  Material  *getMaterial() const override;
+  AreaLight          *getAreaLight() const override;
+  MaterialDispatcher *getMaterial() const override;
 
 private:
   // Mesh-related
@@ -122,8 +123,8 @@ private:
   std::vector<Triangle *> m_triangles;
   Accel                  *m_accel;
 
-  Material  *m_material;
-  AreaLight *m_areaLight;
+  MaterialDispatcher *m_material;
+  AreaLight          *m_areaLight;
 };
 
 // class VolumePremitive: public

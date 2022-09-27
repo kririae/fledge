@@ -14,7 +14,7 @@
 
 FLG_NAMESPACE_BEGIN
 
-ShapePrimitive::ShapePrimitive(Shape *shape, Material *material,
+ShapePrimitive::ShapePrimitive(Shape *shape, MaterialDispatcher *material,
                                AreaLight *areaLight, Volume *volume)
     : m_shape(shape),
       m_material(material),
@@ -42,7 +42,7 @@ AreaLight *ShapePrimitive::getAreaLight() const {
   return m_areaLight;
 }
 
-Material *ShapePrimitive::getMaterial() const {
+MaterialDispatcher *ShapePrimitive::getMaterial() const {
   return m_material;
 }
 
@@ -52,7 +52,7 @@ Volume *ShapePrimitive::getVolume() const {
 }
 
 MeshPrimitive::MeshPrimitive(TriangleMesh *mesh, Resource &resource,
-                             Material *material, AreaLight *areaLight)
+                             MaterialDispatcher *material, AreaLight *areaLight)
     : m_resource(&resource),
       m_mesh(mesh),
       m_material(material),
@@ -70,7 +70,7 @@ MeshPrimitive::MeshPrimitive(TriangleMesh *mesh, Resource &resource,
 }
 
 MeshPrimitive::MeshPrimitive(const std::string &path, Resource &resource,
-                             Material *material, AreaLight *areaLight)
+                             MaterialDispatcher *material, AreaLight *areaLight)
     : MeshPrimitive(MakeTriangleMesh(path, resource), resource, material,
                     areaLight) {}
 
@@ -92,7 +92,7 @@ AreaLight *MeshPrimitive::getAreaLight() const {
   return m_areaLight;
 }
 
-Material *MeshPrimitive::getMaterial() const {
+MaterialDispatcher *MeshPrimitive::getMaterial() const {
   return m_material;
 }
 

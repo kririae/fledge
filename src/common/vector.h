@@ -13,7 +13,7 @@
 
 // ispc optimization
 #ifdef FLEDGE_USE_ISPC
-#include "spec/ispc/vector_ispc.h"
+#include "external/ispc/vector_ispc.h"
 #endif
 
 FLG_NAMESPACE_BEGIN

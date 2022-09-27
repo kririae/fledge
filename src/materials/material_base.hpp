@@ -1,6 +1,8 @@
 #ifndef __MATERIAL_BASE_HPP__
 #define __MATERIAL_BASE_HPP__
 
+#include <type_traits>
+
 #include "common/dispatcher.h"
 #include "common/vector.h"
 #include "debug.hpp"
@@ -58,76 +60,51 @@ public:
   /**
    * Base Functions
    */
-  F_CPU_GPU Vector3f f(const Vector3f &wo, const Vector3f &wi,
+  F_CPU_GPU Vector3f f(const Vector3f &w_wo, const Vector3f &w_wi,
                        const Vector2f             &uv,
-                       const CoordinateTransition &trans) const {
-    // Capture all the parameters
-    auto invoker = [&](auto cls) {
-      checkType(cls);
-      Vector3f wo_l = trans.WorldToLocal(wo), wi_l = trans.WorldToLocal(wi);
-      return cls->f_impl(wo_l, wi_l, uv);
-    };  // auto invoker()
-    return dispatch(invoker);
-  }
-
-  F_CPU_GPU Float pdf(const Vector3f &wo, const Vector3f &wi,
-                      const CoordinateTransition &trans) const {
-    // Capture all the parameters
-    auto invoker = [&](auto cls) {
-      checkType(cls);
-      Vector3f wo_l = trans.WorldToLocal(wo), wi_l = trans.WorldToLocal(wi);
-      return cls->pdf_impl(wo_l, wi_l);
-    };  // auto invoker()
-    return dispatch(invoker);
-  }
-
-  F_CPU_GPU Vector3f sampleF(const Vector3f &wo, Vector3f &wi, Float &pdf,
+                       const CoordinateTransition &trans) const;
+  F_CPU_GPU Float    pdf(const Vector3f &w_wo, const Vector3f &w_wi,
+                         const CoordinateTransition &trans) const;
+  F_CPU_GPU Vector3f sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
                              const Vector2f &u, const Vector2f &uv,
-                             const CoordinateTransition &trans) const {
-    // Capture all the parameters
-    auto invoker = [&](auto cls) {
-      checkType(cls);
-      Vector3f wo_l = trans.WorldToLocal(wo), wi_l = trans.WorldToLocal(wi);
-      auto     ret = cls->sampleF_impl(wo_l, wi_l, pdf, u, uv);
-      wi           = trans.LocalToWorld(wi_l);
-      return ret;
-    };  // auto invoker()
-    return dispatch(invoker);
-  }
-
-  F_CPU_GPU bool             isDelta() const { return false; }
-  F_CPU_GPU virtual Vector3f getAlbedo() const { return Vector3f(1.0); }
+                             const CoordinateTransition &trans) const;
+  F_CPU_GPU bool     isDelta() const { return false; }
+  F_CPU_GPU Vector3f getAlbedo() const { return Vector3f(1.0); }
 
   /**
    * Function implementations
    */
   F_CPU_GPU
-  virtual Vector3f f_impl(const Vector3f &wo_l, const Vector3f &wi_l,
-                          const Vector2f &uv) const = 0;
+  virtual Vector3f f_impl(const Vector3f &wo, const Vector3f &wi,
+                          const Vector2f &uv) const {
+    TODO();
+  }
+
   F_CPU_GPU
-  virtual Vector3f pdf_impl(const Vector3f &wo_l,
-                            const Vector3f &wi_l) const = 0;
+  virtual Float pdf_impl(const Vector3f &wo, const Vector3f &wi) const {
+    TODO();
+  }
+
   F_CPU_GPU
-  virtual Vector3f sampleF_impl(const Vector3f &wo_l, Vector3f &wi_l,
-                                Float &pdf, const Vector2f &u,
-                                const Vector2f &uv) const = 0;
+  virtual Vector3f sampleF_impl(const Vector3f &wo, Vector3f &wi, Float &pdf,
+                                const Vector2f &u, const Vector2f &uv) const {
+    TODO();
+  }
+
   F_CPU_GPU
-  virtual Vector3f getAlbedo_impl() const = 0;
+  virtual bool isDelta_impl() const { return false; }
+
+  F_CPU_GPU
+  virtual Vector3f getAlbedo_impl() const { return Vector3f{0.0}; }
 
 private:
   constexpr static void checkType(auto cls) {
-    static_assert(HasType<typename std::pointer_traits<
-                              std::remove_cvref_t<decltype(cls)>>::element_type,
-                          type_pack>::value);
+    static_assert(
+        HasType<std::remove_const_t<
+                    typename std::pointer_traits<decltype(cls)>::element_type>,
+                type_pack>::value);
   }
 };
-
-template <typename T, typename... Args>
-std::enable_if<HasType<T, MaterialsPack>::value, MaterialDispatcher *>
-MakeMaterialInstance(Args... args, Resource &resource) {
-  T *material = resource.alloc<T>(std::forward<Args>(args)...);
-  return resource.alloc<MaterialDispatcher>(material);
-}
 
 FLG_NAMESPACE_END
 

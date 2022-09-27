@@ -17,7 +17,7 @@ public:
   // derived from primitive.hpp
   bool       intersect(const Ray &ray, SInteraction &isect) const override = 0;
   AreaLight *getAreaLight() const override { return nullptr; }
-  Material  *getMaterial() const override { return nullptr; }
+  MaterialDispatcher *getMaterial() const override { return nullptr; }
 };
 
 class NaiveAccel : public Accel {

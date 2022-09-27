@@ -1,7 +1,9 @@
 # Fledge Renderer
 
 ![](https://file.yuyuko.cc/images/fledge_sample_0.jpg)
+
 > A simple scene with some artifacts. This geometry is from [Ariel](https://github.com/betajippity/Ariel) simulator.
+
 ## Description
 
 _Originally_ A small physically based render to implement volumetric algorithms.
@@ -20,7 +22,7 @@ Anyway, this is solely a personal project aiming to have fun and simultaneously 
 ## Code Structure
 
 - `src/`:
-  - `spec/`: Those libraries that could optimize some portions of the renderer.
+  - `external/`: Those libraries that could optimize some portions of the renderer.
   - `common`: Some header files that could be used in both CPU and GPU backends.
   - `materials`: Some material implementations that have the common interface.
 - `assets/`: Some scene settings for both `mitsuba` and this renderer.

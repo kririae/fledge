@@ -18,7 +18,7 @@
 #include "fledge.h"
 #include "interaction.hpp"
 #include "light.hpp"
-#include "materials/material.hpp"
+#include "materials/builtin_materials.hpp"
 #include "primitive.hpp"
 #include "rng.hpp"
 #include "scene.hpp"

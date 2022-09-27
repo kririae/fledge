@@ -10,16 +10,17 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "experimental/base_bvh.hpp"
+#include "external/embree/eprimitive.hpp"
 #include "film.hpp"
 #include "fledge.h"
 #include "light.hpp"
+#include "materials/builtin_materials.hpp"
 #include "plymesh.hpp"
 #include "primitive.hpp"
 #include "render.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
 #include "shape.hpp"
-#include "spec/embree/eprimitive.hpp"
 #include "texture.hpp"
 #include "volume.hpp"
 
@@ -49,7 +50,8 @@ static TriangleMesh toTriangleMesh(const InternalTriangleMesh *imesh) {
 static void display(TriangleMesh *mesh, const std::string &name) {
   Scene scene;
 
-  auto mat = scene.m_resource.alloc<DiffuseMaterial>(Vector3f(1.0));
+  auto mat =
+      MakeMaterialInstance<DiffuseMaterial>(scene.m_resource, Vector3f(1.0));
   scene.m_primitives.clear();
   scene.m_primitives.push_back(
       scene.m_resource.alloc<EmbreeMeshPrimitive>(mesh, scene.m_resource, mat));

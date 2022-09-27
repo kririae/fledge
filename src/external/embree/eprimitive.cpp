@@ -23,7 +23,7 @@
 FLG_NAMESPACE_BEGIN
 
 EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
-                                         Material  *material,
+                                         MaterialDispatcher *material,
                                          AreaLight *area_light, Volume *volume)
     : m_resource(&resource),
       m_mesh(mesh),
@@ -70,8 +70,9 @@ EmbreeMeshPrimitive::EmbreeMeshPrimitive(TriangleMesh *mesh, Resource &resource,
   SLog("Embree is ready");
 }
 
-EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string &path,
-                                         Resource &resource, Material *material,
+EmbreeMeshPrimitive::EmbreeMeshPrimitive(const std::string  &path,
+                                         Resource           &resource,
+                                         MaterialDispatcher *material,
                                          AreaLight *area_light, Volume *volume)
     : EmbreeMeshPrimitive(MakeTriangleMesh(path, resource), resource, material,
                           area_light, volume) {}
@@ -141,7 +142,7 @@ AreaLight *EmbreeMeshPrimitive::getAreaLight() const {
   return m_areaLight;
 }
 
-Material *EmbreeMeshPrimitive::getMaterial() const {
+MaterialDispatcher *EmbreeMeshPrimitive::getMaterial() const {
   return m_material;
 }
 
