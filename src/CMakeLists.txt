@@ -49,6 +49,7 @@ file(GLOB all_source "${PROJECT_SOURCE_DIR}/src/*.[ch]pp")
 file(GLOB_RECURSE cmake_files "${PROJECT_SOURCE_DIR}/CMakeLists.txt")
 
 add_subdirectory(experimental/)
+add_subdirectory(gpu/)
 
 # clang-format
 clang_format(format_fledge "${all_source}")
@@ -84,7 +85,7 @@ flg_add_ext(embree)
 add_subdirectory(optix/)
 
 target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb Thrust::Thrust fmt
-  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge::materials fledge::optix)
+  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge::materials fledge::optix fledge::gpu)
 
 target_link_libraries(fledge PUBLIC fledge::lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY

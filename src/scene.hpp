@@ -12,7 +12,7 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
-#include "optix/managed_memory.hpp"
+#include "gpu/gpu_memory.hpp"
 #include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN

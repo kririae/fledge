@@ -22,6 +22,7 @@ FLG_NAMESPACE_BEGIN
 class RandomCPU : public Random {
 public:
   RandomCPU(uint32_t seed = 0) : m_seed(seed), m_generator(m_seed) {}
+
   Float    get1D() { return get1D_impl(); }
   Vector2f get2D() { return get2D_impl(); }
   // generate Float range from [0, 1]
