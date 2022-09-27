@@ -92,7 +92,7 @@ static void display(TriangleMesh *mesh, const std::string &name) {
 }
 
 static void intersectTest() {
-  Random rng;
+  RandomCPU rng;
 
   std::pmr::memory_resource *mem_resource = std::pmr::get_default_resource();
   Resource                   resource{mem_resource};

@@ -23,7 +23,7 @@ TEST(Triangle, Watertight) {
   // Copied from PBRT-v3
   using namespace fledge;
 
-  Random        rng(114514);
+  RandomCPU        rng(114514);
   Resource      resource;
   TriangleMesh *mesh = MakeMeshedSphere(16, 16, 1, resource);
 

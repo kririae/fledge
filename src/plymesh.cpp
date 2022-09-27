@@ -109,8 +109,6 @@ TriangleMesh *CloneTriangleMesh(const TriangleMesh *src, Resource &resource) {
 
 TriangleMesh *MakeMeshedSphere(int n_theta, int n_phi, Float radius,
                                Resource &resource) {
-  Random rng;
-
   int           n_vert = n_theta * n_phi;
   TriangleMesh *mesh   = resource.alloc<TriangleMesh>();
   mesh->nVert          = n_vert;

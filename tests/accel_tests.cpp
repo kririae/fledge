@@ -15,7 +15,7 @@
 
 TEST(Accel, NaiveBVHAccel) {
   using namespace fledge;
-  Random   rng;
+  RandomCPU   rng;
   Resource resource;
 
   auto diffuse = MakeMaterialInstance<DiffuseMaterial>(resource, Vector3f(1.0));

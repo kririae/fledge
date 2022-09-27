@@ -11,7 +11,7 @@ using namespace fledge;
 TEST(Distribution, Distribution1DNaiveSampleDiscrete) {
   Dist1D d({0, 1, 2, 3});
   EXPECT_EQ(d.size(), 4);
-  Random rng(114514);
+  RandomCPU rng(114514);
   int    N = 10000;
 
   std::vector<int> d_vec(4, 0);
@@ -31,7 +31,7 @@ TEST(Distribution, Distribution2DNaiveSample) {
 
   int              nu = 4, nv = 3;
   Dist2D           d(data.data(), nu, nv);
-  Random           rng(114514);
+  RandomCPU           rng(114514);
   int              N = 10000;
   std::vector<int> d_vec(data.size(), 0);
   Float            err = 1e-1;
@@ -48,7 +48,7 @@ TEST(Distribution, Distribution2DNaiveSample) {
 }
 
 TEST(Distribution, Distribution1DSingle) {
-  Random rng(114514);
+  RandomCPU rng(114514);
   auto   dist = std::make_shared<Dist1D>(std::vector<Float>(1, 1));
   int    off;
   Float  pdf;
@@ -57,7 +57,7 @@ TEST(Distribution, Distribution1DSingle) {
 }
 
 TEST(Distribution, Distribution2DSingle) {
-  Random rng(114514);
+  RandomCPU rng(114514);
   auto   dist = std::make_shared<Dist2D>(std::vector<Float>(1, 1).data(), 1, 1);
   Float  pdf;
   auto   res = dist->sampleC(rng.get2D(), pdf);

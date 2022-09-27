@@ -99,7 +99,7 @@ public:
     return true;
   }  // build
   virtual bool correctness1(int N = 1000) {
-    Random rng;
+    RandomCPU rng;
     for (int i = 0; i < N; ++i) {
       BVHBuilderBase::BVHRayHit rayhit1{
           .ray_o = Vector3f{rng.get1D(), rng.get1D(), rng.get1D()}

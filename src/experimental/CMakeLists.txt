@@ -29,8 +29,8 @@ endif()
 
 execute_process(
   COMMAND
-  "${PYTHON_EXECUTABLE}" -c "import nanobind; print(nanobind.cmake_dir())"
-  # "python" -c "import nanobind; print(nanobind.cmake_dir())"
+  # "${PYTHON_EXECUTABLE}" -c "import nanobind; print(nanobind.cmake_dir())"
+  "python" -c "import nanobind; print(nanobind.cmake_dir())"
   OUTPUT_VARIABLE nanobind_tmp_dir
   OUTPUT_STRIP_TRAILING_WHITESPACE COMMAND_ECHO STDOUT)
 list(APPEND CMAKE_PREFIX_PATH "${nanobind_tmp_dir}")

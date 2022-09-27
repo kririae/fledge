@@ -30,9 +30,9 @@ public:
   }
 
 protected:
-  uint64_t m_SPP;
-  Vector2d m_p;
-  Random   m_rng;
+  uint64_t  m_SPP;
+  Vector2d  m_p;
+  RandomCPU m_rng;
 };
 
 namespace detail_ {

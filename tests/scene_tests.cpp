@@ -52,7 +52,7 @@ TEST(Scene, WhiteWithDiffusion) {
 
   CPURender render(&scene);
   render.init();
-  render.preprocess();
+  render.preProcess();
   render.render();
 
   auto film = render.getFilm();

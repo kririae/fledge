@@ -19,7 +19,7 @@ inline Vector<Float, 3> MakeVector3f(Float x, Float y, Float z) {
 }
 
 TEST(Vector, Comprehensive) {
-  Random rng;
+  RandomCPU rng;
 
   Vector<Float, 3> a{1, 2, 3};
   Vector<Float, 3> b{4, 5, 6};
