@@ -14,9 +14,7 @@ if(miniply_ADDED)
   target_include_directories(miniply PUBLIC ${miniply_SOURCE_DIR})
 endif()
 
-# CPMAddPackage("gh:eyalroz/cuda-api-wrappers@0.4.5")
 find_package(Thrust REQUIRED CONFIG)
-find_package(CUDAToolkit REQUIRED)
 find_package(OpenImageIO REQUIRED)
 find_package(TBB REQUIRED)
 find_package(OpenMP)
@@ -83,8 +81,10 @@ flg_add_ext(oidn)
 flg_add_ext(fxtui)
 flg_add_ext(embree)
 
-target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb CUDA::cudart Thrust::Thrust fmt
-  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_materials)
+add_subdirectory(optix/)
+
+target_link_libraries(fledge_lib PUBLIC OpenVDB::openvdb Thrust::Thrust fmt
+  OpenImageIO::OpenImageIO TBB::tbb TBB::tbbmalloc miniply fledge_materials fledge_optix)
 
 target_link_libraries(fledge PUBLIC fledge::lib)
 set_target_properties(fledge PROPERTIES RUNTIME_OUTPUT_DIRECTORY

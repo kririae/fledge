@@ -9,6 +9,6 @@ CPMAddPackage(
 
 add_library(fledge_lib_oidn oidn.cpp)
 target_include_directories(fledge_lib_oidn PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-target_link_libraries(fledge_lib_oidn PUBLIC OpenImageDenoise CUDA::cudart)
+target_link_libraries(fledge_lib_oidn PUBLIC OpenImageDenoise)
 
 add_library(fledge::lib::oidn ALIAS fledge_lib_oidn)

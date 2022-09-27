@@ -12,6 +12,7 @@
 #include "common/vector.h"
 #include "debug.hpp"
 #include "fledge.h"
+#include "optix/managed_memory.hpp"
 #include "resource.hpp"
 
 FLG_NAMESPACE_BEGIN
@@ -75,7 +76,7 @@ public:
   std::pmr::memory_resource *m_upstream =
       oneapi::tbb::scalable_memory_resource();
   // std::pmr::memory_resource *m_upstream =
-  //     GlobalManagedMemoryResource();  // cudaMallocManaged
+  //     optix::GlobalManagedMemoryResource();  // cudaMallocManaged
   Resource m_resource{m_upstream};
 
   /**

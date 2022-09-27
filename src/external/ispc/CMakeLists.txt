@@ -1,3 +1,5 @@
+enable_language(ISPC)
+
 add_library(fledge_lib_ispc STATIC vector.ispc)
 target_include_directories(fledge_lib_ispc PUBLIC ${CMAKE_SOURCE_DIR})
 set_target_properties(

@@ -17,6 +17,6 @@ set_property(TARGET embree PROPERTY CXX_STANDARD 17)
 # find_package(embree REQUIRED)
 add_library(fledge_lib_embree eprimitive.cpp)
 target_include_directories(fledge_lib_embree PUBLIC ${CMAKE_SOURCE_DIR}/src/)
-target_link_libraries(fledge_lib_embree PUBLIC embree miniply CUDA::cudart)
+target_link_libraries(fledge_lib_embree PUBLIC embree miniply)
 
 add_library(fledge::lib::embree ALIAS fledge_lib_embree)
