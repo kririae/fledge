@@ -6,6 +6,10 @@
 
 FLG_NAMESPACE_BEGIN
 namespace optix {
+/**
+ * @brief OptiXRender serves as the bridge between the general scene description
+ * and the new integrators
+ */
 class OptiXRender : public RenderBase {
 public:
   OptiXRender(Scene *scene);

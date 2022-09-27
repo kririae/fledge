@@ -13,9 +13,11 @@
 #endif
 
 #if defined(__CUDACC__)
-#define F_CPU_GPU __host__ __device__
+#define F_CPU_GPU  __host__ __device__
+#define F_GPU_ONLY __device__
 #else
 #define F_CPU_GPU
+#define F_GPU_ONLY
 #endif
 
 using namespace std::string_literals;
