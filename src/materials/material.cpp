@@ -10,32 +10,6 @@
 
 FLG_NAMESPACE_BEGIN
 
-// After any transition, (0, 0, 1) is the local normal
-CoordinateTransition::CoordinateTransition(const Vector3f &normal)
-    : m_normal(normal) {
-  NormalizeInplace(m_normal);
-  if (abs(m_normal[0]) > abs(m_normal[2])) {
-    m_binormal = Vector3f(-m_normal[1], m_normal[0], 0);
-  } else {
-    m_binormal = Vector3f(0, -m_normal[2], m_normal[1]);
-  }
-  NormalizeInplace(m_binormal);
-  m_tangent = Cross(m_binormal, m_normal);
-
-  C(m_normal, m_binormal, m_tangent);
-}
-
-Vector3f CoordinateTransition::WorldToLocal(const Vector3f &p) const {
-  C(p);
-  return {Dot(p, m_tangent), Dot(p, m_binormal), Dot(p, m_normal)};
-}
-
-Vector3f CoordinateTransition::LocalToWorld(const Vector3f &p) const {
-  C(p);
-  return m_tangent * p[0] + m_binormal * p[1] + m_normal * p[2];
-  ;
-}
-
 DiffuseMaterial::DiffuseMaterial(const Vector3f &albedo) : m_albedo(albedo) {}
 Vector3f DiffuseMaterial::f(const Vector3f &wo, const Vector3f &wi,
                             const Vector2f             &uv,
@@ -120,19 +94,19 @@ Vector3f MicrofacetMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi,
 
 // Transmission Material
 Vector3f TransmissionMaterial::f(const Vector3f &w_wo, const Vector3f &w_wi,
-                         const Vector2f             &uv,
-                         const CoordinateTransition &trans) const {
+                                 const Vector2f             &uv,
+                                 const CoordinateTransition &trans) const {
   return Vector3f(0.0);
 }
 
 Float TransmissionMaterial::pdf(const Vector3f &w_wo, const Vector3f &w_wi,
-                        const CoordinateTransition &trans) const {
+                                const CoordinateTransition &trans) const {
   return 0.0;
 }
 
-Vector3f TransmissionMaterial::sampleF(const Vector3f &w_wo, Vector3f &w_wi, Float &pdf,
-                               const Vector2f &u, const Vector2f &uv,
-                               const CoordinateTransition &trans) const {
+Vector3f TransmissionMaterial::sampleF(
+    const Vector3f &w_wo, Vector3f &w_wi, Float &pdf, const Vector2f &u,
+    const Vector2f &uv, const CoordinateTransition &trans) const {
   Vector3f wo = trans.WorldToLocal(w_wo), wi;
 
   bool  entering = CosTheta(wo) > 0;
