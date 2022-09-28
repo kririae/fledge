@@ -7,8 +7,6 @@ CPMAddPackage(
 )
 
 enable_language(CUDA)
-set(CMAKE_NVCC_FLAGS "-extended-lambda ${CMAKE_NVCC_FLAGS}")
-message(STATUS ${CMAKE_NVCC_FLAGS})
 
 macro(flg_add_test name)
   add_executable(${name}_exe ${name}.cpp)
@@ -31,6 +29,7 @@ macro(flg_add_cuda_test name)
 endmacro()
 
 flg_add_cuda_test(rng_tests)
+
 flg_add_test(vector_tests)
 flg_add_test(accel_tests)
 flg_add_test(shape_tests)

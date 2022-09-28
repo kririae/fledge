@@ -82,7 +82,7 @@ struct Vector {
   }
 
   F_CPU_GPU Vector(Vector &&x) {
-    std::move(std::begin(x.m_vec), std::end(x.m_vec), m_vec);
+    for (int i = 0; i < x.size; ++i) m_vec[i] = x.m_vec[i];
   }
 
   F_CPU_GPU bool operator==(const Vector &rhs) const {
@@ -100,11 +100,13 @@ struct Vector {
     return *this;
   }
 
-  // template <int N_>
-  // F_CPU_GPU Vector &operator=(T const (&x)[N_]) {
-  //   for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
-  //   return *this;
-  // }
+#if 0
+  template <int N_>
+  F_CPU_GPU Vector &operator=(T const (&x)[N_]) {
+    for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
+    return *this;
+  }
+#endif
 
   F_CPU_GPU const T &operator[](int i) const {
     return m_vec[i];
@@ -169,24 +171,37 @@ struct Vector {
     return res;
   }
 #else
+  F_CPU_GPU
   Vector operator-() const {
     return forEach([](const T &x) -> T { return -x; });
   }
+
+  F_CPU_GPU
   Vector operator*(const Vector &rhs) const {
     return forEach(rhs, [](const T &x, const T &y) -> T { return x * y; });
   }
+
+  F_CPU_GPU
   Vector operator/(const Vector &rhs) const {
     return forEach(rhs, [](const T &x, const T &y) -> T { return x / y; });
   }
+
+  F_CPU_GPU
   Vector operator+(const Vector &rhs) const {
     return forEach(rhs, [](const T &x, const T &y) -> T { return x + y; });
   }
+
+  F_CPU_GPU
   Vector operator-(const Vector &rhs) const {
     return forEach(rhs, [](const T &x, const T &y) -> T { return x - y; });
   }
+
+  F_CPU_GPU
   Vector operator*(const T &rhs) const {
     return forEach([rhs](const T &x) -> T { return x * rhs; });
   }
+
+  F_CPU_GPU
   Vector operator/(const T &rhs) const {
     return forEach([rhs](const T &x) -> T { return x / rhs; });
   }

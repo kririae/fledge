@@ -1,8 +1,6 @@
 #ifndef __RNG_HPP__
 #define __RNG_HPP__
 
-#include <time.h>
-
 #include <random>
 #include <thread>
 
@@ -21,16 +19,11 @@ FLG_NAMESPACE_BEGIN
 class RandomCPU : public Random {
 public:
   RandomCPU(uint32_t seed = 0) : m_seed(seed), m_generator(m_seed) {}
-
-  Float    get1D() { return get1D_impl(); }
-  Vector2f get2D() { return get2D_impl(); }
-  // generate Float range from [0, 1]
-  Float get1D_impl() override {
+  Float get1D() {
     static std::uniform_real_distribution<Float> distribution(0, 1);
     return distribution(m_generator);
-  }
-
-  Vector2f get2D_impl() override { return {get1D(), get1D()}; }
+  }  // Float get1D()
+  Vector2f get2D() { return {get1D(), get1D()}; }
 
 private:
   uint32_t     m_seed;
