@@ -6,6 +6,10 @@ CPMAddPackage(
   OPTIONS "INSTALL_GTEST OFF" "gtest_force_shared_crt"
 )
 
+enable_language(CUDA)
+set(CMAKE_NVCC_FLAGS "-extended-lambda ${CMAKE_NVCC_FLAGS}")
+message(STATUS ${CMAKE_NVCC_FLAGS})
+
 macro(flg_add_test name)
   add_executable(${name}_exe ${name}.cpp)
   target_include_directories(${name}_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
@@ -16,6 +20,17 @@ macro(flg_add_test name)
   add_test(${name} ${name}_exe)
 endmacro()
 
+macro(flg_add_cuda_test name)
+  cuda_add_executable(${name}_cuda_exe ${name}.cu)
+  target_include_directories(${name}_cuda_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
+  target_link_libraries(${name}_cuda_exe
+    gtest gtest_main
+    fledge::lib
+  )
+  add_test(${name} ${name}_cuda_exe)
+endmacro()
+
+flg_add_cuda_test(rng_tests)
 flg_add_test(vector_tests)
 flg_add_test(accel_tests)
 flg_add_test(shape_tests)

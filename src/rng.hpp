@@ -8,7 +8,6 @@
 
 #include "common/rng.h"
 #include "common/vector.h"
-#include "debug.hpp"
 #include "fledge.h"
 
 FLG_NAMESPACE_BEGIN

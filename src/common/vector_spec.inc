@@ -97,35 +97,50 @@ F_CPU_GPU Vector(T x, T y, T z) : m_vec{x, y, z} {}
 
 // Introduce an extra template parameter
 template <typename U = T>
-F_CPU_GPU const std::enable_if_t<N >= 1, U> &x() const {
+F_CPU_GPU const U &x() const {
+  static_assert(N >= 1);
   return m_vec[0];
 }
+
 template <typename U = T>
-F_CPU_GPU const std::enable_if_t<N >= 2, U> &y() const {
+F_CPU_GPU const U &y() const {
+  static_assert(N >= 2);
   return m_vec[1];
 }
+
 template <typename U = T>
-F_CPU_GPU const std::enable_if_t<N >= 3, U> &z() const {
+F_CPU_GPU const U &z() const {
+  static_assert(N >= 3);
   return m_vec[2];
 }
+
 template <typename U = T>
-F_CPU_GPU const std::enable_if_t<N >= 4, U> &w() const {
+F_CPU_GPU const U &w() const {
+  static_assert(N >= 4);
   return m_vec[3];
 }
+
 template <typename U = T>
-F_CPU_GPU std::enable_if_t<N >= 1, U> &x() {
+F_CPU_GPU U &x() {
+  static_assert(N >= 1);
   return m_vec[0];
 }
+
 template <typename U = T>
-F_CPU_GPU std::enable_if_t<N >= 2, U> &y() {
+F_CPU_GPU U &y() {
+  static_assert(N >= 2);
   return m_vec[1];
 }
+
 template <typename U = T>
-F_CPU_GPU std::enable_if_t<N >= 3, U> &z() {
+F_CPU_GPU U &z() {
+  static_assert(N >= 3);
   return m_vec[2];
 }
+
 template <typename U = T>
-F_CPU_GPU std::enable_if_t<N >= 4, U> &w() {
+F_CPU_GPU U &w() {
+  static_assert(N >= 3);
   return m_vec[3];
 }
 
@@ -135,11 +150,13 @@ template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator-() const {
   return {-m_vec[0], -m_vec[1], -m_vec[2]};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator*(const Vector &rhs) const {
   return {m_vec[0] * rhs.m_vec[0], m_vec[1] * rhs.m_vec[1],
           m_vec[2] * rhs.m_vec[2]};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator/(const Vector &rhs) const {
   assert(rhs.m_vec[0] != 0);
@@ -148,25 +165,30 @@ F_CPU_GPU Vector operator/(const Vector &rhs) const {
   return {m_vec[0] / rhs.m_vec[0], m_vec[1] / rhs.m_vec[1],
           m_vec[2] / rhs.m_vec[2]};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator+(const Vector &rhs) const {
   return {m_vec[0] + rhs.m_vec[0], m_vec[1] + rhs.m_vec[1],
           m_vec[2] + rhs.m_vec[2]};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator-(const Vector &rhs) const {
   return {m_vec[0] - rhs.m_vec[0], m_vec[1] - rhs.m_vec[1],
           m_vec[2] - rhs.m_vec[2]};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator*(const T &rhs) const {
   return {m_vec[0] * rhs, m_vec[1] * rhs, m_vec[2] * rhs};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector operator/(const T &rhs) const {
   assert(rhs != 0);
   return {m_vec[0] / rhs, m_vec[1] / rhs, m_vec[2] / rhs};
 }
+
 template <bool B_ = true, std::enable_if_t<N == 3 && B_, bool> = false>
 F_CPU_GPU Vector &operator=(const Vector &rhs) {
   m_vec[0] = rhs.m_vec[0];
@@ -174,6 +196,8 @@ F_CPU_GPU Vector &operator=(const Vector &rhs) {
   m_vec[2] = rhs.m_vec[2];
   return *this;
 }
+
+/*
 template <int N_>
 F_CPU_GPU Vector &operator=(T const (&x)[N_]) requires(N == 3 && N_ >= 3) {
   m_vec[0] = x[0];
@@ -181,4 +205,6 @@ F_CPU_GPU Vector &operator=(T const (&x)[N_]) requires(N == 3 && N_ >= 3) {
   m_vec[2] = x[2];
   return *this;
 }
+*/
+
 #endif

@@ -62,10 +62,12 @@ struct Vector {
   // To support multi platforms, those ctors are trivially implemented
   F_CPU_GPU Vector() {
     for (int i = 0; i < N; ++i) m_vec[i] = 0;
-  };
+  }
+
   F_CPU_GPU Vector(T x) {
     for (int i = 0; i < N; ++i) m_vec[i] = x;
   }
+
   template <int N_>
   F_CPU_GPU Vector(T const (&x)[N_]) {
     static_assert(
@@ -73,10 +75,12 @@ struct Vector {
         "# of elements in initializer list should match the vector size");
     for (int i = 0; i < N; ++i) m_vec[i] = x[i];
   }
+
   // Copy constructor
   F_CPU_GPU Vector(const Vector &x) {
     for (int i = 0; i < x.size; ++i) m_vec[i] = x.m_vec[i];
   }
+
   F_CPU_GPU Vector(Vector &&x) {
     std::move(std::begin(x.m_vec), std::end(x.m_vec), m_vec);
   }
@@ -86,21 +90,26 @@ struct Vector {
       if (m_vec[i] != rhs.m_vec[i]) return false;
     return true;
   }
+
   F_CPU_GPU bool operator!=(const Vector &rhs) const {
     return !((*this) == rhs);
   }
+
   F_CPU_GPU Vector &operator=(const Vector &rhs) {
     for (int i = 0; i < rhs.size; ++i) m_vec[i] = rhs.m_vec[i];
     return *this;
   }
-  template <int N_>
-  F_CPU_GPU Vector &operator=(T const (&x)[N_]) {
-    for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
-    return *this;
-  }
+
+  // template <int N_>
+  // F_CPU_GPU Vector &operator=(T const (&x)[N_]) {
+  //   for (int i = 0; i < N_; ++i) m_vec[i] = x.m_vec[i];
+  //   return *this;
+  // }
+
   F_CPU_GPU const T &operator[](int i) const {
     return m_vec[i];
   }
+
   F_CPU_GPU T &operator[](int i) {
     return m_vec[i];
   }
@@ -186,19 +195,24 @@ struct Vector {
   F_CPU_GPU Vector &operator+=(const Vector &rhs) {
     return (*this) = (*this) + rhs;
   }
+
   F_CPU_GPU Vector &operator-=(const Vector &rhs) {
     return (*this) = (*this) - rhs;
   }
+
   F_CPU_GPU Vector &operator*=(const T &rhs) {
     return (*this) = (*this) * rhs;
   }
+
   F_CPU_GPU Vector &operator/=(const T &rhs) {
     assert(rhs != 0);
     return (*this) = (*this) / rhs;
   }
+
   F_CPU_GPU Vector &operator*=(const Vector &rhs) {
     return (*this) = (*this) * rhs;
   }
+
   F_CPU_GPU Vector &operator/=(const Vector &rhs) {
     assert(rhs != 0);
     return (*this) = (*this) / rhs;
@@ -208,45 +222,59 @@ struct Vector {
   F_CPU_GPU EIGEN_FUNC T norm() const {
     return Norm(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC T squaredNorm() const {
     return SquaredNorm(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC Vector normalized() const {
     return Normalize(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC Vector stableNormalized() const {
     return Normalize(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC Vector cwiseInverse() const {
     return 1.0 / (*this);
   }
+
   F_CPU_GPU EIGEN_FUNC T dot(const Vector &rhs) const {
     return Dot(*this, rhs);
   }
+
   F_CPU_GPU EIGEN_FUNC Vector cross(const Vector &rhs) const {
     return Cross(*this, rhs);
   }
+
   F_CPU_GPU EIGEN_FUNC Vector cwiseProduct(const Vector &rhs) const {
     return (*this) * rhs;
   }
+
   F_CPU_GPU EIGEN_FUNC T maxCoeff() const {
     return MaxElement(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC T minCoeff() const {
     return MinElement(*this);
   }
+
   F_CPU_GPU EIGEN_FUNC bool isZero() const {
     return SquaredNorm(*this) == 0;
   }
+
   F_CPU_GPU EIGEN_FUNC void normalize() {
     (*this) = normalized();
   }
+
   F_CPU_GPU EIGEN_FUNC void stableNormalize() {
     (*this) = normalized();
   }
+
   F_CPU_GPU EIGEN_FUNC Vector cwiseMax(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return max(x, y); });
   }
+
   F_CPU_GPU EIGEN_FUNC Vector cwiseMin(const Vector &rhs) const {
     return forEach(rhs, [](T x, T y) -> T { return min(x, y); });
   }
@@ -257,17 +285,20 @@ struct Vector {
     for (int i = 0; i < N; ++i) res[i] = func(m_vec[i]);
     return res;
   }
+
   F_CPU_GPU Vector forEach(const Vector          &rhs,
                            std::function<T(T, T)> func) const {
     Vector res;
     for (int i = 0; i < N; ++i) res[i] = func(m_vec[i], rhs[i]);
     return res;
   }
+
   F_CPU_GPU T reduce(std::function<T(T, T)> func) const {
     T res = m_vec[0];
     for (int i = 1; i < N; ++i) res = func(res, m_vec[i]);
     return res;
   }
+
   template <typename T_, int N_>
   F_CPU_GPU Vector<T_, N_> cast() const {
     // The lower N is selected
@@ -283,6 +314,7 @@ struct Vector {
     oss << m_vec[size - 1] << "]";
     return oss.str();
   }
+
   friend std::ostream &operator<<(std::ostream &os, const Vector &x) {
     os << x.toString();
     return os;

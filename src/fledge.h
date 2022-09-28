@@ -15,9 +15,11 @@
 #if defined(__CUDACC__)
 #define F_CPU_GPU  __host__ __device__
 #define F_GPU_ONLY __device__
+#define F_GLOBAL   __global__
 #else
 #define F_CPU_GPU
 #define F_GPU_ONLY
+#define F_GLOBAL
 #endif
 
 using namespace std::string_literals;
