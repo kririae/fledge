@@ -75,6 +75,7 @@ public:
                                        .uv    = mesh->uv};  // convert mesh
     return true;
   }
+
   virtual bool build() {
     m_bvh_ref = m_resource.alloc<RefBVHBuilder>(m_imesh, m_mem_resource);
     switch (int(m_type)) {
@@ -90,16 +91,18 @@ public:
 
     Event e_build("BVH build time");
     m_bvh_test->build();
-    e_build.end();
+    e_build.end(true);
 
     Event e_ref_build("Reference BVH build time");
     m_bvh_ref->build();
-    e_ref_build.end();
+    e_ref_build.end(true);
 
     return true;
-  }  // build
-  virtual bool correctness1(int N = 1000) {
-    RandomCPU rng;
+  }
+
+  virtual bool correctness1(int N = 500000) {
+    Event     e_c("BVH test time");
+    RandomCPU rng{};
     for (int i = 0; i < N; ++i) {
       BVHBuilderBase::BVHRayHit rayhit1{
           .ray_o = Vector3f{rng.get1D(), rng.get1D(), rng.get1D()}
@@ -115,14 +118,50 @@ public:
 
       bool cond1 = inter1 == inter2, cond2, cond3;
       cond2 = cond3 = false;
+      if (!cond1) {
+        fmt::print("cond1: {} {} {} {}\n", rayhit1.ray_o.toString(),
+                   rayhit1.ray_d.toString(), inter1, inter2);
+        fmt::print("{} {} {}\n", rayhit2.tnear, rayhit2.tfar, i);
+      }
       if (!cond1) return false;
-      cond2 = abs(rayhit1.tfar - rayhit2.tfar) < 1e-4;
-      cond3 = Same(rayhit1.hit_ng, rayhit2.hit_ng, 1e-4);
+      cond2 = abs(rayhit1.tfar - rayhit2.tfar) < 1e-3;
+      cond3 = Same(rayhit1.hit_ng, rayhit2.hit_ng, 1e-3);
+      if (!cond2) fmt::print("cond2: {} {}\n", rayhit1.tfar, rayhit2.tfar);
+      if (!cond3)
+        fmt::print("cond3: {} {} {}\n", rayhit1.hit_ng.toString(),
+                   rayhit2.hit_ng.toString(), i);
       if (cond2 != true || cond3 != true) return false;
     }
-
+    e_c.end(true);
     return true;
-  }  // correctness1
+  }
+
+  virtual bool correctness2() {
+    BVHBuilderBase::BVHRayHit rayhit1{
+        .ray_o = Vector3f{               0.345564,                   0.422557,0.259793                                          },
+        .ray_d = Vector3f{0.524748325347900390625, 0.714325249195098876953125,
+                          0.46301043033599853515625},
+        .tnear = 0,
+        .tfar  = std::numeric_limits<float>::max()
+    };
+    auto rayhit2 = rayhit1;
+
+    bool inter1 = m_bvh_test->intersect(rayhit1);
+    bool inter2 = m_bvh_ref->intersect(rayhit2);
+
+    Vector3f point = rayhit2.hit_ng;
+    fmt::print("{}\n", point.toString());
+    Float min_distance = 1000000;
+    for (int i = 0; i < m_imesh->nVert; ++i) {
+      Vector3f vertex = m_imesh->p[i];
+      min_distance    = std::min(min_distance, Norm(vertex - point));
+    }
+
+    assert(inter1 == true);
+    assert(inter2 == true);
+    fmt::print("test2 passed\n");
+    return false;
+  }
 
 protected:
   std::pmr::memory_resource *m_mem_resource;

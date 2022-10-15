@@ -19,13 +19,15 @@ macro(flg_add_test name)
 endmacro()
 
 macro(flg_add_cuda_test name)
-  cuda_add_executable(${name}_cuda_exe ${name}.cu)
+  add_executable(${name}_cuda_exe ${name}.cu)
   target_include_directories(${name}_cuda_exe PRIVATE ${CMAKE_SOURCE_DIR}/src)
   target_link_libraries(${name}_cuda_exe
     gtest gtest_main
     fledge::lib
   )
   add_test(${name} ${name}_cuda_exe)
+  set_property(TARGET ${name}_cuda_exe PROPERTY CUDA_SEPARABLE_COMPILATION ON)
+  # target_compile_features(${name}_cuda_exe PUBLIC cuda_std_20)
 endmacro()
 
 flg_add_cuda_test(rng_tests)

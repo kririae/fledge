@@ -64,7 +64,7 @@ static void display(TriangleMesh *mesh, const std::string &name) {
 
   scene.m_resX            = 1280;
   scene.m_resY            = 720;
-  scene.m_SPP             = 32;
+  scene.m_SPP             = 64;
   scene.m_maxDepth        = 16;
   scene.m_FoV             = 30;  // y axis
   scene.m_up              = Vector3f(0, 1, 0);
@@ -159,8 +159,8 @@ int main() {
   TriangleMesh         ch_mesh  = toTriangleMesh(ch_imesh);
   assert(instance.verifyOrientation());
 
-#if 0
-  display(&ch_mesh, "ch_mesh.exr");
+#if 1
+  display(mesh, "ch_mesh_before.png");
 #endif
 
   intersectTest();

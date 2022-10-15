@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstring>
+#include <limits>
 #include <memory_resource>
+#include <span>
 
 #include "debug.hpp"
 #include "external/embree/embree.hpp"
@@ -26,7 +28,8 @@ bool BasicBVHBuilder::intersect(BVHRayHit &rayhit) {
 }
 
 BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
-    Triangle *triangles, std::size_t n_triangles, int depth) {
+    Triangle *triangles, std::size_t n_triangles, int depth,
+    EBVHPartitionMethod partition_method) {
   if (triangles == nullptr || n_triangles == 0) return nullptr;
 
   // Allocate the node here
@@ -45,50 +48,137 @@ BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
 
   int dim = depth % 3;  // the partition dimension
 
-  Triangle *mid_triangles = triangles + n_triangles / 2;
-  // clang-format off
-  // TODO: add execution policy
-  std::nth_element(triangles, mid_triangles, triangles + n_triangles,
-  [dim](const Triangle &a, const Triangle &b) -> bool {
-    switch (dim) {
-      case 0:
-        return a.centerX3() < b.centerX3();
-      case 1:
-        return a.centerY3() < b.centerY3();
-      case 2:
-        return a.centerZ3() < b.centerZ3();
-      default:
-        return false;
-    };
-  }); // std::nth_element
+  // Another approach: precompute the bound for SAH
+  BVHBound bound{};
+  auto     tspan = std::span{triangles, n_triangles};
+  for (auto &t : tspan) bound.merge(t.getBound());
 
-  Float mid = mid_triangles->center3()[dim];
-  // TODO: add execution policy
-  mid_triangles = std::partition(triangles, triangles + n_triangles,
-  [mid, dim](const Triangle &a) -> bool {
-    switch (dim) {
-      case 0:
-        return a.centerX3() < mid;
-      case 1:
-        return a.centerY3() < mid;
-      case 2:
-        return a.centerZ3() < mid;
-      default:
-        return false;
-    };
-  }); // std::partition
-  // clang-format on
+  Triangle *mid_triangle = nullptr;
 
-  node->left =
-      recursiveBuilder(triangles, mid_triangles - triangles, depth + 1);
+  switch (partition_method) {
+    case EBVHPartitionMethod::ENone: {
+      mid_triangle = triangles + n_triangles / 2;
+      // clang-format off
+			// TODO: add execution policy
+			std::nth_element(triangles, mid_triangle, triangles + n_triangles,
+			[dim](const Triangle &a, const Triangle &b) -> bool {
+				switch (dim) {
+					case 0:
+						return a.centerX3() < b.centerX3();
+					case 1:
+						return a.centerY3() < b.centerY3();
+					case 2:
+						return a.centerZ3() < b.centerZ3();
+					default:
+						return false;
+				};
+			}); // std::nth_element
+
+			Float mid = mid_triangle->center3()[dim];
+			// TODO: add execution policy
+			mid_triangle = std::partition(triangles, triangles + n_triangles,
+			[mid, dim](const Triangle &a) -> bool {
+				switch (dim) {
+					case 0:
+						return a.centerX3() < mid;
+					case 1:
+						return a.centerY3() < mid;
+					case 2:
+						return a.centerZ3() < mid;
+					default:
+						return false;
+				};
+			}); // std::partition
+      // clang-format on
+      break;
+    }
+    case EBVHPartitionMethod::ESAH: {
+      // Partition the area into 16 parts
+      constexpr int                    num_buckets = 16;
+      std::pair<BVHBound, std::size_t> buckets[num_buckets],
+          prefix[num_buckets], suffix[num_buckets];
+      Float cost[num_buckets];
+
+      assert(bound.isValid());
+      // ok.. have a try
+      auto s_triangles = std::span{triangles, n_triangles};
+      for (auto &t : s_triangles) {
+        // Set it to one of the buckets
+        int b = std::floor(num_buckets * ((t.center() - bound.lower) /
+                                          (bound.upper - bound.lower))[dim]);
+        assert(0 <= b && b < num_buckets);
+        buckets[b].first.merge(t.getBound());
+        buckets[b].second++;
+      }
+
+      // Run inclusive_sum in two directions
+      prefix[0] = buckets[0];
+      for (int i = 1; i < num_buckets; ++i) {
+        prefix[i] = prefix[i - 1];
+        prefix[i].first.merge(buckets[i].first);
+        prefix[i].second += buckets[i].second;
+      }
+
+      suffix[num_buckets - 1] = buckets[num_buckets - 1];
+      for (int i = num_buckets - 2; i >= 0; --i) {
+        suffix[i] = suffix[i + 1];
+        suffix[i].first.merge(buckets[i].first);
+        suffix[i].second += buckets[i].second;
+      }
+
+      Float min_cost       = std::numeric_limits<Float>::max();
+      int   min_cost_index = 0;
+      for (int i = 1; i < num_buckets - 1; ++i) {
+        // fmt::print("{}\n", prefix[i].second);
+        cost[i] = 1.0 / 8 +
+                  (prefix[i].first.surfaceArea() * prefix[i].second +
+                   suffix[i + 1].first.surfaceArea() * suffix[i + 1].second) /
+                      bound.surfaceArea();
+        assert(prefix[i].second + suffix[i + 1].second == n_triangles);
+        if (cost[i] < min_cost) {
+          min_cost       = cost[i];
+          min_cost_index = i;
+        }
+      }
+
+      // Here, we know that we'll break at i's bucket
+      Float no_partition_cost = n_triangles;
+      if (min_cost < no_partition_cost) {
+        mid_triangle = std::partition(
+            triangles, triangles + n_triangles,
+            [&bound, dim, min_cost_index](const Triangle &t) -> bool {
+              int b =
+                  std::floor(num_buckets * ((t.center() - bound.lower) /
+                                            (bound.upper - bound.lower))[dim]);
+              assert(0 <= b && b < num_buckets);
+              return b <= min_cost_index;
+            });
+      } else {
+        // Create the leaf node
+        node->bound       = bound;
+        node->triangles   = triangles;
+        node->n_triangles = n_triangles;
+        return node;
+      }
+
+      break;
+    }
+    default: {
+      assert(false);
+    }
+  }  // After this switch statement, mid_triangle is set and triangles is
+     // rearranged
+
+  node->left = recursiveBuilder(triangles, mid_triangle - triangles, depth + 1);
   node->right = recursiveBuilder(
-      mid_triangles, triangles + n_triangles - mid_triangles, depth + 1);
-  // Some spj
+      mid_triangle, triangles + n_triangles - mid_triangle, depth + 1);
+
   if (node->left != nullptr) node->bound.merge(node->left->bound);
   if (node->right != nullptr) node->bound.merge(node->right->bound);
   if (node->left == nullptr && node->right == nullptr) return nullptr;
   return node;
 }
+
 bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
                                          BVHRayHit    &rayhit) {
   float tnear, tfar;
@@ -105,9 +195,9 @@ bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
       Triangle &triangle = node->triangles[i];
       float     thit;
       Vector3f  ng;
-      bool      inter =
-          detail_::TriangleIntersect(triangle.a(), triangle.b(), triangle.c(),
-                                     rayhit.ray_o, rayhit.ray_d, &thit, &ng);
+      bool      inter = detail_::PlueckerTriangleIntersect(
+               triangle.a(), triangle.b(), triangle.c(), rayhit.ray_o, rayhit.ray_d,
+               &thit, &ng);
       if (!inter) continue;
       if (thit > tfar) continue;
       hit           = true;
@@ -203,7 +293,7 @@ bool RefBVHBuilder::intersect(BVHRayHit &rayhit) {
 
   if (r_rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID) {
     rayhit.tfar   = r_rayhit.ray.tfar;
-    rayhit.hit_ng = rayhit.hit_ns = Normalize(
+    rayhit.hit_ng = rayhit.hit_ns = StableNormalize(
         Vector3f{r_rayhit.hit.Ng_x, r_rayhit.hit.Ng_y, r_rayhit.hit.Ng_z});
     rayhit.hit = true;
     return true;

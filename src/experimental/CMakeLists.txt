@@ -16,7 +16,7 @@ set_target_properties(bvh_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
 add_executable(convex_hull_test convex_hull_test.cpp)
-target_link_libraries(convex_hull_test PRIVATE fledge::experimental fledge::lib)
+target_link_libraries(convex_hull_test PUBLIC fledge::experimental fledge::lib)
 set_target_properties(convex_hull_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/bin)
 
@@ -39,3 +39,9 @@ find_package(nanobind CONFIG REQUIRED)
 
 nanobind_add_module(bvh_test_py NB_STATIC bvh_test_py.cpp)
 target_link_libraries(bvh_test_py PRIVATE fledge::experimental fledge::lib)
+
+install(TARGETS convex_hull_test
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include)

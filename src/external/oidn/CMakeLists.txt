@@ -4,7 +4,7 @@ CPMAddPackage(
   NAME OpenImageDenoise
   GIT_TAG v1.4.3
   VERSION 1.4.3
-  OPTIONS "OIDN_APPS OFF" "OIDN_API_NAMESPACE ON"
+  OPTIONS "OIDN_APPS OFF" "OIDN_API_NAMESPACE ON" "CMAKE_INSTALL_COMPONENT"
 )
 
 add_library(fledge_lib_oidn oidn.cpp)

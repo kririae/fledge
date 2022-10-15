@@ -98,3 +98,13 @@ set_target_properties(fledge_tui PROPERTIES RUNTIME_OUTPUT_DIRECTORY
 # target_compile_definitions(fledge PUBLIC -DFLEDGE_USE_TBB)
 # endif()
 target_compile_definitions(fledge PUBLIC -DFLEDGE_USE_EMBREE)
+
+# Install specifications
+install(TARGETS 
+    fledge fledge_lib 
+    fledge_lib_oidn fledge_lib_fxtui fledge_lib_embree fledge_lib_ispc
+    fledge_materials fledge_experimental fledge_optix fledge_gpu
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  PUBLIC_HEADER DESTINATION include)

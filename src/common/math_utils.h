@@ -1,6 +1,8 @@
 #ifndef __MATH_UTILS_H__
 #define __MATH_UTILS_H__
 
+#include <sys/cdefs.h>
+
 #include <memory>
 #include <type_traits>
 
@@ -157,6 +159,16 @@ F_CPU_GPU inline T Mod(T a, T b) {
     T result = a - (a / b) * b;
     return (T)((result < 0) ? result + b : result);
   }
+}
+
+template <typename T>
+F_CPU_GPU __always_inline T Twice(const T &a) {
+  return a + a;
+}
+
+template <typename T>
+F_CPU_GPU __always_inline T Select(bool s, const T &a, const T &b) {
+  return s ? a : b;
 }
 
 FLG_NAMESPACE_END

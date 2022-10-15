@@ -1,11 +1,14 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
+#include <sys/cdefs.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <functional>
 #include <initializer_list>
+#include <iomanip>
 #include <sstream>
 #include <type_traits>
 
@@ -480,6 +483,26 @@ using Color3f  = Vector3f;
 using Normal3f = Vector3f;
 using Point3f  = Vector3f;
 using Spectrum = Vector3f;
+
+#ifndef __CUDACC__
+template <typename T, int N>
+requires(std::is_same_v<float, T> &&N == 3) __always_inline Vector3f
+    Normalize(const Vector<T, N> &x) {
+  const float squared_norm = x.x() * x.x() + x.y() * x.y() + x.z() * x.z();
+  return x / sqrt(squared_norm);
+}
+
+template <typename T, int N>
+requires(std::is_same_v<float, T> &&N == 3) __always_inline Vector3f
+    StableNormalize(const Vector<T, N> &x)
+noexcept {
+  auto         d_x = x.template cast<double, 3>();
+  const double squared_norm =
+      d_x.x() * d_x.x() + d_x.y() * d_x.y() + d_x.z() + d_x.z();
+  d_x /= sqrt(squared_norm);
+  return d_x.template cast<float, 3>();
+}
+#endif
 
 FLG_NAMESPACE_END
 

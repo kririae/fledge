@@ -72,6 +72,12 @@ public:
     radius = (m_max - center).norm();
   }
 
+  F_CPU_GPU Float surfaceArea() const {
+    Vector3f edges = m_max - m_min;
+    return 2 * (edges.x() * edges.y() + edges.x() * edges.z() +
+                edges.y() * edges.z());
+  }
+
   F_CPU_GPU Vector3f center() const { return (m_min + m_max) / 2; }
 
   F_CPU_GPU bool operator==(const AABB &a) const {

@@ -1,5 +1,4 @@
 enable_language(CUDA)
-find_package(CUDA REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
 find_program(BIN2C bin2c

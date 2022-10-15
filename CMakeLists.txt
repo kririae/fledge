@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.23)
 project(fledge LANGUAGES CXX C)
 cmake_policy(SET CMP0135 NEW)
 
+set(CMAKE_INSTALL_RPATH "../lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # project options
 option(FLEDGE_USE_TBB "use TBB instead of OpenMP for parallization" ON)
 option(FLEDGE_USE_ISPC "use ISPC for SIMD execution" ON)
