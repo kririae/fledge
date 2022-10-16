@@ -60,11 +60,11 @@ void RadixBVHBuilder::prestage() {
       });
 
   // TODO: make sure there's no false sharing
+  Vector3f edges = m_bound.upper - m_bound.lower;
   ParallelForLinear(0, m_n_triangles, [&](std::size_t i) {
-    const auto bound    = m_triangles[i].getBound();
-    Vector3f   centroid = (bound.lower + bound.upper) / 2;
-    Vector3f   normalized_coordinate =
-        (centroid - m_bound.lower) / (m_bound.upper - m_bound.lower);
+    const auto bound                 = m_triangles[i].getBound();
+    Vector3f   centroid              = (bound.lower + bound.upper) / 2;
+    Vector3f   normalized_coordinate = (centroid - m_bound.lower) / edges;
     assert(0 <= normalized_coordinate.x() && normalized_coordinate.x() <= 1.0);
     assert(0 <= normalized_coordinate.y() && normalized_coordinate.y() <= 1.0);
     assert(0 <= normalized_coordinate.z() && normalized_coordinate.z() <= 1.0);
@@ -79,6 +79,39 @@ void RadixBVHBuilder::prestage() {
       [](const RadixTriangle &a, const RadixTriangle &b) -> bool {
         return a.morton_code < b.morton_code;
       });
+
+#if 0  // Vertex sorting
+  struct MortonVertex {
+    Vector3f position;
+    int      original_index;
+    uint32_t morton_code;
+  };
+  std::pmr::vector<MortonVertex> vertices(m_mesh->nVert, m_mem_resource);
+  std::pmr::vector<int>          vertex_map(m_mesh->nVert, m_mem_resource);
+  ParallelForLinear(0, m_mesh->nVert, [&](std::size_t i) {
+    vertices[i] =
+        MortonVertex{.position       = m_mesh->p[i],
+                     .original_index = static_cast<int>(i),
+                     .morton_code    = detail_::EncodeMorton3(
+                            (1 << 10) * (m_mesh->p[i] - m_bound.lower) / edges)};
+  });
+  tbb::parallel_sort(vertices.begin(), vertices.end(),
+                     [](const MortonVertex &a, const MortonVertex &b) -> bool {
+                       return a.morton_code < b.morton_code;
+                     });
+  ParallelForLinear(0, m_mesh->nVert, [&](std::size_t i) {
+    vertex_map[vertices[i].original_index] = i;
+  });
+  // Update all indices
+  ParallelForLinear(0, m_mesh->nInd, [&](std::size_t i) {
+    m_mesh->ind[i] = vertex_map[m_mesh->ind[i]];
+  });
+  m_mesh->p = std::pmr::polymorphic_allocator<Vector3f>{&m_resource}.allocate(
+      m_mesh->nVert);
+  ParallelForLinear(0, m_mesh->nVert, [&](std::size_t i) {
+    m_mesh->p[i] = vertices[i].position;
+  });
+#endif
 }
 
 void RadixBVHBuilder::parallelBuilder() {
