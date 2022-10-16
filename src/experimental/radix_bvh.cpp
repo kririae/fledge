@@ -15,10 +15,13 @@ void RadixBVHBuilder::build() {
   parallelBuilder();
   assert(m_internal_nodes->bound.lower == m_bound.lower);
   assert(m_internal_nodes->bound.upper == m_bound.upper);
+  assert(m_internal_nodes->n_triangles == m_n_triangles);
 }
 
 bool RadixBVHBuilder::intersect(BVHRayHit &rayhit) {
-  return recursiveIntersect(&m_internal_nodes[0], rayhit);
+  std::size_t n_intersect = 0;
+  bool res = recursiveIntersect(&m_internal_nodes[0], rayhit, n_intersect);
+  return res;
 }
 
 void RadixBVHBuilder::prestage() {
@@ -51,7 +54,10 @@ void RadixBVHBuilder::prestage() {
     assert(0 <= normalized_coordinate.x() && normalized_coordinate.x() <= 1.0);
     assert(0 <= normalized_coordinate.y() && normalized_coordinate.y() <= 1.0);
     assert(0 <= normalized_coordinate.z() && normalized_coordinate.z() <= 1.0);
-    m_triangles[i].morton_code = detail_::MortonCurve3D(normalized_coordinate);
+    // m_triangles[i].morton_code =
+    // detail_::MortonCurve3D(normalized_coordinate);
+    m_triangles[i].morton_code =
+        detail_::EncodeMorton3(normalized_coordinate * (1 << 10));
   }
 
   // TODO: replace this implementation with
@@ -95,7 +101,6 @@ void        RadixBVHBuilder::parallelBuilder() {
     if (std::min(i, j) == split_point) internal_node.left_node_type = 1;
     if (std::max(i, j) == split_point + 1) internal_node.right_node_type = 1;
     internal_node.n_triangles = j - i + 1;
-    if (i == 0) assert(internal_node.n_triangles == m_n_triangles);
 
     // Final pass, calculate the parent
     if (internal_node.left_node_type)
@@ -110,23 +115,23 @@ void        RadixBVHBuilder::parallelBuilder() {
   }
 
 #if 0
-  for (int i = 0; i < m_n_triangles; ++i) {
-    auto internal_node = m_internal_nodes[m_triangles[i].parent];
-    if (!(i == internal_node.split_point ||
-          i == internal_node.split_point + 1)) {
-      fmt::print("i: {}, parent: {}, split_point: {}\n", i,
-                 m_triangles[i].parent, internal_node.split_point);
-      fmt::print("{} {} {}\n", m_triangles[i - 1].morton_code,
-                 m_triangles[i].morton_code, m_triangles[i + 1].morton_code);
-      fmt::print("{} {} {}\n", m_triangles[i - 1].parent, m_triangles[i].parent,
-                 m_triangles[i + 1].parent);
-    }
-    assert(i == internal_node.split_point ||
-           i == internal_node.split_point + 1);
-  }
+	for (int i = 0; i < m_n_triangles; ++i) {
+		auto internal_node = m_internal_nodes[m_triangles[i].parent];
+		if (!(i == internal_node.split_point ||
+					i == internal_node.split_point + 1)) {
+			fmt::print("i: {}, parent: {}, split_point: {}\n", i,
+								 m_triangles[i].parent, internal_node.split_point);
+			fmt::print("{} {} {}\n", m_triangles[i - 1].morton_code,
+								 m_triangles[i].morton_code, m_triangles[i + 1].morton_code);
+			fmt::print("{} {} {}\n", m_triangles[i - 1].parent, m_triangles[i].parent,
+								 m_triangles[i + 1].parent);
+		}
+		assert(i == internal_node.split_point ||
+					 i == internal_node.split_point + 1);
+	}
 #endif
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < m_n_triangles; ++i) {
     int      current_index  = m_triangles[i].parent;
     int      previous_index = i;
@@ -139,7 +144,8 @@ void        RadixBVHBuilder::parallelBuilder() {
       if (previous_flag == 0)
         break;
       else if (previous_flag == 1) {
-        BVHBound other_bound;
+        BVHBound other_bound{};
+        int      other_num = 0;
         if (previous_index == internal_node.split_point) {
           other_bound =
               internal_node.right_node_type == 1
@@ -152,8 +158,22 @@ void        RadixBVHBuilder::parallelBuilder() {
                           : m_internal_nodes[internal_node.split_point].bound;
         }
 
+        internal_node.bound = BVHBound{};
         internal_node.bound.merge(other_bound);
         internal_node.bound.merge(subnode_bound);
+
+#if 0
+        if (internal_node.left_node_type && internal_node.right_node_type) {
+          const RadixTriangle t1 = m_triangles[internal_node.split_point];
+          const RadixTriangle t2 = m_triangles[internal_node.split_point + 1];
+          const Vector3f      c1 = t1.center();
+          const Vector3f      c2 = t2.center();
+          BVHBound            bound = t1.getBound();
+          bound.merge(t2.getBound());
+          assert(bound.lower == internal_node.bound.lower);
+          assert(bound.upper == internal_node.bound.upper);
+        }
+#endif
       }
 
       subnode_bound = internal_node.bound;
@@ -163,6 +183,7 @@ void        RadixBVHBuilder::parallelBuilder() {
     }
   }
 
+#if 0
   fmt::print("{}\n", m_internal_nodes[0].bound.lower.toString(),
              m_internal_nodes[0].bound.upper.toString());
   fmt::print(
@@ -174,10 +195,11 @@ void        RadixBVHBuilder::parallelBuilder() {
                  .bound.lower.toString(),
              m_internal_nodes[m_internal_nodes->split_point + 2]
                  .bound.upper.toString());
+#endif
 }
 
-bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node,
-                                         BVHRayHit    &rayhit) {
+bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node, BVHRayHit &rayhit,
+                                         std::size_t &n_intersect) {
   float tnear, tfar;
   bool  inter = node->bound.intersect(rayhit.ray_o, rayhit.ray_d, tnear, tfar);
   if (!inter) return false;
@@ -197,6 +219,7 @@ bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node,
     Triangle &triangle = triangles[i];
     float     thit;
     Vector3f  ng;
+    ++n_intersect;
     bool inter = detail_::PlueckerTriangleIntersect(triangle.a(), triangle.b(),
                                                     triangle.c(), rayhit.ray_o,
                                                     rayhit.ray_d, &thit, &ng);
@@ -211,10 +234,11 @@ bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node,
 
   bool res_left = false, res_right = false;
   if (!node->left_node_type)
-    res_left = recursiveIntersect(&m_internal_nodes[node->split_point], rayhit);
+    res_left = recursiveIntersect(&m_internal_nodes[node->split_point], rayhit,
+                                  n_intersect);
   if (!node->right_node_type)
-    res_right =
-        recursiveIntersect(&m_internal_nodes[node->split_point + 1], rayhit);
+    res_right = recursiveIntersect(&m_internal_nodes[node->split_point + 1],
+                                   rayhit, n_intersect);
   if (res_left || res_right || hit) assert(rayhit.hit == true);
   return res_left || res_right || hit;
 }

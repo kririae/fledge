@@ -104,7 +104,7 @@ public:
     return true;
   }
 
-  virtual bool correctness1(int N = 10) {
+  virtual bool correctness1(int N = 100000) {
     Event     e_c("BVH test time");
     RandomCPU rng{};
     for (int i = 0; i < N; ++i) {

@@ -153,7 +153,8 @@ protected:
   BasicBVHNode *recursiveBuilder(
       Triangle *triangles, std::size_t n_triangles, int depth,
       EBVHPartitionMethod partition_method = EBVHPartitionMethod::ENone);
-  bool recursiveIntersect(BasicBVHNode *node, BVHRayHit &rayhit);
+  bool recursiveIntersect(BasicBVHNode *node, BVHRayHit &rayhit,
+                          std::size_t &n_intersect);
   /**
    * The specific memory resource manager inherited from BaseClass.
    */

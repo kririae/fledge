@@ -25,7 +25,9 @@ void BasicBVHBuilder::build() {
   m_root = recursiveBuilder(triangles, n_triangles, 0);
 }
 bool BasicBVHBuilder::intersect(BVHRayHit &rayhit) {
-  return recursiveIntersect(m_root, rayhit);
+  std::size_t n_intersect = 0;
+  bool        res         = recursiveIntersect(m_root, rayhit, n_intersect);
+  return res;
 }
 
 BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
@@ -180,8 +182,8 @@ BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
   return node;
 }
 
-bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
-                                         BVHRayHit    &rayhit) {
+bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node, BVHRayHit &rayhit,
+                                         std::size_t &n_intersect) {
   float tnear, tfar;
   // Note that this intersection function will not modify the rayhit
   bool inter = node->bound.intersect(rayhit.ray_o, rayhit.ray_d, tnear, tfar);
@@ -196,9 +198,10 @@ bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
       Triangle &triangle = node->triangles[i];
       float     thit;
       Vector3f  ng;
-      bool      inter = detail_::PlueckerTriangleIntersect(
-               triangle.a(), triangle.b(), triangle.c(), rayhit.ray_o, rayhit.ray_d,
-               &thit, &ng);
+      ++n_intersect;
+      bool inter = detail_::PlueckerTriangleIntersect(
+          triangle.a(), triangle.b(), triangle.c(), rayhit.ray_o, rayhit.ray_d,
+          &thit, &ng);
       if (!inter) continue;
       if (thit > tfar) continue;
       hit           = true;
@@ -212,9 +215,10 @@ bool BasicBVHBuilder::recursiveIntersect(BasicBVHNode *node,
   }
 
   bool res_left = false, res_right = false;
-  if (node->left != nullptr) res_left = recursiveIntersect(node->left, rayhit);
+  if (node->left != nullptr)
+    res_left = recursiveIntersect(node->left, rayhit, n_intersect);
   if (node->right != nullptr)
-    res_right = recursiveIntersect(node->right, rayhit);
+    res_right = recursiveIntersect(node->right, rayhit, n_intersect);
   return res_left || res_right;
 }
 

@@ -15,7 +15,9 @@
 
 #include <math.h>
 #include <oneapi/tbb/detail/_machine.h>
+#include <sys/cdefs.h>
 
+#include <cstdint>
 #include <memory_resource>
 
 #include "experimental/base_bvh.hpp"
@@ -65,6 +67,20 @@ __always_inline uint32_t MortonCurve3D(Vector3f normalized_coordinate) {
   z = ExpandBits(z);
   return (x << 2) + (y << 1) + z;
 }
+
+__always_inline uint32_t LeftShift3(uint32_t x) {
+  if (x == (1 << 10)) --x;
+  x = (x | (x << 16)) & 0b00000011000000000000000011111111;
+  x = (x | (x << 8)) & 0b00000011000000001111000000001111;
+  x = (x | (x << 4)) & 0b00000011000011000011000011000011;
+  x = (x | (x << 2)) & 0b00001001001001001001001001001001;
+  return x;
+}
+
+inline uint32_t EncodeMorton3(const Vector3f &v) {
+  return (LeftShift3(v.z()) << 2) | (LeftShift3(v.y()) << 1) |
+         LeftShift3(v.x());
+}
 }  // namespace detail_
 /**
  * @brief see
@@ -105,13 +121,15 @@ public:
 protected:
   void prestage();
   void parallelBuilder();
-  bool recursiveIntersect(RadixBVHNode *node, BVHRayHit &rayhit);
+  bool recursiveIntersect(RadixBVHNode *node, BVHRayHit &rayhit,
+                          std::size_t &n_intersect);
   /* delta function in the paper */
   __always_inline int delta(int i, int j) {
     if (j < 0 || j >= m_n_triangles) return -1;
-    uint64_t m1 = ((uint64_t)m_triangles[i].morton_code << 32) | i;
-    uint64_t m2 = ((uint64_t)m_triangles[j].morton_code << 32) | j;
-    return __builtin_clz(m1 ^ m2);
+    if (m_triangles[i].morton_code == m_triangles[j].morton_code)
+      return __builtin_clz(i ^ j) + 32;
+    return __builtin_clz(m_triangles[i].morton_code ^
+                         m_triangles[j].morton_code);
   }
 
   int            m_n_triangles;
