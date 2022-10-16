@@ -1,9 +1,14 @@
 #include "experimental/radix_bvh.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_reduce.h>
+#include <oneapi/tbb/parallel_sort.h>
+
 #include <execution>
 #include <memory_resource>
 #include <vector>
 
+#include "experimental/experimental_utils.hpp"
 #include "experimental/intersector.hpp"
 #include "fledge.h"
 
@@ -29,24 +34,33 @@ void RadixBVHBuilder::prestage() {
   m_triangles =
       std::pmr::polymorphic_allocator<RadixTriangle>{&m_resource}.allocate(
           m_n_triangles);
+  // be sure to initialize
   m_internal_nodes =
       std::pmr::polymorphic_allocator<RadixBVHNode>{&m_resource}.allocate(
           m_n_triangles - 1);
 
-  for (int i = 0; i < m_n_triangles; ++i) {
+  ParallelForLinear(0, m_n_triangles, [&](std::size_t i) {
     m_triangles[i].m_mesh = m_mesh;
     m_triangles[i].m_v    = m_mesh->ind + i * 3;
-  }
+  });
 
   // First pass, calculate the global bound
-  // TODO: use reduce
-  for (int i = 0; i < m_n_triangles; ++i) {
-    const BVHBound bound = m_triangles[i].getBound();
-    m_bound.merge(bound);
-  }
+  // TODO: encapsulate the reduce function
+  m_bound = tbb::parallel_reduce(
+      tbb::blocked_range<std::size_t>(0, m_n_triangles), BVHBound{},
+      [&](const tbb::blocked_range<std::size_t> &r, BVHBound init) -> BVHBound {
+        for (std::size_t i = r.begin(); i != r.end(); ++i)
+          init.merge(m_triangles[i].getBound());
+        return init;
+      },
+      [](const BVHBound &b1, const BVHBound &b2) -> BVHBound {
+        BVHBound bound = b1;
+        bound.merge(b2);
+        return bound;
+      });
 
   // TODO: make sure there's no false sharing
-  for (int i = 0; i < m_n_triangles; ++i) {
+  ParallelForLinear(0, m_n_triangles, [&](std::size_t i) {
     const auto bound    = m_triangles[i].getBound();
     Vector3f   centroid = (bound.lower + bound.upper) / 2;
     Vector3f   normalized_coordinate =
@@ -54,21 +68,21 @@ void RadixBVHBuilder::prestage() {
     assert(0 <= normalized_coordinate.x() && normalized_coordinate.x() <= 1.0);
     assert(0 <= normalized_coordinate.y() && normalized_coordinate.y() <= 1.0);
     assert(0 <= normalized_coordinate.z() && normalized_coordinate.z() <= 1.0);
-    m_triangles[i].morton_code = detail_::MortonCurve3D(normalized_coordinate);
-  }
+    m_triangles[i].morton_code =
+        detail_::EncodeMorton3(normalized_coordinate * (1 << 10));
+  });
 
   // TODO: replace this implementation with
   // https://github.com/google/highway/tree/master/hwy/contrib/sort
-  std::sort(std::execution::par, m_triangles, m_triangles + m_n_triangles,
-            [](const RadixTriangle &a, const RadixTriangle &b) -> bool {
-              return a.morton_code < b.morton_code;
-            });
+  tbb::parallel_sort(
+      m_triangles, m_triangles + m_n_triangles,
+      [](const RadixTriangle &a, const RadixTriangle &b) -> bool {
+        return a.morton_code < b.morton_code;
+      });
 }
 
-void        RadixBVHBuilder::parallelBuilder() {
-#pragma omp parallel for schedule(static)
-  // in parallel
-  for (int i = 0; i < m_n_triangles - 1; ++i) {
+void RadixBVHBuilder::parallelBuilder() {
+  ParallelForLinear(0, m_n_triangles - 1, [&](std::size_t i) {
     RadixBVHNode &internal_node = m_internal_nodes[i];
     internal_node.direction     = Sign(delta(i, i + 1) - delta(i, i - 1));
     const int d                 = internal_node.direction;
@@ -95,8 +109,10 @@ void        RadixBVHBuilder::parallelBuilder() {
     // internal_node.direction
     internal_node.split_point = i + s * d + std::min(d, 0);
     const auto split_point    = internal_node.split_point;
-    if (std::min(i, j) == split_point) internal_node.left_node_type = 1;
-    if (std::max(i, j) == split_point + 1) internal_node.right_node_type = 1;
+    if (std::min(static_cast<int>(i), j) == split_point)
+      internal_node.left_node_type = 1;
+    if (std::max(static_cast<int>(i), j) == split_point + 1)
+      internal_node.right_node_type = 1;
     internal_node.n_triangles = j - i + 1;
 
     // Final pass, calculate the parent
@@ -109,10 +125,9 @@ void        RadixBVHBuilder::parallelBuilder() {
       m_triangles[split_point + 1].parent = i;
     else
       m_internal_nodes[split_point + 1].parent = i;
-  }
+  });
 
-#pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < m_n_triangles; ++i) {
+  ParallelForLinear(0, m_n_triangles, [&](std::size_t i) {
     int      current_index  = m_triangles[i].parent;
     int      previous_index = i;
     BVHBound subnode_bound  = m_triangles[i].getBound();
@@ -148,7 +163,7 @@ void        RadixBVHBuilder::parallelBuilder() {
       previous_index = current_index;
       current_index  = m_internal_nodes[current_index].parent;
     }
-  }
+  });
 }
 
 bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node, BVHRayHit &rayhit,
