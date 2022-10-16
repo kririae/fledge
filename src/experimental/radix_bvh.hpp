@@ -96,15 +96,14 @@ public:
 
   // Internal node
   struct RadixBVHNode {
-    BVHBound       bound;
-    RadixTriangle *triangles;
-    int            n_triangles, split_point, parent;
-    int            flag;
+    BVHBound bound{};
+    int      n_triangles{}, split_point{}, parent{};
+    int      flag{};
 
     // Radix-related information
-    int     direction;            // int for now
-    uint8_t left_node_type : 1;   // 0: internal; 1: leaf
-    uint8_t right_node_type : 1;  // 0: internal; 1: leaf
+    int     direction{};             // int for now
+    uint8_t left_node_type : 1 {};   // 0: internal; 1: leaf
+    uint8_t right_node_type : 1 {};  // 0: internal; 1: leaf
   };
 
   RadixBVHBuilder(InternalTriangleMesh      *mesh,

@@ -54,10 +54,7 @@ void RadixBVHBuilder::prestage() {
     assert(0 <= normalized_coordinate.x() && normalized_coordinate.x() <= 1.0);
     assert(0 <= normalized_coordinate.y() && normalized_coordinate.y() <= 1.0);
     assert(0 <= normalized_coordinate.z() && normalized_coordinate.z() <= 1.0);
-    // m_triangles[i].morton_code =
-    // detail_::MortonCurve3D(normalized_coordinate);
-    m_triangles[i].morton_code =
-        detail_::EncodeMorton3(normalized_coordinate * (1 << 10));
+    m_triangles[i].morton_code = detail_::MortonCurve3D(normalized_coordinate);
   }
 
   // TODO: replace this implementation with
@@ -114,23 +111,6 @@ void        RadixBVHBuilder::parallelBuilder() {
       m_internal_nodes[split_point + 1].parent = i;
   }
 
-#if 0
-	for (int i = 0; i < m_n_triangles; ++i) {
-		auto internal_node = m_internal_nodes[m_triangles[i].parent];
-		if (!(i == internal_node.split_point ||
-					i == internal_node.split_point + 1)) {
-			fmt::print("i: {}, parent: {}, split_point: {}\n", i,
-								 m_triangles[i].parent, internal_node.split_point);
-			fmt::print("{} {} {}\n", m_triangles[i - 1].morton_code,
-								 m_triangles[i].morton_code, m_triangles[i + 1].morton_code);
-			fmt::print("{} {} {}\n", m_triangles[i - 1].parent, m_triangles[i].parent,
-								 m_triangles[i + 1].parent);
-		}
-		assert(i == internal_node.split_point ||
-					 i == internal_node.split_point + 1);
-	}
-#endif
-
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < m_n_triangles; ++i) {
     int      current_index  = m_triangles[i].parent;
@@ -161,19 +141,6 @@ void        RadixBVHBuilder::parallelBuilder() {
         internal_node.bound = BVHBound{};
         internal_node.bound.merge(other_bound);
         internal_node.bound.merge(subnode_bound);
-
-#if 0
-        if (internal_node.left_node_type && internal_node.right_node_type) {
-          const RadixTriangle t1 = m_triangles[internal_node.split_point];
-          const RadixTriangle t2 = m_triangles[internal_node.split_point + 1];
-          const Vector3f      c1 = t1.center();
-          const Vector3f      c2 = t2.center();
-          BVHBound            bound = t1.getBound();
-          bound.merge(t2.getBound());
-          assert(bound.lower == internal_node.bound.lower);
-          assert(bound.upper == internal_node.bound.upper);
-        }
-#endif
       }
 
       subnode_bound = internal_node.bound;
@@ -182,20 +149,6 @@ void        RadixBVHBuilder::parallelBuilder() {
       current_index  = m_internal_nodes[current_index].parent;
     }
   }
-
-#if 0
-  fmt::print("{}\n", m_internal_nodes[0].bound.lower.toString(),
-             m_internal_nodes[0].bound.upper.toString());
-  fmt::print(
-      "{} {}\n",
-      m_internal_nodes[m_internal_nodes->split_point].bound.lower.toString(),
-      m_internal_nodes[m_internal_nodes->split_point].bound.upper.toString());
-  fmt::print("{} {}\n",
-             m_internal_nodes[m_internal_nodes->split_point + 1]
-                 .bound.lower.toString(),
-             m_internal_nodes[m_internal_nodes->split_point + 2]
-                 .bound.upper.toString());
-#endif
 }
 
 bool RadixBVHBuilder::recursiveIntersect(RadixBVHNode *node, BVHRayHit &rayhit,
