@@ -171,6 +171,10 @@ F_CPU_GPU __always_inline T Select(bool s, const T &a, const T &b) {
   return s ? a : b;
 }
 
+F_CPU_GPU __always_inline int Sign(int a) {
+  return a == 0 ? 0 : (a > 0 ? 1 : -1);
+}
+
 FLG_NAMESPACE_END
 
 #endif

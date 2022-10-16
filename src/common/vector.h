@@ -60,7 +60,7 @@ struct Vector {
 
 // Following the hints from
 // https://stackoverflow.com/questions/23757876/sfinae-not-working-although-template-methods-are-used
-#include "vector_spec.inc"
+#include "vector.inc"
 
   // To support multi platforms, those ctors are trivially implemented
   F_CPU_GPU Vector() {

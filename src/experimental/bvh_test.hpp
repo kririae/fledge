@@ -1,6 +1,7 @@
 #ifndef __EXPERIMENTAL_BVH_TEST_HPP__
 #define __EXPERIMENTAL_BVH_TEST_HPP__
 
+#include "experimental/radix_bvh.hpp"
 #define FMT_HEADER_ONLY  // use header-only fmt
 #include <fmt/chrono.h>
 #include <fmt/color.h>
@@ -40,7 +41,7 @@ private:
   std::string            m_desc;
 };
 
-enum class EBVHType { EBVHBasic = 0, EBVHEmbree };
+enum class EBVHType { EBVHBasic = 0, EBVHEmbree, EBVHRadix };
 
 class BVHTester {
 public:
@@ -78,12 +79,15 @@ public:
 
   virtual bool build() {
     m_bvh_ref = m_resource.alloc<RefBVHBuilder>(m_imesh, m_mem_resource);
-    switch (int(m_type)) {
-      case int(EBVHType::EBVHBasic):
+    switch (m_type) {
+      case EBVHType::EBVHBasic:
         m_bvh_test = m_resource.alloc<BasicBVHBuilder>(m_imesh, m_mem_resource);
         break;
-      case int(EBVHType::EBVHEmbree):
+      case EBVHType::EBVHEmbree:
         m_bvh_test = m_resource.alloc<RefBVHBuilder>(m_imesh, m_mem_resource);
+        break;
+      case EBVHType::EBVHRadix:
+        m_bvh_test = m_resource.alloc<RadixBVHBuilder>(m_imesh, m_mem_resource);
         break;
       default:
         TODO();
@@ -100,7 +104,7 @@ public:
     return true;
   }
 
-  virtual bool correctness1(int N = 500000) {
+  virtual bool correctness1(int N = 10) {
     Event     e_c("BVH test time");
     RandomCPU rng{};
     for (int i = 0; i < N; ++i) {

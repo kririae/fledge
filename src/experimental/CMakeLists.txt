@@ -4,7 +4,7 @@
 #   GIT_TAG v5.5
 # )
 
-add_library(fledge_experimental base_bvh.cpp)
+add_library(fledge_experimental base_bvh.cpp radix_bvh.cpp)
 set_property(TARGET fledge_experimental PROPERTY CXX_STANDARD 20)
 target_include_directories(fledge_experimental PUBLIC ${CMAKE_SOURCE_DIR}/src/)
 target_link_libraries(fledge_experimental PRIVATE embree)

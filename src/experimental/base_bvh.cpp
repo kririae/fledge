@@ -16,7 +16,8 @@ namespace experimental {
 void BasicBVHBuilder::build() {
   int       n_triangles = m_mesh->nInd / 3;
   Triangle *triangles =
-      (Triangle *)m_resource.allocate(sizeof(Triangle) * n_triangles);
+      std::pmr::polymorphic_allocator<Triangle>{&m_resource}.allocate(
+          n_triangles);
   for (int i = 0; i < n_triangles; ++i) {
     triangles[i].m_mesh = m_mesh;
     triangles[i].m_v    = m_mesh->ind + i * 3;
@@ -59,36 +60,36 @@ BasicBVHBuilder::BasicBVHNode *BasicBVHBuilder::recursiveBuilder(
     case EBVHPartitionMethod::ENone: {
       mid_triangle = triangles + n_triangles / 2;
       // clang-format off
-			// TODO: add execution policy
-			std::nth_element(triangles, mid_triangle, triangles + n_triangles,
-			[dim](const Triangle &a, const Triangle &b) -> bool {
-				switch (dim) {
-					case 0:
-						return a.centerX3() < b.centerX3();
-					case 1:
-						return a.centerY3() < b.centerY3();
-					case 2:
-						return a.centerZ3() < b.centerZ3();
-					default:
-						return false;
-				};
-			}); // std::nth_element
+      // TODO: add execution policy
+      std::nth_element(triangles, mid_triangle, triangles + n_triangles,
+      [dim](const Triangle &a, const Triangle &b) -> bool {
+        switch (dim) {
+          case 0:
+            return a.centerX3() < b.centerX3();
+          case 1:
+            return a.centerY3() < b.centerY3();
+          case 2:
+            return a.centerZ3() < b.centerZ3();
+          default:
+            return false;
+        };
+      }); // std::nth_element
 
-			Float mid = mid_triangle->center3()[dim];
-			// TODO: add execution policy
-			mid_triangle = std::partition(triangles, triangles + n_triangles,
-			[mid, dim](const Triangle &a) -> bool {
-				switch (dim) {
-					case 0:
-						return a.centerX3() < mid;
-					case 1:
-						return a.centerY3() < mid;
-					case 2:
-						return a.centerZ3() < mid;
-					default:
-						return false;
-				};
-			}); // std::partition
+      Float mid = mid_triangle->center3()[dim];
+      // TODO: add execution policy
+      mid_triangle = std::partition(triangles, triangles + n_triangles,
+      [mid, dim](const Triangle &a) -> bool {
+        switch (dim) {
+          case 0:
+            return a.centerX3() < mid;
+          case 1:
+            return a.centerY3() < mid;
+          case 2:
+            return a.centerZ3() < mid;
+          default:
+            return false;
+        };
+      }); // std::partition
       // clang-format on
       break;
     }
@@ -293,8 +294,10 @@ bool RefBVHBuilder::intersect(BVHRayHit &rayhit) {
 
   if (r_rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID) {
     rayhit.tfar   = r_rayhit.ray.tfar;
-    rayhit.hit_ng = rayhit.hit_ns = StableNormalize(
-        Vector3f{r_rayhit.hit.Ng_x, r_rayhit.hit.Ng_y, r_rayhit.hit.Ng_z});
+    rayhit.hit_ng = rayhit.hit_ns =
+        StableNormalize(/* use StableNormalize to acquire correct result*/
+                        Vector3f{r_rayhit.hit.Ng_x, r_rayhit.hit.Ng_y,
+                                 r_rayhit.hit.Ng_z});
     rayhit.hit = true;
     return true;
   } else {
